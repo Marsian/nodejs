@@ -1,23 +1,31 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>Welcome to OpenShift</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="author" content="Yanxi">
+    <link rel="shortcut icon" href="favicon.ico">
+    <title>Mars</title>
 
-<style>
+    <script src="Resource/Script/angular.min.js"></script>
+    <script src="js-src/indexController.js"></script>
 
-    /*!
-     * Bootstrap v3.0.0
-     *
-     * Licensed under the Apache License v2.0
-     * http://www.apache.org/licenses/LICENSE-2.0
-     *
-     */
-</style>
+    <style src="Rescource/Style/index.css"></style>
+    <style>
+        /*!
+         * Bootstrap v3.0.0
+         *
+         * Licensed under the Apache License v2.0
+         * http://www.apache.org/licenses/LICENSE-2.0
+         *
+         */
+    </style>
 
 </head>
 <body>
-    <h1>Welcome to your Node.js application on OpenShift</h1>
+    <div ng-app="app" ng-controller="indexController">
+        <h1>Welcome to your Node.js application on OpenShift</h1>
+        <h2 ng-model="greeting">{{greeting}} </h2> 
+    </div>
 </body>
 </html>

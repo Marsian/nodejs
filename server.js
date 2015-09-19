@@ -7,7 +7,7 @@ var fs      = require('fs');
 /**
  *  Define the sample application.
  */
-var SampleApp = function() {
+var MainApp = function() {
 
     //  Scope.
     var self = this;
@@ -113,12 +113,16 @@ var SampleApp = function() {
      */
     self.initializeServer = function() {
         self.createRoutes();
-        self.app = express.createServer();
+        self.app = express();
 
         //  Add handlers for the app (from the routes).
         for (var r in self.routes) {
             self.app.get(r, self.routes[r]);
         }
+
+        self.app.use("/Resource/Script", express.static(__dirname + "/Resource/Script"));
+        self.app.use("/Resource/Style", express.static(__dirname + "/Resource/Style"));
+        self.app.use("/js-src", express.static(__dirname + "/js-src"));
     };
 
 
@@ -146,14 +150,14 @@ var SampleApp = function() {
         });
     };
 
-};   /*  Sample Application.  */
+};   /*  Main Application.  */
 
 
 
 /**
  *  main():  Main code.
  */
-var zapp = new SampleApp();
+var zapp = new MainApp();
 zapp.initialize();
 zapp.start();
 
