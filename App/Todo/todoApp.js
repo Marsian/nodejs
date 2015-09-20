@@ -14,12 +14,16 @@ app.use(methodOverride());
 
 var host = process.env.OPENSHIFT_MONGODB_DB_HOST;
 var port = process.env.OPENSHIFT_MONGODB_DB_PORT;
+var url = "";
 if (typeof host === "undefined") {
     console.warn("No OPENSHIFT_MONGODB_DB_HOST var, using 127.0.0.1:27017");
     host = "127.0.0.1";
     port = "27017";
+    url = 'mongodb://' + host + ':' + port + "/todo";
+} else {
+    url = 'mongodb://admin:b8Phd47qQr1n@' + host + ':' + port + "/todo";
 }
-var url = 'mongodb://' + host + ':' + port + "/todo";
+
 mongoose.connect(url);
 
 // main route =================
