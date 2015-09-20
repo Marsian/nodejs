@@ -21,7 +21,7 @@ if (typeof host === "undefined") {
     port = "27017";
     url = 'mongodb://' + host + ':' + port + "/todo";
 } else {
-    url = 'mongodb://admin:b8Phd47qQr1n@' + host + ':' + port + "/todo";
+    url = 'mongodb://admin:b8Phd47qQr1n@' + host + ':' + port + "/nodejs";
 }
 
 mongoose.connect(url);
