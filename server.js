@@ -2,7 +2,7 @@
 //  Mars Node application
 var express = require('express');
 var fs      = require('fs');
-var todo = require('./js-src/App/todoApp.js');
+var todo = require('./App/Todo/todoApp.js');
 
 
 /**
@@ -121,14 +121,12 @@ var MainApp = function() {
             self.app.get(r, self.routes[r]);
         }
 
-        self.app.use("/Assets/Image", express.static(__dirname + "/Assets/Image"));
-        self.app.use("/Assets/Script", express.static(__dirname + "/Assets/Script"));
-        self.app.use("/Assets/Style", express.static(__dirname + "/Assets/Style"));
+        self.app.use("/Assets", express.static(__dirname + "/Assets"));
         self.app.use("/Template", express.static(__dirname + "/Template"));
         self.app.use("/js-src", express.static(__dirname + "/js-src"));
+        self.app.use("/App", express.static(__dirname + "/App"));
 
         self.app.use(todo);
-
     };
 
 
