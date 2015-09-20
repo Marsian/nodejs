@@ -1,31 +1,60 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="author" content="Yanxi">
-    <link rel="shortcut icon" href="favicon.ico">
     <title>Mars</title>
 
-    <script src="Resource/Script/angular.min.js"></script>
-    <script src="js-src/indexController.js"></script>
 
-    <style src="Rescource/Style/index.css"></style>
+    <link rel="shortcut icon" type="image/x-icon" href="Assets/Image/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="Assets/Style/index.css"></link>
+    <link rel="stylesheet" type="text/css" href="Assets/Script/bootstrap/css/bootstrap.min.css"></link>
+
     <style>
-        /*!
-         * Bootstrap v3.0.0
-         *
-         * Licensed under the Apache License v2.0
-         * http://www.apache.org/licenses/LICENSE-2.0
-         *
-         */
-    </style>
 
+    </style>
 </head>
 <body>
-    <div ng-app="app" ng-controller="indexController">
-        <h1>Welcome to your Node.js application on OpenShift</h1>
-        <h2 ng-model="greeting">{{greeting}} </h2> 
+    <div ng-controller="indexController">
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" >
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">Brand</a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-navbar-collapse" >
+                    <ul class="nav navbar-nav">
+                        <li ng-repeat="tab in indexPageTabs" ng-class="{ active: selectedTabName() == tab.name }" ng-click="selectTab(tab)" >
+                            <a href="#">{{tab.name}}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div home-page ng-show="selectedTabName() == 'Home'" ></div>
     </div>
+
+        <!--Placed at the end of the document so the pages load faster-->
+    <script src="Assets/Script/angular.min.js"></script>
+    <script src="Assets/Script/jquery-2.1.4.min.js"></script>
+    <script src="Assets/Script/bootstrap/js/bootstrap.min.js"></script>
+    <script src="js-src/app.js"></script>
+    <script src="js-src/indexController.js"></script>
+    <script src="js-src/homePageDirective.js"></script>
+
+    <!--Bootstrap angular module at last-->
+    <script>
+        angular.bootstrap( document, ['app'] );
+    </script>
 </body>
 </html>
+

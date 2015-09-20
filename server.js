@@ -1,11 +1,11 @@
 #!/bin/env node
-//  OpenShift sample Node application
+//  Mars Node application
 var express = require('express');
 var fs      = require('fs');
 
 
 /**
- *  Define the sample application.
+ *  Define the main application.
  */
 var MainApp = function() {
 
@@ -61,7 +61,7 @@ var MainApp = function() {
      */
     self.terminator = function(sig){
         if (typeof sig === "string") {
-           console.log('%s: Received %s - terminating sample app ...',
+           console.log('%s: Received %s - terminating node server app ...',
                        Date(Date.now()), sig);
            process.exit(1);
         }
@@ -120,8 +120,10 @@ var MainApp = function() {
             self.app.get(r, self.routes[r]);
         }
 
-        self.app.use("/Resource/Script", express.static(__dirname + "/Resource/Script"));
-        self.app.use("/Resource/Style", express.static(__dirname + "/Resource/Style"));
+        self.app.use("/Assets/Image", express.static(__dirname + "/Assets/Image"));
+        self.app.use("/Assets/Script", express.static(__dirname + "/Assets/Script"));
+        self.app.use("/Assets/Style", express.static(__dirname + "/Assets/Style"));
+        self.app.use("/Template", express.static(__dirname + "/Template"));
         self.app.use("/js-src", express.static(__dirname + "/js-src"));
     };
 
