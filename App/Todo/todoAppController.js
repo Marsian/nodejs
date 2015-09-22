@@ -40,3 +40,26 @@ app.controller('todoAppController', [ '$scope', '$http', function($scope, $http)
     };
 
 }]);
+
+app.controller('loginController', [ '$scope', '$http', function($scope, $http) {
+    $scope.username = "";
+    $scope.password = "";
+    $scope.err = "";
+
+    $scope.login = function() {
+        var logon = { username: $scope.username, 
+                      password: $scope.password };
+        $http.post('/api/login', logon)
+            .success( function(data) {
+                if (data.err) {
+                    $scope.err = data.err;
+                    return;
+                }
+                if (data.redirect)
+                    window.location = data.redirect;
+            })
+            .error( function(data) {
+                $scope.err = data.err;
+            });
+    };
+}]);

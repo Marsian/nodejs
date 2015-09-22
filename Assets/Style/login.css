@@ -1,0 +1,29 @@
+.login-block {
+    margin: auto;
+    width: 270px;
+    padding: 30px 20px 20px 20px;
+}
+
+.login-block .table-container {
+    width: 100%;
+    margin: auto;
+}
+
+.login-block input {
+    margin-left: 16px;
+    display: table-cell;
+}
+
+.login-block .text {
+    display: table-cell;
+    padding-bottom: 16px;
+    white-space: nowrap;
+}
+
+.login-block .row {
+    display: table-row;
+}
+
+.login-block .login-button {
+    margin-top: 8px;
+}

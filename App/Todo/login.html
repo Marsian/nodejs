@@ -9,55 +9,42 @@
 
 
     <link rel="shortcut icon" type="image/x-icon" href="Assets/Image/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="Assets/Style/todo.css"></link>
+    <link rel="stylesheet" type="text/css" href="Assets/Style/login.css"></link>
     <link rel="stylesheet" type="text/css" href="Assets/Script/bootstrap/css/bootstrap.min.css"></link>
 
     <style>
 
     </style>
 </head>
-<body ng-controller="todoAppController" >
+<body ng-controller="loginController" >
     <!-- Header bar -->
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
                 <a class="navbar-brand" href="/">Back</a>
-                <a class="navbar" href="/logout">Logout</a>
             </div>
         </div>
     </nav>
 
     <div class="container" >
-        <!-- Header and Todo count -->
-        <div class="jumbotron text-center">
-            <h1>I'm a Todo List <span class="label label-info">{{ todos.length }}</span></h1>
-        </div>
-
-        <!-- List -->
-        <div id="todo-list" class="row">
-            <div class="col-sm-4 col-sm-offset-4">
-
-                <div class="checkbox" ng-repeat="todo in todos">
-                    <label>
-                        <input type="checkbox" ng-click="deleteTodo(todo._id)"> {{ todo.text }}
-                    </label>
-                </div>
-
+        <div class="panel panel-default login-block">
+            <div ng-show="err" class="alert alert-danger fade in" >
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                {{err}}
             </div>
-        </div>
-
-        <!-- Form to create todos -->
-        <div id="todo-form" class="row">
-            <div class="col-sm-8 col-sm-offset-2 text-center">
-                <form>
-                    <div class="form-group">
-
-                        <input type="text" class="form-control input-lg text-center" placeholder="Put whatever you wish to finish" ng-model="formData.text">
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-lg" ng-click="createTodo()">Add</button>
-                </form>
+            <div class="table-container">
+                <div class="row">
+                    <div class="text">Username</div>
+                    <input type="text" name="username" ng-model="username">
+                </div>
+                <div class="row">
+                    <div class="text">Password</div>
+                    <input type="password" name="password" ng-model="password">
+                </div>
+            </div>
+            <div class="login-button" >
+                <div class="btn btn-primary" ng-click="login()">Login</div>
             </div>
         </div>
     </div>
@@ -74,4 +61,4 @@
     </script>
 </body>
 </html>
-
+ 
