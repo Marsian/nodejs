@@ -144,7 +144,8 @@ app.get('/api/todos', function(req, res) {
         if (err)
             res.send(err)
 
-        res.json(todos); // return all todos in JSON format
+        var data = { todos: todos, user: req.session.user.name };
+        res.json(data); // return all todos in JSON format
     });
 });
 

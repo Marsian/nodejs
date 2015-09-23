@@ -1,29 +1,33 @@
-.login-block {
-    margin: auto;
-    width: 270px;
-    padding: 30px 20px 20px 20px;
+.login-container {
+    margin-left: 50%; 
+    margin-top: 25px; 
+    position:absolute;
 }
 
-.login-block .table-container {
-    width: 100%;
-    margin: auto;
+.login-block {
+    position: absolute;    
+    transition: all 1s;    
+    width: 450px;    
+    left: -225px;
+    padding: 30px 50px 20px 50px;
+}
+
+@media (max-width: 700px) {
+    .login-block {
+        width: 350px;    
+        left: -175px;
+    }
 }
 
 .login-block input {
-    margin-left: 16px;
-    display: table-cell;
+    width: 100%;
 }
 
 .login-block .text {
-    display: table-cell;
-    padding-bottom: 16px;
+    padding-top: 8px;
     white-space: nowrap;
 }
 
-.login-block .row {
-    display: table-row;
-}
-
 .login-block .login-button {
-    margin-top: 8px;
+    margin-top: 24px;
 }

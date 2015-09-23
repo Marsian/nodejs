@@ -7,7 +7,8 @@ app.controller('todoAppController', [ '$scope', '$http', function($scope, $http)
     // when landing on the page, get all todos and show them
     $http.get('/api/todos')
         .success(function(data) {
-            $scope.todos = data;
+            $scope.todos = data.todos;
+            $scope.user = data.user;
             console.log(data);
         })
         .error(function(data) {
