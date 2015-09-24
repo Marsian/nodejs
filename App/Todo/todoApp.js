@@ -109,7 +109,8 @@ app.get('/login', function(req, res){
 
 // define mongoose model =================
 var Todo = mongoose.model('Todo', {
-    text : String
+    text : String,
+    user: String
 });
 
 // api ===============
@@ -136,32 +137,39 @@ app.post('/api/login', function(req, res){
 
 
 app.get('/api/todos', function(req, res) {
-
+    var user = req.session.user.name; 
     // use mongoose to get all todos in the database
-    Todo.find(function(err, todos) {
+    Todo.find( { user: user }, function(err, todos) {
 
         // if there is an error retrieving, send the error. nothing after res.send(err) will execute
         if (err)
             res.send(err)
 
-        var data = { todos: todos, user: req.session.user.name };
+        var userList = [];
+        for ( var user in users ) {
+            userList.push( { user: user, name: users[user].name } );
+        }
+
+        var data = { todos: todos, 
+                     user: req.session.user.name, 
+                     userList: userList };
         res.json(data); // return all todos in JSON format
     });
 });
 
 // create todo and send back all todos after creation
 app.post('/api/todos', function(req, res) {
-    console.log(req.session.user);
+    var user = req.session.user.name; 
     // create a todo, information comes from AJAX request from Angular
     Todo.create({
         text : req.body.text,
-        done : false
+        user: user 
     }, function(err, todo) {
         if (err)
             res.send(err);
 
         // get and return all the todos after you create another
-        Todo.find(function(err, todos) {
+        Todo.find( { user: user }, function(err, todos) {
             if (err)
                 res.send(err)
             res.json(todos);
@@ -169,6 +177,24 @@ app.post('/api/todos', function(req, res) {
     });
 
 });
+
+// update todo and send back the todo after creation
+app.post('/api/updateTodo', function(req, res) {
+    // update a todo, information comes from AJAX request from Angular
+    Todo.update({ _id: req.body.id }, { text: req.body.text }, {}, function(err, todo) {
+        if (err)
+            res.send(err);
+
+        // get and return all the todos after you create another
+        Todo.find( { _id: req.body.id }, function(err, todo) {
+            if (err)
+                res.send(err)
+            res.json(todo);
+        });
+    });
+
+});
+
 
 // delete a todo
 app.delete('/api/todos/:todo_id', function(req, res) {
@@ -187,4 +213,17 @@ app.delete('/api/todos/:todo_id', function(req, res) {
     });
 });
 
+// update todos by selected user
+app.post('/api/updateTodoList', function(req, res) {
+    // get and return all the todos for the selected user 
+    var query = {};
+    if (req.body.name) 
+        query = { user: req.body.name };
 
+    console.log(query);
+    Todo.find( query, function(err, todo) {
+        if (err)
+            res.send(err)
+        res.json(todo);
+    });
+});
