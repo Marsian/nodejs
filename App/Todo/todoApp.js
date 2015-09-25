@@ -110,7 +110,11 @@ app.get('/login', function(req, res){
 // define mongoose model =================
 var Todo = mongoose.model('Todo', {
     text : String,
-    user: String
+    user: String,
+    date : { type: Date, default: Date.now },
+    comments: [ { text: String, 
+                  user: String, 
+                  date: { type: Date, default: Date.now } } ]
 });
 
 // api ===============
@@ -180,8 +184,9 @@ app.post('/api/todos', function(req, res) {
 
 // update todo and send back the todo after creation
 app.post('/api/updateTodo', function(req, res) {
+    var user = req.session.user.name; 
     // update a todo, information comes from AJAX request from Angular
-    Todo.update({ _id: req.body.id }, { text: req.body.text }, {}, function(err, todo) {
+    Todo.update({ _id: req.body.id, user: user }, { text: req.body.text }, {}, function(err, todo) {
         if (err)
             res.send(err);
 
@@ -197,15 +202,17 @@ app.post('/api/updateTodo', function(req, res) {
 
 
 // delete a todo
-app.delete('/api/todos/:todo_id', function(req, res) {
+app.post('/api/deleteTodo', function(req, res) {
+    var user = req.session.user.name; 
     Todo.remove({
-        _id : req.params.todo_id
+        _id : req.body.id,
+        user: user
     }, function(err, todo) {
         if (err)
             res.send(err);
 
         // get and return all the todos after you create another
-        Todo.find(function(err, todos) {
+        Todo.find( { user: user}, function(err, todos) {
             if (err)
                 res.send(err)
             res.json(todos);
@@ -220,10 +227,27 @@ app.post('/api/updateTodoList', function(req, res) {
     if (req.body.name) 
         query = { user: req.body.name };
 
-    console.log(query);
     Todo.find( query, function(err, todo) {
         if (err)
             res.send(err)
         res.json(todo);
     });
+});
+
+// post a comment to the todo
+app.post('/api/postComment', function(req, res) {
+    var user = req.session.user.name;
+    // find the todo and push a comment to it
+    Todo.update({ _id: req.body.id }, { $push: { comments: { user: user, text: req.body.text } } }, {}, function(err, todo) {
+        if (err)
+            res.send(err);
+
+        // get and return all the todos after you create another
+        Todo.find( { _id: req.body.id }, function(err, todo) {
+            if (err)
+                res.send(err)
+            res.json(todo);
+        });
+    });
+
 });

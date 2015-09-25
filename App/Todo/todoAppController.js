@@ -35,8 +35,9 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', function($sc
 
     // delete a todo after checking it
     $scope.deleteTodo = function(id) {
-        $http.delete('/api/todos/' + id)
+        $http.post('/api/deleteTodo/', { id: id } )
             .success(function(data) {
+                $scope.displayUser = $scope.user;
                 $scope.todos = data;
                 console.log(data);
             })
@@ -77,6 +78,36 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', function($sc
             if (todo._id == id) 
                 todo.edit = false;
         });
+    };
+
+    $scope.toggleSelect = function(id) {
+        angular.forEach($scope.todos, function (todo) {
+            if (todo._id == id) {
+                if (todo.selected) 
+                    todo.selected = false;
+                else
+                    todo.selected = true;
+            }
+        });
+    };
+
+    $scope.postComment = function(id, newComment) {
+        var request = { id: id, text: newComment };
+        $http.post('api/postComment', request)
+            .success( function(data) {
+                if (data.length > 0) {
+                    angular.forEach($scope.todos, function (todo) {
+                        if (todo._id == id) {
+                            todo.comments = data[0].comments;
+                            todo.newComment = "";
+                        }
+                    });
+                }
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+
     };
 
     $scope.$watch('displayUser', function(user) {

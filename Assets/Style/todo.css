@@ -7,9 +7,30 @@
 .list-group-item {
     padding-right: 100px !important;
 }
+.list-group-item:hover {
+    background-color: rgba(229, 243, 247, 0.5);
+}
+.todo-selected {
+    background-color:#e2f3f7 !important;
+}
 
-.todo-text {
+.todo-content {
     line-height: 26px;
+    cursor: pointer;
+}
+.todo-text {
+    font-size: 12pt;
+}
+.todo-date {
+    padding: 4px;
+    font-size: 6pt;
+    font-weight: 400;
+    color: lightgray;
+}
+.button-post {
+    position: absolute;
+    bottom: 10px;
+    right: 8px;
 }
 
 @media (min-width: 768px) {
@@ -24,4 +45,23 @@
     display: block;
     margin-right: 8px;
     margin-left: 8px;
+}
+
+.todo-comment {
+    padding-left: 16px;
+    padding-bottom: 8px;
+    border-top: 1px solid #e7e7e7;
+}
+.comment-user {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    font-size: 12pt;
+    font-weight: 500;
+}
+.comment-text {
+    font-size: 11pt;
+}
+.comment-date {
+    font-size: 6pt;
+    color: lightgray;
 }
