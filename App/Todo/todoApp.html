@@ -63,7 +63,7 @@
                     <div ng-show="!todo.edit">
                         <div class="todo-content" style="width: 100%;" ng-click="toggleSelect(todo._id)">
                             <div class="todo-text">{{ todo.text }}</div>
-                            <div ng-show="todo.date" class="todo-date">{{ todo.date }}</div>
+                            <div ng-show="todo.date" class="todo-date">{{ getDate(todo.date) }}</div>
                         </div>
                         <span ng-show="todo.user == user && !todo.selected" class="pull-right button-group">
                             <button class="btn btn-default" ng-click="edit(todo._id)">
@@ -89,7 +89,7 @@
                         <div ng-repeat="comment in todo.comments" class="todo-comment">
                             <div class="comment-user">{{comment.user}}</div>
                             <div class="comment-text">{{comment.text}}</div>
-                            <div class="comment-date">{{comment.date}}</div>
+                            <div class="comment-date">{{getDate(comment.date)}}</div>
                         </div>
                         <input type="text" ng-model="todo.newComment" class="form-control" placeholder="New comment" style="width: 100%;">
                         <button class="btn btn-primary button-post" ng-click="postComment(todo._id, todo.newComment)">
@@ -109,7 +109,7 @@
                         <input type="text" class="form-control input-lg text-center" placeholder="Put whatever you wish to finish" ng-model="formData.text">
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-lg" ng-click="createTodo()">Add</button>
+                    <button type="submit" class="btn btn-primary btn-lg button-add" ng-click="createTodo()">Add</button>
                 </form>
             </div>
         </div>

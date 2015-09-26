@@ -1,3 +1,8 @@
+.label {
+    padding: 0px 20px 0px !important;
+    font-size: 100% !important;
+}
+
 .button-group {
     position: absolute;
     right: 8px;
@@ -19,11 +24,10 @@
     cursor: pointer;
 }
 .todo-text {
-    font-size: 12pt;
+    font-size: 14pt;
 }
 .todo-date {
-    padding: 4px;
-    font-size: 6pt;
+    font-size: 10pt;
     font-weight: 400;
     color: lightgray;
 }
@@ -62,6 +66,10 @@
     font-size: 11pt;
 }
 .comment-date {
-    font-size: 6pt;
+    font-size: 10pt;
     color: lightgray;
+}
+
+.button-add {
+    margin-bottom: 20px !important;
 }
