@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');    // pull information from HTML POST (
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
 var session = require('express-session');
 var hash = require('../../Modules/pass').hash;
+var hashUser = require('../../Modules/pass').hashUser;
 
 var app = module.exports = express();
 
@@ -31,52 +32,76 @@ if (typeof host === "undefined") {
     url = 'mongodb://admin:b8Phd47qQr1n@' + host + ':' + port + "/nodejs";
 }
 
-mongoose.connect(url);
-
-// dummy database
-
-var users = {
-  boy: { name: 'boy', pwd: 'a' },
-  girl: { name: 'girl', pwd: 'b' }
-};
-
 // page cache
 var cache = { 
     'index.html': fs.readFileSync('App/Todo/todoApp.html'),
     'login.html': fs.readFileSync('App/Todo/login.html')
 };
 
-// when you create a user, generate a salt
-// and hash the password 
-hash(users.boy.pwd, function(err, salt, hash){
-    if (err) throw err;
-    // store the salt & hash in the "db"
-    users.boy.salt = salt;
-    users.boy.hash = hash;
-});
-hash(users.girl.pwd, function(err, salt, hash){
-    if (err) throw err;
-    // store the salt & hash in the "db"
-    users.girl.salt = salt;
-    users.girl.hash = hash;
+mongoose.connect(url);
+
+// dummy database
+
+var initialUserList = [ 
+  { name: 'boy', pwd: 'a' },
+  { name: 'girl', pwd: 'b' },
+  { name: 'admin', pwd: 'admin' }
+];
+
+// Push users to the database
+// define user list model
+var User = mongoose.model('user', {
+    name : String,
+    salt: String,
+    hash : String 
 });
 
+// Remove existing user list and create a new one
+User.remove({}, function(err) { 
+    if (err) 
+        throw err;
+
+    for (var index in initialUserList) {
+        var user = initialUserList[index];
+        hashUser(user.name, user.pwd, function(err, name, salt, hash){
+            if (err) 
+                throw err;
+            // create a user in the db
+            User.create({
+                name: name,
+                salt: salt,
+                hash: hash
+            }, function(err, todo) {
+                if (err)
+                    res.send(err);
+            });
+        });
+    }
+});
 
 // Authenticate using our plain-object database of doom!
 
 function authenticate(name, pass, fn) {
-  if (!module.parent) console.log('authenticating %s:%s', name, pass);
-  var user = users[name];
-  // query the db for the given username
-  if (!user) return fn(new Error('cannot find user'));
-  // apply the same algorithm to the POSTed password, applying
-  // the hash against the pass / salt, if there is a match we
-  // found the user
-  hash(pass, user.salt, function(err, hash){
-    if (err) return fn(err);
-    if (hash == user.hash) return fn(null, user);
-    fn(new Error('invalid password'));
-  });
+    if (!module.parent) console.log('authenticating %s:%s', name, pass);
+
+    // query the db for the given username
+    User.find({ name: name }, function(err, user) {
+        if (err) 
+            throw err;
+        if (user.length == 0) {
+            fn( { err: 'Cannot find user' } );
+            return;
+        }
+        
+        // apply the same algorithm to the POSTed password, applying
+        // the hash against the pass / salt, if there is a match we
+        user = user[0];
+        hash(pass, user.salt, function(err, hash){
+            if (err) return fn(err);
+            if (hash == user.hash) return fn(null, user);
+            fn( {err: 'Invalid password' } );
+        });
+    });
 }
 
 function restrict(req, res, next) {
@@ -107,7 +132,7 @@ app.get('/login', function(req, res){
     res.send(cache['login.html']);
 });
 
-// define mongoose model =================
+// define todo list model =================
 var Todo = mongoose.model('Todo', {
     text : String,
     user: String,
@@ -132,8 +157,10 @@ app.post('/api/login', function(req, res){
             var msg = { redirect: "/Todo"};
             res.json(msg);
         });    
+    } else if (err) {
+        res.json(err);
     } else {
-        var errorMsg = { err: 'Invalid username or password.'};
+        var errorMsg = { err: 'Unknown error'};
         res.json(errorMsg);
     }
   });
@@ -143,21 +170,26 @@ app.post('/api/login', function(req, res){
 app.get('/api/todos', function(req, res) {
     var user = req.session.user.name; 
     // use mongoose to get all todos in the database
-    Todo.find( { user: user }, function(err, todos) {
-
-        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+    User.find( {}, function(err, users) {
         if (err)
-            res.send(err)
+            res.send(err);
 
         var userList = [];
-        for ( var user in users ) {
-            userList.push( { user: user, name: users[user].name } );
+        for (var index in users ) {
+            var name = users[index].name;
+            if (name != 'admin')
+                userList.push( { user: users[index].name, name: users[index].name } );
         }
 
-        var data = { todos: todos, 
-                     user: req.session.user.name, 
-                     userList: userList };
-        res.json(data); // return all todos in JSON format
+        Todo.find( {}, function(err, todos) {
+            if (err)
+                res.send(err);
+
+            var data = { todos: todos,
+                         user: req.session.user.name,
+                         userList: userList };
+            res.json(data);
+        });
     });
 });
 
