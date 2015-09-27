@@ -1,0 +1,19 @@
+<div class='ng-modal' ng-show='show'>
+    <div class='ng-modal-overlay' ng-click='hideModal()'></div>
+    <div class='ng-modal-dialog' ng-style='dialogStyle'>
+        <div class="ng-modal-dialog-header">
+            <div class="ng-modal-dialog-header-text">Upload</div> 
+            <div class='ng-modal-close' ng-click='hideModal()'>
+                <span class="glyphicon glyphicon-remove" ></span>
+            </div>
+        </div>
+        <div class='ng-modal-dialog-content upload-content'>
+            Hello World!
+        </div>
+
+        <div class="ng-modal-dialog-footer">
+            <button class="btn btn-primary" ng-click="ok()">OK</button>
+            <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+        </div>
+    </div>
+</div>

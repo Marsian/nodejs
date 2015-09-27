@@ -2,7 +2,11 @@
 //  Mars Node application
 var express = require('express');
 var fs      = require('fs');
+var mongoose = require('mongoose');
+var hashUser = require('./Modules/pass').hashUser;
 var todo = require('./App/Todo/todoApp.js');
+var album = require('./App/Album/albumApp.js');
+var User = require('./Modules/userModel');
 
 
 /**
@@ -107,6 +111,54 @@ var MainApp = function() {
         };
     };
 
+    /**
+     * Connect to mongoDB and initialize
+     */
+    self.initializeDatabase = function() {
+        self.dbHost = process.env.OPENSHIFT_MONGODB_DB_HOST;
+        self.dbPort = process.env.OPENSHIFT_MONGODB_DB_PORT;
+        self.dbUrl = "";
+        if (typeof self.dbHost === "undefined") {
+            console.warn("No OPENSHIFT_MONGODB_DB_HOST var, using 127.0.0.1:27017");
+            self.dbHost = "127.0.0.1";
+            self.dbPort = "27017";
+            self.dbUrl = 'mongodb://' + self.dbHost + ':' + self.dbPort + "/nodejs";
+        } else {
+            self.dbUrl = 'mongodb://admin:b8Phd47qQr1n@' + self.dbHost + ':' + self.dbPort + "/nodejs";
+        }
+
+        mongoose.connect(self.dbUrl);
+
+        var initialUserList = [ 
+              { name: 'boy', pwd: 'a' },
+              { name: 'girl', pwd: 'b' },
+              { name: 'admin', pwd: 'admin' }
+            ];
+
+        // Remove existing user list and create a new one
+        User.remove({}, function(err) { 
+            if (err) 
+                throw err;
+
+            for (var index in initialUserList) {
+                var user = initialUserList[index];
+                hashUser(user.name, user.pwd, function(err, name, salt, hash){
+                    if (err) 
+                        throw err;
+                    // create a user in the db
+                    User.create({
+                        name: name,
+                        salt: salt,
+                        hash: hash
+                    }, function(err, todo) {
+                        if (err)
+                            res.send(err);
+                    });
+                });
+            }
+        });
+    }
+
 
     /**
      *  Initialize the server (express) and create the routes and register
@@ -121,12 +173,18 @@ var MainApp = function() {
             self.app.get(r, self.routes[r]);
         }
 
+        // Connect to mongoDB
+        self.initializeDatabase();
+
+        // Static files
         self.app.use("/Assets", express.static(__dirname + "/Assets"));
         self.app.use("/Template", express.static(__dirname + "/Template"));
         self.app.use("/js-src", express.static(__dirname + "/js-src"));
         self.app.use("/App", express.static(__dirname + "/App"));
 
+        // Applications
         self.app.use(todo);
+        self.app.use(album);
     };
 
 

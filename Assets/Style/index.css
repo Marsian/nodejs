@@ -1,0 +1,71 @@
+.modal-dialog {
+    position: static !important;
+}
+
+.ng-modal-overlay {
+    /* A dark translucent div that covers the whole screen */
+    position:absolute;
+    z-index:9999;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background-color:#000000;
+    opacity: 0.8;
+}
+.ng-modal-dialog {
+    /* A centered div above the overlay with a box shadow. */
+    z-index:10000;
+    position: absolute;
+    width: 90%;
+    max-width: 560px;
+    height: 90%;
+    min-height: 300px;
+
+    /* Center the dialog */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+
+    background-color: #fff;
+    box-shadow: 4px 4px 80px #000;
+}
+.ng-modal-dialog-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+.ng-modal-dialog-header-text {
+    padding-left: 4px;
+    font-size: 18pt;
+    font-weight: 500;
+}
+.ng-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 4px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 150%;
+    color: rgba(0, 0, 0, 0.3);
+}
+.ng-modal-dialog-content {
+    padding: 24px;
+    max-height: calc(100% - 146px);
+    overflow: auto;
+}
+
+.ng-modal-dialog-footer {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    padding: 16px 20px;
+    width: 100%;
+    border-top: 1px solid rgba(0, 0, 0, 0.3);
+}
+.ng-modal-dialog-footer .btn-primary {
+    margin-right: 8px;
+}
+

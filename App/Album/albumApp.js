@@ -22,19 +22,9 @@ app.use(session({
 
 // page cache
 var cache = { 
-    'index.html': fs.readFileSync('App/Todo/todoApp.html'),
-    'login.html': fs.readFileSync('App/Todo/login.html')
+    'index.html': fs.readFileSync('App/Album/albumApp.html'),
+    'login.html': fs.readFileSync('App/Album/login.html')
 };
-
-// define todo list model
-var Todo = mongoose.model('Todo', {
-    text : String,
-    user: String,
-    date : { type: Date, default: Date.now },
-    comments: [ { text: String, 
-                  user: String, 
-                  date: { type: Date, default: Date.now } } ]
-});
 
 // Authenticate using our plain-object database of doom!
 function authenticate(name, pass, fn) {
@@ -70,26 +60,41 @@ function restrict(req, res, next) {
 }
 
 // main route =================
-app.get('/Todo', restrict, function( req, res ) {
+app.get('/Album', function( req, res ) {
     res.setHeader('Content-Type', 'text/html');
     res.send(cache['index.html']);
 });
 
-app.get('/logout', function(req, res){
+app.get('/Album-Admin', restrict, function( req, res ) {
+    res.setHeader('Content-Type', 'text/html');
+    res.send(cache['index.html']);
+});
+
+app.get('/Album-Logout', function(req, res){
   // destroy the user's session to log them out
   // will be re-created next request
     req.session.destroy(function(){
-        res.redirect('/');
+        res.redirect('/Album');
     });
 });
 
-app.get('/login', function(req, res){
+app.get('/Album-Login', function(req, res){
     res.setHeader('Content-Type', 'text/html');
     res.send(cache['login.html']);
 });
 
+// define todo list model =================
+var album = mongoose.model('Album', {
+    name : String,
+    user: String,
+    date : { type: Date, default: Date.now },
+    comments: [ { text: String, 
+                  user: String, 
+                  date: { type: Date, default: Date.now } } ]
+});
+
 // api ===============
-app.post('/api/login', function(req, res){
+app.post('/api/Album-Login', function(req, res){
   authenticate(req.body.username, req.body.password, function(err, user){
     if (user) {
         // Regenerate session when signing in
@@ -100,7 +105,7 @@ app.post('/api/login', function(req, res){
             // or in this case the entire user object
             req.session.user = user;
 
-            var msg = { redirect: "/Todo"};
+            var msg = { redirect: "/Album-Admin"};
             res.json(msg);
         });    
     } else if (err) {
@@ -112,7 +117,7 @@ app.post('/api/login', function(req, res){
   });
 });
 
-
+/*
 app.get('/api/todos', function(req, res) {
     var user = req.session.user.name; 
     // use mongoose to get all todos in the database
@@ -229,3 +234,5 @@ app.post('/api/postComment', function(req, res) {
     });
 
 });
+
+*/
