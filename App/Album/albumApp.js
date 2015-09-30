@@ -4,10 +4,12 @@ var mongoose = require('mongoose');
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
 var session = require('express-session');
+var multer  = require('multer');
 var hash = require('../../Modules/pass').hash;
 var User = require('../../Modules/userModel');
 
 var app = module.exports = express();
+var upload = multer();
 
 // configuration =================
 app.use(bodyParser.urlencoded({'extended':'true'}));            // parse application/x-www-form-urlencoded
@@ -55,7 +57,7 @@ function restrict(req, res, next) {
     next();
   } else {
     req.session.error = 'Access denied!';
-    res.redirect('/login');
+    res.redirect('/Album-Login');
   }
 }
 
@@ -83,11 +85,13 @@ app.get('/Album-Login', function(req, res){
     res.send(cache['login.html']);
 });
 
-// define todo list model =================
-var album = mongoose.model('Album', {
+// define photo list model =================
+var Photo = mongoose.model('Photo', {
     name : String,
     user: String,
+    mimeType: String,
     date : { type: Date, default: Date.now },
+    image: { type: Buffer, contentType: String },
     comments: [ { text: String, 
                   user: String, 
                   date: { type: Date, default: Date.now } } ]
@@ -104,7 +108,7 @@ app.post('/api/Album-Login', function(req, res){
             // in the session store to be retrieved,
             // or in this case the entire user object
             req.session.user = user;
-
+            console.log(req.sessionID);
             var msg = { redirect: "/Album-Admin"};
             res.json(msg);
         });    
@@ -117,122 +121,55 @@ app.post('/api/Album-Login', function(req, res){
   });
 });
 
-/*
-app.get('/api/todos', function(req, res) {
-    var user = req.session.user.name; 
-    // use mongoose to get all todos in the database
-    User.find( {}, function(err, users) {
-        if (err)
-            res.send(err);
+// initial api
+app.get('/api/album', function(req, res) {
+    var data = {};
 
-        var userList = [];
-        for (var index in users ) {
-            var name = users[index].name;
-            if (name != 'admin')
-                userList.push( { user: users[index].name, name: users[index].name } );
-        }
+    data.loggedIn = false; 
+    data.user = "";
 
-        Todo.find( {}, function(err, todos) {
-            if (err)
-                res.send(err);
+    if (req.session.user) { 
+        data.loggedIn = true;
+        data.user = req.session.user.name;
+    }
 
-            var data = { todos: todos,
-                         user: req.session.user.name,
-                         userList: userList };
-            res.json(data);
-        });
-    });
+    res.json(data);
 });
 
-// create todo and send back all todos after creation
-app.post('/api/todos', function(req, res) {
-    var user = req.session.user.name; 
-    // create a todo, information comes from AJAX request from Angular
-    Todo.create({
-        text : req.body.text,
-        user: user 
-    }, function(err, todo) {
-        if (err)
-            res.send(err);
-
-        // get and return all the todos after you create another
-        Todo.find( { user: user }, function(err, todos) {
+// add a photo
+app.post('/api/photo', upload.single('file'), function (req, res, next) {
+    // req.file is the `avatar` file
+    // req.body will hold the text fields, if there were any
+    console.log(req.file);
+    console.log(req.body);
+    Photo.create({
+            name: req.file.originalname,
+            user: req.session.user.name,
+            mimeType: req.file.mimetype,
+            date: req.body.lastModified,
+            image: req.file.buffer
+        }, function(err, photo) {
             if (err)
-                res.send(err)
-            res.json(todos);
-        });
-    });
+                res.status(500).send(err);
 
+            res.json( { id: photo._id } );
+        });
 });
 
-// update todo and send back the todo after creation
-app.post('/api/updateTodo', function(req, res) {
-    var user = req.session.user.name; 
-    // update a todo, information comes from AJAX request from Angular
-    Todo.update({ _id: req.body.id, user: user }, { text: req.body.text }, {}, function(err, todo) {
-        if (err)
-            res.send(err);
+// delete a photo
+app.post('/api/deletePhoto', function(req, res) {
+    if (!req.session.user) {
+        res.status(500).send("Not logged in!");
+    }
 
-        // get and return all the todos after you create another
-        Todo.find( { _id: req.body.id }, function(err, todo) {
-            if (err)
-                res.send(err)
-            res.json(todo);
-        });
-    });
-
-});
-
-
-// delete a todo
-app.post('/api/deleteTodo', function(req, res) {
-    var user = req.session.user.name; 
-    Todo.remove({
+    Photo.remove({
         _id : req.body.id,
-        user: user
     }, function(err, todo) {
         if (err)
-            res.send(err);
+            res.status(500).send(err);
 
-        // get and return all the todos after you create another
-        Todo.find( { user: user}, function(err, todos) {
-            if (err)
-                res.send(err)
-            res.json(todos);
-        });
+        res.send('Success');
     });
 });
 
-// update todos by selected user
-app.post('/api/updateTodoList', function(req, res) {
-    // get and return all the todos for the selected user 
-    var query = {};
-    if (req.body.name) 
-        query = { user: req.body.name };
 
-    Todo.find( query, function(err, todo) {
-        if (err)
-            res.send(err)
-        res.json(todo);
-    });
-});
-
-// post a comment to the todo
-app.post('/api/postComment', function(req, res) {
-    var user = req.session.user.name;
-    // find the todo and push a comment to it
-    Todo.update({ _id: req.body.id }, { $push: { comments: { user: user, text: req.body.text } } }, {}, function(err, todo) {
-        if (err)
-            res.send(err);
-
-        // get and return all the todos after you create another
-        Todo.find( { _id: req.body.id }, function(err, todo) {
-            if (err)
-                res.send(err)
-            res.json(todo);
-        });
-    });
-
-});
-
-*/

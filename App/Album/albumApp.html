@@ -33,38 +33,30 @@
             </div>
             <div class="collapse navbar-collapse" ng-model="smallWindow" id="bs-navbar-collapse">
                 <ul class="nav navbar-nav navbar-right"> 
-                    <li><a href="#" ng-click="toggleDialog()">Upload</a></li>
+                    <li ng-if="!loggedIn"><a href="/Album-Admin">Admin</a></li>
+                    <li ng-if="loggedIn"><a href="#" ng-click="toggleUploadDialog()">Upload</a></li>
+                    <li ng-if="loggedIn" class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" >{{user}} <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/Album-Logout">Logout</a></li>
+                        </ul>
+                    </li>
+
                 </ul>
             </div>
         </div>
     </nav>
 
     <div class="container" >
-        <!-- Header and Todo count -->
-        <!--<div class="jumbotron text-center">
-            <h1>Todo List <span class="label label-info">{{ todos.length }}</span></h1>
-        </div>-->
 
-        <!-- Form to create todos -->
-        <!--<div id="todo-form" class="row">
-            <div class="col-sm-8 col-sm-offset-2 text-center">
-                <form>
-                    <div class="form-group">
-
-                        <input type="text" class="form-control input-lg text-center" placeholder="Put whatever you wish to finish" ng-model="formData.text">
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-lg button-add" ng-click="createTodo()">Add</button>
-                </form>
-            </div>
-        </div>-->
     </div>
 
-    <modal-dialog show="showDialog" class="modal-dialog"></modal-dialog>
+    <upload-dialog ng-show="showUploadDialog" class="modal-dialog" ng-controller="uploadDialogController"></upload-dialog>
 
     <!--Placed at the end of the document so the pages load faster-->
     <script src="Assets/Script/angular.min.js"></script>
     <script src="Assets/Script/jquery-2.1.4.min.js"></script>
+    <script src="Assets/Script/angular-file-upload.min.js"></script>
     <script src="Assets/Script/bootstrap/js/bootstrap.min.js"></script>
     <script src="App/Album/albumAppController.js"></script>
 
