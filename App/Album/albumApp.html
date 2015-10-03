@@ -62,7 +62,7 @@
 
     <div class="container" >
         <div ng-repeat="photo in photoData" class="panel panel-default photo-canvas pull-left" >
-            <div ng-preview="{ id: photo._id, height: 300 }" ng-click="toggleDetailDialog(photo)" class="photo-canvas-image"></div>
+            <div ng-preview="{ id: photo._id, height: 200 }" ng-click="toggleDetailDialog(photo)" class="photo-canvas-image"></div>
             <div ng-show="editMode" class="input-checkbox">
                 <label>
                     <span ng-if="photo.toDelete" class="glyphicon glyphicon-check"></span>

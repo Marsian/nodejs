@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
 var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
 var hash = require('../../Modules/pass').hash;
 var User = require('../../Modules/userModel');
 
@@ -17,7 +18,8 @@ app.use(methodOverride());
 app.use(session({
     resave: false, // don't save session if unmodified
     saveUninitialized: false, // don't create session until something stored
-    secret: 'shhhh, very secret'
+    secret: 'shhhh, very secret',
+    store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 
 // page cache

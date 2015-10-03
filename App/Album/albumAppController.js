@@ -292,7 +292,7 @@ app.directive('ngThumb', ['$window', function($window) {
 
             var img = new Image();
             img.onload = onLoadImage;
-            img.src = "/api/getPhotoImage/" + params.id;
+            img.src = "/api/getPhotoPreview/" + params.id;
 
             function onLoadImage() {
                 var width = params.width || this.width / this.height * params.height;
@@ -312,7 +312,7 @@ app.directive('ngThumb', ['$window', function($window) {
         link: function(scope, element, attributes) {
             if (!helper.support) return;
 
-            var params = scope.$eval(attributes.ngPreview);
+            var params = scope.$eval(attributes.ngImage);
 
             var canvas = element.find('canvas');
 

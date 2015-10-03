@@ -4,7 +4,9 @@ var mongoose = require('mongoose');
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
 var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
 var multer  = require('multer');
+var lwip = require('lwip');
 var hash = require('../../Modules/pass').hash;
 var User = require('../../Modules/userModel');
 
@@ -19,7 +21,8 @@ app.use(methodOverride());
 app.use(session({
     resave: false, // don't save session if unmodified
     saveUninitialized: false, // don't create session until something stored
-    secret: 'shhhh, very secret'
+    secret: 'shhhh, very secret',
+    store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 
 // page cache
@@ -92,6 +95,7 @@ var Photo = mongoose.model('Photo', {
     mimeType: String,
     date : { type: Date, default: Date.now },
     image: { type: Buffer, contentType: String },
+    preview: { type: Buffer, contentType: String },
     comments: [ { text: String, 
                   user: String, 
                   date: { type: Date, default: Date.now } } ]
@@ -145,18 +149,45 @@ app.post('/api/photo', upload.single('file'), function (req, res, next) {
     // req.body will hold the text fields, if there were any
     console.log(req.file);
     console.log(req.body);
-    Photo.create({
-            name: req.file.originalname,
-            user: req.session.user.name,
-            mimeType: req.file.mimetype,
-            date: req.body.lastModified,
-            image: req.file.buffer
-        }, function(err, photo) {
-            if (err)
-                res.status(500).send(err);
+    if (req.file) {
+        var extension = req.file.mimetype.replace("image/", "");
+        if (extension == "jepg")
+            extension = "jpg";
+        lwip.open(req.file.buffer, extension, function(err, image){
+            if (err) {
+                res.status(500).send("Empty file!");
+                return;
+            }
 
-            res.json( { id: photo._id } );
+            image.scale(0.1, function(err, image) {
+                if (err) {
+                    res.status(500).send("Empty file!");
+                    return;
+                }
+                image.toBuffer(extension, function(err, image) {
+                    if (err) {
+                        res.status(500).send("Empty file!");
+                        return;
+                    }
+                    Photo.create({
+                        name: req.file.originalname,
+                        user: req.session.user.name,
+                        mimeType: req.file.mimetype,
+                        date: req.body.lastModified,
+                        image: req.file.buffer,
+                        preview: image
+                    }, function(err, photo) {
+                        if (err)
+                            res.status(500).send(err);
+
+                        res.json( { id: photo._id } );
+                    });
+                });
+                
+            });
         });
+    } else
+        res.status(500).send("Empty file!");
 });
 
 // get image of a photo
@@ -176,6 +207,25 @@ app.get('/api/getPhotoImage/:photo_id', function(req, res) {
             res.status(500).send('Photo not found!');
     });
 });
+
+// get preview of a photo
+app.get('/api/getPhotoPreview/:photo_id', function(req, res) {
+    Photo.find({ _id: req.params.photo_id }, function(err, data) {
+        if (err) {
+            res.status(500).send(err);
+            console.log(err);
+            return;
+        }
+
+        if (data && data.length > 0) {
+            var photo = data[0];
+            res.send(photo.preview);
+        }
+        else 
+            res.status(500).send('Photo not found!');
+    });
+});
+
 
 // delete a photo
 app.post('/api/deletePhoto', function(req, res) {
