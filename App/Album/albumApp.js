@@ -108,7 +108,6 @@ app.post('/api/Album-Login', function(req, res){
             // in the session store to be retrieved,
             // or in this case the entire user object
             req.session.user = user;
-            console.log(req.sessionID);
             var msg = { redirect: "/Album-Admin"};
             res.json(msg);
         });    
@@ -127,13 +126,17 @@ app.get('/api/album', function(req, res) {
 
     data.loggedIn = false; 
     data.user = "";
-
-    if (req.session.user) { 
-        data.loggedIn = true;
-        data.user = req.session.user.name;
-    }
-
-    res.json(data);
+    data.photoData = [];
+    Photo.find({}, '_id name user date comments', function(err, ret) {
+        if (err)
+            res.status(500).send(err);
+        data.photoData = ret;
+        if (req.session.user) { 
+            data.loggedIn = true;
+            data.user = req.session.user.name;
+        }
+        res.json(data);
+    });
 });
 
 // add a photo
@@ -156,6 +159,24 @@ app.post('/api/photo', upload.single('file'), function (req, res, next) {
         });
 });
 
+// get image of a photo
+app.get('/api/getPhotoImage/:photo_id', function(req, res) {
+    Photo.find({ _id: req.params.photo_id }, function(err, data) {
+        if (err) {
+            res.status(500).send(err);
+            console.log(err);
+            return;
+        }
+
+        if (data && data.length > 0) {
+            var photo = data[0];
+            res.send(photo.image);
+        }
+        else 
+            res.status(500).send('Photo not found!');
+    });
+});
+
 // delete a photo
 app.post('/api/deletePhoto', function(req, res) {
     if (!req.session.user) {
@@ -164,7 +185,7 @@ app.post('/api/deletePhoto', function(req, res) {
 
     Photo.remove({
         _id : req.body.id,
-    }, function(err, todo) {
+    }, function(err, data) {
         if (err)
             res.status(500).send(err);
 
@@ -172,4 +193,20 @@ app.post('/api/deletePhoto', function(req, res) {
     });
 });
 
+// delete a list of photos
+app.post('/api/deletePhotoByIds', function(req, res) {
+    if (!req.session.user) {
+        res.status(500).send("Not logged in!");
+    }
 
+    Photo.remove({
+        _id : { $in:
+            req.body.ids,
+        }
+    }, function(err, data) {
+        if (err)
+            res.status(500).send(err);
+
+        res.send('Success');
+    });
+});
