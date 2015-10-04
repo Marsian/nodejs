@@ -1,4 +1,4 @@
-# Personal website based on MEAN.
+# Personal website based on MEAN
 
 0. [Overview](#overview)
 0. [Todo](#todo)
