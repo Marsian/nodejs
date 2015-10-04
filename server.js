@@ -8,7 +8,7 @@ var MongoStore = require('connect-mongo')(session);
 var hashUser = require('./Modules/pass').hashUser;
 var todo = require('./App/Todo/todoApp.js');
 var album = require('./App/Album/albumApp.js');
-var login = require('./App/Login/Login.js');
+var login = require('./App/Login/login.js');
 var User = require('./Modules/userModel');
 
 
