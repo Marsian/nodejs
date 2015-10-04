@@ -134,35 +134,6 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
 
 }]);
 
-app.controller('loginController', [ '$scope', '$http', function($scope, $http) {
-    $scope.username = "";
-    $scope.password = "";
-    $scope.err = "";
-
-    $scope.login = function() {
-        var logon = { username: $scope.username, 
-                      password: $scope.password };
-        $http.post('/api/login', logon)
-            .success( function(data) {
-                if (data.err) {
-                    $scope.err = data.err;
-                    return;
-                }
-                if (data.redirect)
-                    window.location = data.redirect;
-            })
-            .error( function(data) {
-                $scope.err = data.err;
-            });
-    };
-
-    $(document).keypress(function(e) {
-        if(e.which === 13) {
-            $("#login-button").first().click();
-        }
-    });
-}]);
-
 app.factory('dateService', [ '$window', function($window) {
 
     var monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",

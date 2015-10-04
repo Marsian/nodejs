@@ -3,12 +3,8 @@ var fs = require('fs');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
-var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);
 var multer  = require('multer');
 var lwip = require('lwip');
-var hash = require('../../Modules/pass').hash;
-var User = require('../../Modules/userModel');
 
 var app = module.exports = express();
 var upload = multer();
@@ -18,49 +14,18 @@ app.use(bodyParser.urlencoded({'extended':'true'}));            // parse applica
 app.use(bodyParser.json());                                     // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 app.use(methodOverride());
-app.use(session({
-    resave: false, // don't save session if unmodified
-    saveUninitialized: false, // don't create session until something stored
-    secret: 'shhhh, very secret',
-    store: new MongoStore({ mongooseConnection: mongoose.connection })
-}));
 
 // page cache
 var cache = { 
     'index.html': fs.readFileSync('App/Album/albumApp.html'),
-    'login.html': fs.readFileSync('App/Album/login.html')
 };
-
-// Authenticate using our plain-object database of doom!
-function authenticate(name, pass, fn) {
-    if (!module.parent) console.log('authenticating %s:%s', name, pass);
-
-    // query the db for the given username
-    User.find({ name: name }, function(err, user) {
-        if (err) 
-            throw err;
-        if (user.length == 0) {
-            fn( { err: 'Cannot find user' } );
-            return;
-        }
-        
-        // apply the same algorithm to the POSTed password, applying
-        // the hash against the pass / salt, if there is a match we
-        user = user[0];
-        hash(pass, user.salt, function(err, hash){
-            if (err) return fn(err);
-            if (hash == user.hash) return fn(null, user);
-            fn( {err: 'Invalid password' } );
-        });
-    });
-}
 
 function restrict(req, res, next) {
   if (req.session.user) {
     next();
   } else {
     req.session.error = 'Access denied!';
-    res.redirect('/Album-Login');
+    res.redirect('/login?app=Album-Admin');
   }
 }
 
@@ -83,11 +48,6 @@ app.get('/Album-Logout', function(req, res){
     });
 });
 
-app.get('/Album-Login', function(req, res){
-    res.setHeader('Content-Type', 'text/html');
-    res.send(cache['login.html']);
-});
-
 // define photo list model =================
 var Photo = mongoose.model('Photo', {
     name : String,
@@ -102,28 +62,6 @@ var Photo = mongoose.model('Photo', {
 var PhotoImage = mongoose.model('PhotoImage', {
     image: { type: Buffer, contentType: String },
     preview: { type: Buffer, contentType: String },
-});
-// api ===============
-app.post('/api/Album-Login', function(req, res){
-  authenticate(req.body.username, req.body.password, function(err, user){
-    if (user) {
-        // Regenerate session when signing in
-        // to prevent fixation
-        req.session.regenerate(function(){
-            // Store the user's primary key
-            // in the session store to be retrieved,
-            // or in this case the entire user object
-            req.session.user = user;
-            var msg = { redirect: "/Album-Admin"};
-            res.json(msg);
-        });    
-    } else if (err) {
-        res.json(err);
-    } else {
-        var errorMsg = { err: 'Unknown error'};
-        res.json(errorMsg);
-    }
-  });
 });
 
 // initial api

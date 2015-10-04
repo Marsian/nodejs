@@ -48,15 +48,15 @@
     <script src="Assets/Script/jquery-2.1.4.min.js"></script>
     <script src="Assets/Script/angular-file-upload.min.js"></script>
     <script src="Assets/Script/bootstrap/js/bootstrap.min.js"></script>
-    <script src="App/Album/albumAppController.js"></script>
+    <script src="App/Login/loginController.js"></script>
 
     <!--Bootstrap angular module at last-->
     <script>
-        var app = angular.module('albumApp');
+        var app = angular.module('loginApp');
         app.factory('contextService', function() {
             return { context: <%context%> }; 
         });
-        angular.bootstrap( document, ['albumApp'] );
+        angular.bootstrap( document, ['loginApp'] );
     </script>
 </body>
 </html>

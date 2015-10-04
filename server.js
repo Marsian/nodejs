@@ -3,9 +3,12 @@
 var express = require('express');
 var fs      = require('fs');
 var mongoose = require('mongoose');
+var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
 var hashUser = require('./Modules/pass').hashUser;
 var todo = require('./App/Todo/todoApp.js');
 var album = require('./App/Album/albumApp.js');
+var login = require('./App/Login/Login.js');
 var User = require('./Modules/userModel');
 
 
@@ -133,30 +136,49 @@ var MainApp = function() {
               { name: 'admin', pwd: 'admin' }
             ];
 
-        // Remove existing user list and create a new one
-        User.remove({}, function(err) { 
-            if (err) 
-                throw err;
-
-            for (var index in initialUserList) {
-                var user = initialUserList[index];
-                hashUser(user.name, user.pwd, function(err, name, salt, hash){
-                    if (err) 
-                        throw err;
-                    // create a user in the db
-                    User.create({
-                        name: name,
-                        salt: salt,
-                        hash: hash
-                    }, function(err, todo) {
-                        if (err)
-                            res.send(err);
+        // Create user if it does not exist
+        var _createUser = function(user) {
+            User.find({ name: user.name }, function(err, ret) {
+                if (err)
+                    throw err;
+                // Add user if it does not exist
+                if (!ret.length) {
+                    hashUser(user.name, user.pwd, function(err, name, salt, hash){
+                        if (err) 
+                            throw err;
+                        // create a user in the db
+                        User.create({
+                            name: name,
+                            salt: salt,
+                            hash: hash
+                        }, function( err, user ) {
+                            if (err)
+                                throw err;
+                        });
                     });
-                });
-            }
-        });
-    }
+                }
+            });
+        };
 
+        for (var index in initialUserList) {
+            _createUser(initialUserList[index]);
+        }
+    };
+
+    /**
+     * Initialize session. Use existing db connection to store the session.
+     */
+     self.initializeSession = function() {
+        self.secret = process.env.OPENSHIFT_SECRET_TOKEN;
+        if (typeof self.secret === "undefined") 
+            self.secret = 'shhhh, very secret';
+        self.app.use(session({
+            resave: false, // don't save session if unmodified
+            saveUninitialized: false, // don't create session until something stored
+            secret: self.secret,
+            store: new MongoStore({ mongooseConnection: mongoose.connection })
+        }));
+     };
 
     /**
      *  Initialize the server (express) and create the routes and register
@@ -174,6 +196,9 @@ var MainApp = function() {
         // Connect to mongoDB
         self.initializeDatabase();
 
+        // Initialize session
+        self.initializeSession();
+
         // Static files
         self.app.use("/Assets", express.static(__dirname + "/Assets"));
         self.app.use("/Template", express.static(__dirname + "/Template"));
@@ -183,6 +208,7 @@ var MainApp = function() {
         // Applications
         self.app.use(todo);
         self.app.use(album);
+        self.app.use(login);
     };
 
 

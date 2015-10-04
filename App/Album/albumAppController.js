@@ -140,35 +140,6 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
 
 }]);
 
-app.controller('loginController', [ '$scope', '$http', function($scope, $http) {
-    $scope.username = "";
-    $scope.password = "";
-    $scope.err = "";
-
-    $scope.login = function() {
-        var logon = { username: $scope.username, 
-                      password: $scope.password };
-        $http.post('/api/Album-Login', logon)
-            .success( function(data) {
-                if (data.err) {
-                    $scope.err = data.err;
-                    return;
-                }
-                if (data.redirect)
-                    window.location = data.redirect;
-            })
-            .error( function(data) {
-                $scope.err = data.err;
-            });
-    };
-
-    $(document).keypress(function(e) {
-        if(e.which === 13) {
-            $("#login-button").first().click();
-        }
-    });
-}]);
-
 //######## Upload Dialog ############
 app.directive('uploadDialog', function() {
     return {

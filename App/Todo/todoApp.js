@@ -3,9 +3,6 @@ var fs = require('fs');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
-var session = require('express-session');
-var MongoStore = require('connect-mongo')(session);
-var hash = require('../../Modules/pass').hash;
 var User = require('../../Modules/userModel');
 
 var app = module.exports = express();
@@ -15,17 +12,10 @@ app.use(bodyParser.urlencoded({'extended':'true'}));            // parse applica
 app.use(bodyParser.json());                                     // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 app.use(methodOverride());
-app.use(session({
-    resave: false, // don't save session if unmodified
-    saveUninitialized: false, // don't create session until something stored
-    secret: 'shhhh, very secret',
-    store: new MongoStore({ mongooseConnection: mongoose.connection })
-}));
 
 // page cache
 var cache = { 
     'index.html': fs.readFileSync('App/Todo/todoApp.html'),
-    'login.html': fs.readFileSync('App/Todo/login.html')
 };
 
 // define todo list model
@@ -38,36 +28,12 @@ var Todo = mongoose.model('Todo', {
                   date: { type: Date, default: Date.now } } ]
 });
 
-// Authenticate using our plain-object database of doom!
-function authenticate(name, pass, fn) {
-    if (!module.parent) console.log('authenticating %s:%s', name, pass);
-
-    // query the db for the given username
-    User.find({ name: name }, function(err, user) {
-        if (err) 
-            throw err;
-        if (user.length == 0) {
-            fn( { err: 'Cannot find user' } );
-            return;
-        }
-        
-        // apply the same algorithm to the POSTed password, applying
-        // the hash against the pass / salt, if there is a match we
-        user = user[0];
-        hash(pass, user.salt, function(err, hash){
-            if (err) return fn(err);
-            if (hash == user.hash) return fn(null, user);
-            fn( {err: 'Invalid password' } );
-        });
-    });
-}
-
 function restrict(req, res, next) {
   if (req.session.user) {
     next();
   } else {
     req.session.error = 'Access denied!';
-    res.redirect('/login');
+    res.redirect('/login?app=Todo');
   }
 }
 
@@ -77,43 +43,13 @@ app.get('/Todo', restrict, function( req, res ) {
     res.send(cache['index.html']);
 });
 
-app.get('/logout', function(req, res){
+app.get('/Todo-Logout', function(req, res){
   // destroy the user's session to log them out
   // will be re-created next request
     req.session.destroy(function(){
         res.redirect('/');
     });
 });
-
-app.get('/login', function(req, res){
-    res.setHeader('Content-Type', 'text/html');
-    res.send(cache['login.html']);
-});
-
-// api ===============
-app.post('/api/login', function(req, res){
-  authenticate(req.body.username, req.body.password, function(err, user){
-    if (user) {
-        // Regenerate session when signing in
-        // to prevent fixation
-        req.session.regenerate(function(){
-            // Store the user's primary key
-            // in the session store to be retrieved,
-            // or in this case the entire user object
-            req.session.user = user;
-
-            var msg = { redirect: "/Todo"};
-            res.json(msg);
-        });    
-    } else if (err) {
-        res.json(err);
-    } else {
-        var errorMsg = { err: 'Unknown error'};
-        res.json(errorMsg);
-    }
-  });
-});
-
 
 app.get('/api/todos', function(req, res) {
     var user = req.session.user.name; 
@@ -179,7 +115,6 @@ app.post('/api/updateTodo', function(req, res) {
     });
 
 });
-
 
 // delete a todo
 app.post('/api/deleteTodo', function(req, res) {
