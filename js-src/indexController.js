@@ -1,16 +1,10 @@
 var app = angular.module('app');
 
 app.controller('indexController', [ '$scope', function($scope) {
-    $scope.greeting = "Hello World";
 
-    $scope.indexPageTabs = [
-        { name: 'Home' },
-        { name: 'About'}
-    ];
-
-    $scope.currentTab = { name: 'Home' };
+    $scope.currentTab = 'Home';
     $scope.selectedTabName = function() {
-        return $scope.currentTab.name;
+        return $scope.currentTab;
     }
 
     $scope.selectTab = function( tab ) {

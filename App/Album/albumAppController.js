@@ -106,13 +106,10 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
             });
     };
 
-    var getMorePromise = null;
-
     $scope.getMorePhotos = function() {
         var begin = $scope.photoData.length + 1;
         var end = begin + 9;
-        //if (getMorePromise)
-        //    $timeout.cancel(getMorePromise);
+
         $http.post('/api/getPhotoData', { begin: begin, end: end })
             .success(function(data) {
                 if (data && data.photoData && data.photoData.length > 0) {
@@ -124,6 +121,8 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
             });
     };
 
+    // after loading all exsiting preview,
+    // check if we want more to fill the window
     $scope.$on("previewLoaded", function() {
         $scope.loadCount ++;
         if ($scope.loadCount == $scope.photoData.length) {
@@ -132,38 +131,14 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
             }
         }
     });
-    /*
-    $scope.$watch('_height', function(newVal, oldVal) {
-        //console.log('New: ' + newVal + ' Old: ' + oldVal);
-        //console.log(window.innerHeight + window.scrollY);
-        //console.log(document.body.offsetHeight);
-        if ( window.innerHeight + window.scrollY > document.body.offsetHeight) {
-            if (getMorePromise)
-                $timeout.cancel(getMorePromise);
-            getMorePromise = $timeout( $scope.getMorePhotos, 1600 );
-        }
-    });
-    */
+
     window.onscroll = function(ev) {
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
             $scope.getMorePhotos();
         }
     };
 
-}]).directive('photoContainer', function() {
-    return {
-        restrict: 'A',
-        scope: {
-            _height: '=photoContainer'
-        },
-        link: function( scope, elem, attrs ) {
-
-            scope.$watch( function() {
-                scope._height = elem[0].scrollHeight;
-            } );
-        }
-    };
-});
+}]);
 
 app.controller('loginController', [ '$scope', '$http', function($scope, $http) {
     $scope.username = "";
