@@ -124,7 +124,8 @@ var MainApp = function() {
             self.dbPort = "27017";
             self.dbUrl = 'mongodb://' + self.dbHost + ':' + self.dbPort + "/nodejs";
         } else {
-            self.dbUrl = 'mongodb://admin:b8Phd47qQr1n@' + self.dbHost + ':' + self.dbPort + "/nodejs";
+            //self.dbUrl = 'mongodb://admin:b8Phd47qQr1n@' + self.dbHost + ':' + self.dbPort + "/nodejs";
+            self.dbUrl = process.env.OPENSHIFT_MONGODB_DB_URL + "nodejs";
         }
 
         mongoose.connect(self.dbUrl);
