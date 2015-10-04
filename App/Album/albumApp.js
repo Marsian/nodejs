@@ -93,14 +93,16 @@ var Photo = mongoose.model('Photo', {
     name : String,
     user: String,
     mimeType: String,
-    date : { type: Date, default: Date.now },
-    image: { type: Buffer, contentType: String },
-    preview: { type: Buffer, contentType: String },
+    date: { type: Date, default: Date.now },
+    posted: { type: Date, default: Date.now },
     comments: [ { text: String, 
                   user: String, 
                   date: { type: Date, default: Date.now } } ]
 });
-
+var PhotoImage = mongoose.model('PhotoImage', {
+    image: { type: Buffer, contentType: String },
+    preview: { type: Buffer, contentType: String },
+});
 // api ===============
 app.post('/api/Album-Login', function(req, res){
   authenticate(req.body.username, req.body.password, function(err, user){
@@ -131,16 +133,45 @@ app.get('/api/album', function(req, res) {
     data.loggedIn = false; 
     data.user = "";
     data.photoData = [];
-    Photo.find({}, '_id name user date comments', function(err, ret) {
+    Photo.find({}, '_id name user date posted', { sort: '-posted' }, function(err, ret) {
         if (err)
             res.status(500).send(err);
-        data.photoData = ret;
+
+        if (ret.length > 0) { 
+            // returnt the first 10 results
+            var end = ret.length > 9 ? 10 : ret.length;
+            data.photoData = ret.slice(0, end);
+        }
         if (req.session.user) { 
             data.loggedIn = true;
             data.user = req.session.user.name;
         }
         res.json(data);
     });
+});
+
+// get photo data in a range (for lazy loading)
+app.post('/api/getPhotoData', function(req, res) {
+   var data = { photoData: [] };
+   var begin = req.body.begin;
+   var end = req.body.end;
+
+   Photo.find({}, '_id name user date posted', { sort: '-posted' }, function(err, ret) {
+        if (err)
+            res.status(500).send(err);
+        
+        // returnt the photo data in the range
+        if (ret.length > 0) { 
+            if (begin > ret.length) {
+                res.send("Reach end");
+                return;
+            }
+            begin --; // index position in the array
+            end = ret.length > end ? end : ret.length;
+            data.photoData = ret.slice(begin, end);
+        }
+        res.json(data);
+   });
 });
 
 // add a photo
@@ -158,7 +189,7 @@ app.post('/api/photo', upload.single('file'), function (req, res, next) {
                 res.status(500).send("Empty file!");
                 return;
             }
-
+            // use one percent of originam image for preview
             image.scale(0.1, function(err, image) {
                 if (err) {
                     res.status(500).send("Empty file!");
@@ -179,8 +210,14 @@ app.post('/api/photo', upload.single('file'), function (req, res, next) {
                     }, function(err, photo) {
                         if (err)
                             res.status(500).send(err);
-
-                        res.json( { id: photo._id } );
+                        
+                        PhotoImage.create( {
+                            _id: photo._id,
+                            image: req.file.buffer,
+                            preview: image
+                        }, function(err, photo) {
+                            res.json( { id: photo._id } );
+                        });
                     });
                 });
                 
@@ -192,7 +229,7 @@ app.post('/api/photo', upload.single('file'), function (req, res, next) {
 
 // get image of a photo
 app.get('/api/getPhotoImage/:photo_id', function(req, res) {
-    Photo.find({ _id: req.params.photo_id }, function(err, data) {
+    PhotoImage.find({ _id: req.params.photo_id }, function(err, data) {
         if (err) {
             res.status(500).send(err);
             console.log(err);
@@ -210,7 +247,7 @@ app.get('/api/getPhotoImage/:photo_id', function(req, res) {
 
 // get preview of a photo
 app.get('/api/getPhotoPreview/:photo_id', function(req, res) {
-    Photo.find({ _id: req.params.photo_id }, function(err, data) {
+    PhotoImage.find({ _id: req.params.photo_id }, function(err, data) {
         if (err) {
             res.status(500).send(err);
             console.log(err);
@@ -238,8 +275,13 @@ app.post('/api/deletePhoto', function(req, res) {
     }, function(err, data) {
         if (err)
             res.status(500).send(err);
-
-        res.send('Success');
+        PhotoImage.remove({
+            _id: req.body.id,
+        }, function(err, data) {
+            if (err)
+                res.status(500).send(err);
+            res.send('Success');
+        });
     });
 });
 
@@ -256,7 +298,14 @@ app.post('/api/deletePhotoByIds', function(req, res) {
     }, function(err, data) {
         if (err)
             res.status(500).send(err);
-
-        res.send('Success');
+        PhotoImage.remove({
+            _id : { $in:
+                req.body.ids,
+            }
+        }, function(err, data) {
+            if (err)
+                res.status(500).send(err);
+            res.send('Success');
+        });
     });
 });

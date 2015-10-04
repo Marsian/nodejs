@@ -1,7 +1,8 @@
 var app = angular.module('albumApp', ['angularFileUpload']);
 
-app.controller('albumAppController', [ '$scope', '$http', '$window', 'dateService', function($scope, $http, $window, dateService) {
+app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout', 'dateService', function($scope, $http, $window, $timeout, dateService) {
     $scope.photos = [];
+    $scope.loadCount = 0;
 
     $scope.deleteNum = 0;
     $scope.deleteIds = [];
@@ -63,7 +64,7 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', 'dateServic
             $scope.photoData = data.photoData;
         })
         .error(function(data) {
-            console.log('Error: ' + data);
+            console.log(data);
         });
 
     $scope.getPhoto = function(photo) {
@@ -105,7 +106,64 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', 'dateServic
             });
     };
 
-}]);
+    var getMorePromise = null;
+
+    $scope.getMorePhotos = function() {
+        var begin = $scope.photoData.length + 1;
+        var end = begin + 9;
+        //if (getMorePromise)
+        //    $timeout.cancel(getMorePromise);
+        $http.post('/api/getPhotoData', { begin: begin, end: end })
+            .success(function(data) {
+                if (data && data.photoData && data.photoData.length > 0) {
+                    $scope.photoData = $scope.photoData.concat( data.photoData );
+                }
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+    };
+
+    $scope.$on("previewLoaded", function() {
+        $scope.loadCount ++;
+        if ($scope.loadCount == $scope.photoData.length) {
+            if ( window.innerHeight + window.scrollY > document.body.offsetHeight) {
+                $scope.getMorePhotos();
+            }
+        }
+    });
+    /*
+    $scope.$watch('_height', function(newVal, oldVal) {
+        //console.log('New: ' + newVal + ' Old: ' + oldVal);
+        //console.log(window.innerHeight + window.scrollY);
+        //console.log(document.body.offsetHeight);
+        if ( window.innerHeight + window.scrollY > document.body.offsetHeight) {
+            if (getMorePromise)
+                $timeout.cancel(getMorePromise);
+            getMorePromise = $timeout( $scope.getMorePhotos, 1600 );
+        }
+    });
+    */
+    window.onscroll = function(ev) {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+            $scope.getMorePhotos();
+        }
+    };
+
+}]).directive('photoContainer', function() {
+    return {
+        restrict: 'A',
+        scope: {
+            _height: '=photoContainer'
+        },
+        link: function( scope, elem, attrs ) {
+
+            scope.$watch( function() {
+                scope._height = elem[0].scrollHeight;
+            } );
+        }
+    };
+});
 
 app.controller('loginController', [ '$scope', '$http', function($scope, $http) {
     $scope.username = "";
@@ -299,6 +357,7 @@ app.directive('ngThumb', ['$window', function($window) {
                 var height = params.height || this.height / this.width * params.width;
                 canvas.attr({ width: width, height: height });
                 canvas[0].getContext('2d').drawImage(this, 0, 0,  width, height);
+                scope.$emit("previewLoaded");
             }
         }
     };
