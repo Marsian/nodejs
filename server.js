@@ -115,17 +115,14 @@ var MainApp = function() {
      * Connect to mongoDB and initialize
      */
     self.initializeDatabase = function() {
-        self.dbHost = process.env.OPENSHIFT_MONGODB_DB_HOST;
-        self.dbPort = process.env.OPENSHIFT_MONGODB_DB_PORT;
-        self.dbUrl = "";
-        if (typeof self.dbHost === "undefined") {
+        self.dbUrl = process.env.OPENSHIFT_MONGODB_DB_URL;
+        if (typeof self.dbUrl === "undefined") {
             console.warn("No OPENSHIFT_MONGODB_DB_HOST var, using 127.0.0.1:27017");
             self.dbHost = "127.0.0.1";
             self.dbPort = "27017";
             self.dbUrl = 'mongodb://' + self.dbHost + ':' + self.dbPort + "/nodejs";
-        } else {
-            //self.dbUrl = 'mongodb://admin:b8Phd47qQr1n@' + self.dbHost + ':' + self.dbPort + "/nodejs";
-            self.dbUrl = process.env.OPENSHIFT_MONGODB_DB_URL + "nodejs";
+        } else { 
+            self.dbUrl += "nodejs";
         }
 
         mongoose.connect(self.dbUrl);
