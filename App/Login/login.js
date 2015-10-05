@@ -2,6 +2,7 @@ var express = require('express');
 var fs = require('fs');
 var mongoose = require('mongoose');
 var hash = require('../../Modules/pass').hash;
+var hashUser = require('../../Modules/pass').hashUser;
 var User = require('../../Modules/userModel');
 
 var app = module.exports = express();
@@ -56,6 +57,36 @@ app.post('/api/login', function(req, res){
             var msg = { redirect: true};
             res.json(msg);
         });    
+    } else if (err) {
+        res.json(err);
+    } else {
+        var errorMsg = { err: 'Unknown error'};
+        res.json(errorMsg);
+    }
+  });
+});
+
+app.post('/api/newPassword', function(req, res){
+  authenticate(req.body.username, req.body.password, function(err, user){
+    if (user) {
+        hashUser(user.name, req.body.newPassword, function(err, name, salt, hash){
+            if (err) 
+                throw err;
+            // create a user in the db
+            User.update({ name: user.name }, { $set: {
+                salt: salt,
+                hash: hash
+            } }, function( err, user ) {
+                if (err) {
+                    res.json(err)
+                    return;
+                }
+
+                var msg = { success: true };
+                res.json(msg);
+            });
+        });
+
     } else if (err) {
         res.json(err);
     } else {

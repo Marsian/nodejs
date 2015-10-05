@@ -28,7 +28,7 @@
     </nav>
 
     <div class="login-container" >
-        <div class="panel panel-default login-block">
+        <div ng-show="!createMode" class="panel panel-default login-block">
             <div ng-show="err" class="alert alert-danger fade in" >
                 <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
                 {{err}}
@@ -37,10 +37,34 @@
             <input type="text" name="username" ng-model="username">
             <label class="text">Password</label>
             <input type="password" name="password" ng-model="password">
+            <label ng-show="changeMode" class="text">New Password</label>
+            <input ng-show="changeMode" type="password" name="newPassword" ng-model="newPassword">
             <div class="login-button" >
-                <button class="btn btn-primary" id="login-button" ng-click="login()">Login</button>
+                <button ng-show="!changeMode" class="btn btn-primary" id="login-button" ng-click="login()">Login</button>
+                <button ng-show="!changeMode" class="btn btn-default pull-right" id="change-button" ng-click="changeMode = true">Change</button>
+                <button ng-show="changeMode" class="btn btn-primary" id="commit-button" ng-click="commit()">Commit</button>
+                <button ng-show="changeMode" class="btn btn-default pull-right" id="back-button" ng-click="changeMode = false">Back</button>
             </div>
         </div>
+
+        <div ng-show="createMode" class="panel panel-default login-block">
+            <div ng-show="err" class="alert alert-danger fade in" >
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                {{err}}
+            </div>
+            <label class="text">Username</label>
+            <input type="text" name="username" ng-model="username">
+            <label class="text">Password</label>
+            <input type="password" name="password" ng-model="password">
+            <label class="text">Re-Password</label>
+            <input type="password" name="re-password" ng-model="rePassword">
+            <label class="text">Admin Password</label>
+            <input type="password" name="admin-password" ng-model="adminPassword">
+            <div class="login-button" >
+                <button class="btn btn-primary" id="login-button" ng-click="create()">Create</button>
+            </div>
+        </div>
+
     </div>
 
     <!--Placed at the end of the document so the pages load faster-->
