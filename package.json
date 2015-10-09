@@ -32,7 +32,8 @@
     "body-parser": "~1.5.2",
     "method-override": "~2.1.2",
     "multer": "~1.0.5",
-    "lwip": "~0.0.7"
+    "lwip": "~0.0.7",
+    "aws-sdk": "~2.2.8"
   },
   "devDependencies": {},
   "bundleDependencies": [],

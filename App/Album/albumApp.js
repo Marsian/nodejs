@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');    // pull information from HTML POST (
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
 var multer  = require('multer');
 var lwip = require('lwip');
+var AWS = require('aws-sdk');
 
 var app = module.exports = express();
 var upload = multer();
@@ -55,14 +56,44 @@ var Photo = mongoose.model('Photo', {
     mimeType: String,
     date: { type: Date, default: Date.now },
     posted: { type: Date, default: Date.now },
+    preview: { type: Buffer, contentType: String },
     comments: [ { text: String, 
                   user: String, 
                   date: { type: Date, default: Date.now } } ]
 });
-var PhotoImage = mongoose.model('PhotoImage', {
-    image: { type: Buffer, contentType: String },
-    preview: { type: Buffer, contentType: String },
+
+// Create AWS S3 instance
+var bucket = null;
+if (typeof process.env.OPENSHIFT_APP_NAME === "undefined") {
+    bucket = "yanxi-album-test";
+} else {
+    bucket = "yanxi-album";
+}
+var s3bucket = new AWS.S3({params: { Bucket: bucket }});
+s3bucket.listBuckets(function(error, data) {
+    if (error) {
+        console.log(error); // error is Response.error
+    } else {
+        console.log(data); // data is Response.data
+    }
 });
+
+// Help function for uploading photo to S3
+var _uploadPhoto = function(id, photo, callback) {
+    if (!id || !photo)
+        return;
+
+    var params = { Key: "" + id, Body: photo };
+    s3bucket.upload(params, function(err, data) {
+        if (err) {
+            callback(err);
+            console.log("Error uploading data: ", err);
+        } else {
+            callback();
+            console.log("Successfully uploaded data to yanxi-album");
+        }
+    });
+}
 
 // initial api
 app.get('/api/album', function(req, res) {
@@ -86,6 +117,7 @@ app.get('/api/album', function(req, res) {
         }
         res.json(data);
     });
+
 });
 
 // get photo data in a range (for lazy loading)
@@ -126,7 +158,7 @@ app.post('/api/photo', upload.single('file'), function (req, res, next) {
             if (err) {
                 res.status(500).send("Empty file!");
                 return;
-            }
+            } 
             // use one percent of originam image for preview
             image.scale(0.1, function(err, image) {
                 if (err) {
@@ -143,19 +175,19 @@ app.post('/api/photo', upload.single('file'), function (req, res, next) {
                         user: req.session.user.name,
                         mimeType: req.file.mimetype,
                         date: req.body.lastModified,
-                        image: req.file.buffer,
                         preview: image
                     }, function(err, photo) {
-                        if (err)
+                        if (err) {
                             res.status(500).send(err);
-                        
-                        PhotoImage.create( {
-                            _id: photo._id,
-                            image: req.file.buffer,
-                            preview: image
-                        }, function(err, photo) {
-                            res.json( { id: photo._id } );
-                        });
+                        } else {
+                            _uploadPhoto(photo._id, req.file.buffer, function(err) {
+                                if (err) {
+                                    res.status(500).send(err);
+                                } else {
+                                    res.json( { id: photo._id } );
+                                }
+                            });
+                        }
                     });
                 });
                 
@@ -167,16 +199,16 @@ app.post('/api/photo', upload.single('file'), function (req, res, next) {
 
 // get image of a photo
 app.get('/api/getPhotoImage/:photo_id', function(req, res) {
-    PhotoImage.find({ _id: req.params.photo_id }, function(err, data) {
+    var params = { Key: "" + req.params.photo_id };
+    s3bucket.getObject(params, function(err, data) {
         if (err) {
             res.status(500).send(err);
             console.log(err);
             return;
         }
 
-        if (data && data.length > 0) {
-            var photo = data[0];
-            res.send(photo.image);
+        if (data && data.Body) {
+            res.send(data.Body);
         }
         else 
             res.status(500).send('Photo not found!');
@@ -185,7 +217,7 @@ app.get('/api/getPhotoImage/:photo_id', function(req, res) {
 
 // get preview of a photo
 app.get('/api/getPhotoPreview/:photo_id', function(req, res) {
-    PhotoImage.find({ _id: req.params.photo_id }, function(err, data) {
+    Photo.find({ _id: req.params.photo_id }, function(err, data) {
         if (err) {
             res.status(500).send(err);
             console.log(err);
@@ -211,15 +243,18 @@ app.post('/api/deletePhoto', function(req, res) {
     Photo.remove({
         _id : req.body.id,
     }, function(err, data) {
-        if (err)
+        if (err) {
             res.status(500).send(err);
-        PhotoImage.remove({
-            _id: req.body.id,
-        }, function(err, data) {
-            if (err)
-                res.status(500).send(err);
-            res.send('Success');
-        });
+        } else {
+            var params = { Key: "" + req.body.id };
+            s3bucket.deleteObject(params, function(err, data) {
+                if (err) {
+                    res.status(500).send(err);
+                } else {
+                    res.send('Success');
+                }
+            });
+        }
     });
 });
 
@@ -234,16 +269,21 @@ app.post('/api/deletePhotoByIds', function(req, res) {
             req.body.ids,
         }
     }, function(err, data) {
-        if (err)
+        if (err) {
             res.status(500).send(err);
-        PhotoImage.remove({
-            _id : { $in:
-                req.body.ids,
+        } else {
+            var params = { Delete: { Objects: [] } };
+            for (var i in req.body.ids) {
+                var id = "" + req.body.ids[i];
+                params.Delete.Objects.push({ Key: id });
             }
-        }, function(err, data) {
-            if (err)
-                res.status(500).send(err);
-            res.send('Success');
-        });
+            s3bucket.deleteObjects(params, function(err, data) {
+                if (err) {
+                    res.status(500).send(err);
+                } else {
+                    res.send('Success');
+                }
+            })
+        }
     });
 });
