@@ -178,10 +178,12 @@ app.post('/api/photo', upload.single('file'), function (req, res, next) {
                         preview: image
                     }, function(err, photo) {
                         if (err) {
+                            err.id = photo._id;
                             res.status(500).send(err);
                         } else {
                             _uploadPhoto(photo._id, req.file.buffer, function(err) {
                                 if (err) {
+                                    err.id = photo._id;
                                     res.status(500).send(err);
                                 } else {
                                     res.json( { id: photo._id } );

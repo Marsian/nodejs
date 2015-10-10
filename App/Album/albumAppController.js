@@ -44,6 +44,11 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         $scope.showDetailDialog = false;
     });
 
+    $scope.dialogOpened = function() {
+        return $scope.showDetailDialog ||
+               $scope.showUploadDialog;
+    };
+
     $scope.deleteCheck = function(photo) {
         if (photo.toDelete) {
             $scope.deleteNum += 1;
@@ -155,7 +160,6 @@ app.directive('uploadDialog', function() {
     });
 
     $scope.hideModal = function() {
-
         $scope.$emit("closeUploadDialog");
     };
             
@@ -204,6 +208,7 @@ app.directive('uploadDialog', function() {
         fileItem.uploadId = response.id;
     };
     uploader.onErrorItem = function(fileItem, response, status, headers) {
+        fileItem.uploadId = response.id;
         console.info('onErrorItem', fileItem, response, status, headers);
     };
     uploader.onCompleteItem = function(fileItem, response, status, headers) {
@@ -225,13 +230,18 @@ app.directive('detailDialog', function() {
         $scope.$emit("closeDetailDialog");
     };
             
-    $scope.ok = function() {
+    $scope.close = function() {
         $scope.hideModal();
     };
-    
-    $scope.cancel = function() {
-        $scope.hideModal();
-    };
+
+    $scope.$on("ImageLoading", function(){
+        $scope.loading = true;
+    });
+
+    $scope.$on("ImageLoaded", function(){
+        $scope.loading = false;
+        $scope.$apply();
+    });
 }]);
 
 
@@ -324,12 +334,14 @@ app.directive('ngThumb', ['$window', function($window) {
             var img = new Image();
             img.onload = onLoadImage;
             img.src = "/api/getPhotoImage/" + params.id;
+            scope.$broadcast("ImageLoading");
 
             function onLoadImage() {
                 var width = params.width || this.width / this.height * params.height;
                 var height = params.height || this.height / this.width * params.width;
                 canvas.attr({ width: width, height: height });
                 canvas[0].getContext('2d').drawImage(this, 0, 0,  width, height);
+                scope.$broadcast("ImageLoaded");
             }
         }
     };

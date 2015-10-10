@@ -1,14 +1,19 @@
 <div class='ng-modal'>
-    <div class='ng-modal-overlay' ng-click='cancel()'></div>
+    <div class='ng-modal-overlay' ng-click='close()'></div>
     <div class='ng-modal-dialog' ng-style='dialogStyle'>
         <div class="ng-modal-dialog-header">
             <div class="ng-modal-dialog-header-text">Detail</div> 
-            <div class='ng-modal-close' ng-click='cancel()'>
+            <div class='ng-modal-close' ng-click='close()'>
                 <span class="glyphicon glyphicon-remove" ></span>
             </div>
         </div>
         <div class='ng-modal-dialog-content detail-content'>
             <div class="detail-photo-canvas">
+                <div ng-if="loading" class="image-loader">
+                    <div class="throbber-loader">
+                        Loading…
+                    </div>
+                </div>
                 <div ng-image="{ id: currentPhoto._id, width: 640 }"></div>
             </div>
             <div class="detail-metadata">
@@ -28,8 +33,7 @@
         </div>
 
         <div class="ng-modal-dialog-footer">
-            <button class="btn btn-primary" ng-click="ok()">OK</button>
-            <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-default" ng-click="close()">Close</button>
         </div>
     </div>
 </div>
