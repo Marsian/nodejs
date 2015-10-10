@@ -102,7 +102,7 @@ app.get('/api/album', function(req, res) {
     data.loggedIn = false; 
     data.user = "";
     data.photoData = [];
-    Photo.find({}, '_id name user date posted', { sort: '-posted' }, function(err, ret) {
+    Photo.find({}, '_id name user date posted comments', { sort: '-posted' }, function(err, ret) {
         if (err)
             res.status(500).send(err);
 
@@ -126,7 +126,7 @@ app.post('/api/getPhotoData', function(req, res) {
    var begin = req.body.begin;
    var end = req.body.end;
 
-   Photo.find({}, '_id name user date posted', { sort: '-posted' }, function(err, ret) {
+   Photo.find({}, '_id name user date posted comments', { sort: '-posted' }, function(err, ret) {
         if (err)
             res.status(500).send(err);
         
@@ -287,5 +287,65 @@ app.post('/api/deletePhotoByIds', function(req, res) {
                 }
             })
         }
+    });
+});
+
+// post a comment to the photo
+app.post('/api/postPhotoComment', function(req, res) {
+    var user = "";
+    if (req.session && req.session.user != null) {
+        user = req.session.user.name;
+    } else {
+        user = "Anonymous";
+    }
+    
+    // fint the photo and push a comment to it
+    Photo.update({ _id: req.body.id }, { $push: { comments: {user: user, text: req.body.comment } } }, {}, 
+        function(err, photo){ 
+            if (err) {
+                res.status(500).send(err);
+            } else {
+                Photo.find({ _id: req.body.id }, 'comments', function(err, comments) {
+                    if (err) {
+                        res.status(500).send(err);
+                    } else {
+                        if (comments && comments.length > 0) {
+                            res.json(comments[0]);
+                        } else {
+                            res.send("No result");
+                        }
+                    }
+                });
+            }
+    });
+});
+
+// delete a comment to the photo
+app.post('/api/deletePhotoComment', function(req, res) {
+    var user = "";
+    if (req.session && req.session.user != null) {
+        user = req.session.user.name;
+    } else {
+        user = "Anonymous";
+    }
+    
+    // fint the photo and push a comment to it
+    Photo.update({ _id: req.body.id }, { $pull: { comments: { _id: req.body.commentId } } }, {}, 
+        function(err, photo){ 
+            if (err) {
+                res.status(500).send(err);
+            } else {
+                Photo.find({ _id: req.body.id }, 'comments', function(err, comments) {
+                    if (err) {
+                        res.status(500).send(err);
+                    } else {
+                        if (comments && comments.length > 0) {
+                            res.json(comments[0]);
+                        } else {
+                            res.send("No result");
+                        }
+                    }
+                });
+            }
     });
 });
