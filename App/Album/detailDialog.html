@@ -1,51 +1,53 @@
 <div class='ng-modal'>
-    <div class='ng-modal-overlay' ng-click='close()'></div>
-    <div class='ng-modal-dialog' ng-style='dialogStyle'>
-        <div class="ng-modal-dialog-header">
-            <div class="ng-modal-dialog-header-text">Detail</div> 
-            <div class='ng-modal-close' ng-click='close()'>
-                <span class="glyphicon glyphicon-remove" ></span>
-            </div>
-        </div>
-        <div class='ng-modal-dialog-content detail-content'>
-            <div class="detail-photo-canvas">
-                <div ng-if="loading" class="image-loader">
-                    <div class="throbber-loader">
-                        Loading…
+    <div class='ng-modal-pure' ng-click="close()"> 
+        <!--<div class='ng-modal-pure-overlay' ng-click='close()'></div>-->
+        <button class="detail-close">
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
+        <div class='ng-modal-pure-container' ng-click="fakeClick($event)">
+            <div class="ng-modal-pure-content detail-content">
+                <div class="detail-photo">
+                    <div class="detail-photo-canvas">
+                        <div ng-if="loading" class="image-loader">
+                            <div class="throbber-loader">
+                                Loading…
+                            </div>
+                        </div>
+                        <div ng-image="{ id: currentPhoto._id, width: 672 }"></div>
+                    </div>
+                    <div class="detail-table">          
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>{{currentPhoto.name}}</td>
+                                    <td>Date</td>
+                                    <td>{{getDate(currentPhoto.date)}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div ng-image="{ id: currentPhoto._id, width: 672 }"></div>
-            </div>
-            <div class="detail-table">          
-                <table class="table">
-                    <tbody>
-                        <tr>
-                            <td>Name</td>
-                            <td>{{currentPhoto.name}}</td>
-                            <td>Date</td>
-                            <td>{{getDate(currentPhoto.date)}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="detail-comment-list">
-                <div ng-repeat="comment in currentPhoto.comments" ng-mouseenter="commentToggle(comment)" ng-mouseleave="commentToggle(comment)" class="detail-comment">
-                    <div class="comment-user">{{comment.user}}</div>
-                    <div class="comment-text">{{comment.text}}</div>
-                    <div class="comment-date">{{getDate(comment.date)}}</div>
-                    <div ng-show="comment.show && comment.user == user" class="comment-delete" ng-click="deleteComment(currentPhoto._id, comment._id)">
-                        <span class="glyphicon glyphicon-remove"></span>
+                <div class="detail-comment-list">
+                    <div ng-repeat="comment in currentPhoto.comments" ng-mouseenter="commentToggle(comment)" ng-mouseleave="commentToggle(comment)" class="detail-comment">
+                        <div class="comment-user">{{comment.user}}</div>
+                        <div class="comment-text">{{comment.text}}</div>
+                        <div class="comment-date">{{getDate(comment.date)}}</div>
+                        <div ng-show="comment.show && comment.user == user" class="comment-delete" ng-click="deleteComment(currentPhoto._id, comment._id)">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </div>
                     </div>
+                    <input type="text" ng-model="newComment" class="form-control" placeholder="New comment" style="width: 100%;">
+                    <button class="btn btn-primary button-post" ng-click="postComment(currentPhoto._id, newComment)">
+                        Post
+                    </button>
                 </div>
-                <input type="text" ng-model="newComment" class="form-control" placeholder="New comment" style="width: 100%;">
-                <button class="btn btn-primary button-post" ng-click="postComment(currentPhoto._id, newComment)">
-                    Post
-                </button>
             </div>
         </div>
-
+        <!--
         <div class="ng-modal-dialog-footer">
             <button class="btn btn-default" ng-click="close()">Close</button>
         </div>
+        -->
     </div>
 </div>

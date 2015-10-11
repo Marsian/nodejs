@@ -1,6 +1,7 @@
 var app = angular.module('albumApp', ['angularFileUpload']);
 
 app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout', 'dateService', function($scope, $http, $window, $timeout, dateService) {
+    // Variable initialize
     $scope.photos = [];
     $scope.loadCount = 0;
 
@@ -13,6 +14,7 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         return dateService.getDate(date);
     };
     
+    // View
     $scope.editMode = false;
     $scope.toggleEditMode = function () {
         $scope.editMode = !$scope.editMode;
@@ -61,17 +63,7 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         } 
     }
 
-    // load context
-    $http.get('/api/album')
-        .success(function(data) {
-            $scope.user = data.user;
-            $scope.loggedIn = data.loggedIn;
-            $scope.photoData = data.photoData;
-        })
-        .error(function(data) {
-            console.log(data);
-        });
-
+    // Control  
     $scope.getPhoto = function(photo) {
         $http.post('/api/getPhotoImage', { id: photo._id })
             .success(function(data) {
@@ -126,6 +118,7 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
             });
     };
 
+    // Event
     // after loading all exsiting preview,
     // check if we want more to fill the window
     $scope.$on("previewLoaded", function() {
@@ -137,12 +130,31 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         }
     });
 
+    $scope.$on("uploadComplete", function() {
+        _initialize();
+    });
+
     window.onscroll = function(ev) {
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
             $scope.getMorePhotos();
         }
     };
 
+    var _initialize = function() {
+        // load context
+        $http.get('/api/album')
+            .success(function(data) {
+                $scope.user = data.user;
+                $scope.loggedIn = data.loggedIn;
+                $scope.photoData = data.photoData;
+                $scope.loadCount = 0;
+            })
+            .error(function(data) {
+                console.log(data);
+            });
+    };
+
+    _initialize();
 }]);
 
 //######## Upload Dialog ############
@@ -165,7 +177,7 @@ app.directive('uploadDialog', function() {
             
     $scope.ok = function() {
         $scope.uploader.clearQueue();
-
+        $scope.$emit("uploadComplete");
         $scope.hideModal();
     };
     
@@ -232,6 +244,10 @@ app.directive('detailDialog', function() {
             
     $scope.close = function() {
         $scope.hideModal();
+    };
+
+    $scope.fakeClick = function(event) {
+        event.stopPropagation();
     };
 
     $scope.commentToggle = function(comment) {

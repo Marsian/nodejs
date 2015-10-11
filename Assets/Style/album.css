@@ -77,8 +77,47 @@
 .detail-dialog .ng-modal-dialog {
     max-width: 720px;
 }
+.detail-table table {
+    margin-bottom: 0 !important;
+}
 .detail-table td {
     border-top: none !important;
+}
+.detail-close {
+    -webkit-transform: translateZ(0);
+    padding-top: 8px;
+    position: fixed;
+    top: 0;
+    right: 32px;
+    z-index: 652;
+    border: 0;
+    margin: 0;
+    font-size: 24px;
+    color: grey;
+    background-color: #f5f5f5;
+    background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ebebeb));
+    background: -webkit-linear-gradient(#fff, #ebebeb);
+    background: linear-gradient(#fff, #ebebeb);
+    border-radius: 0 0 6px 6px;
+    -webkit-box-shadow: 0 1px 4px rgba(0,0,0,0.34),1px 0 0 rgba(255,255,255,0.9) inset;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.34),1px 0 0 rgba(255,255,255,0.9) inset;
+    cursor: pointer;
+    height: 44px;
+    width: 44px;
+    outline: none;
+}
+.detail-close:focus,
+.detail-close:hover,
+.detail-close:active {
+    background: none;
+    background-color: #e6e6e6;
+    border-color: #adadad;
+}
+.detail-photo {
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 16px;
 }
 .detail-photo-canvas {
     margin: auto;
@@ -94,8 +133,16 @@
 .detail-comment-list {
     position: relative;
 }
+.detail-comment-list {
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+}
 .detail-comment-list input {
     max-width: calc(100% - 64px);
+}
+.detail-comment-list .detail-comment:first-child {
+    border-top: none;
 }
 .detail-comment {
     position: relative;
@@ -126,6 +173,6 @@
 }
 .button-post {
     position: absolute;
-    right: 0;
-    bottom: 0;
+    right: 16px;
+    bottom: 20px;
 }
