@@ -66,16 +66,14 @@
     font-size: 24px;
 }
 
+/* Detail Dialog */
 .photo-canvas {
     padding: 8px;
     margin-right: 8px;
     margin-left: 8px;
 }
 .photo-canvas-image {
-    cursor: pointer;
-}
-.detail-dialog .ng-modal-dialog {
-    max-width: 720px;
+    cursor: zoom-in;
 }
 .detail-table table {
     margin-bottom: 0 !important;
@@ -175,4 +173,14 @@
     position: absolute;
     right: 16px;
     bottom: 20px;
+}
+
+
+/* Delete Dialog */
+.delete-dialog .ng-modal-dialog {
+    height: inherit;
+}
+
+.delete-content {
+    font-size: 20px;
 }

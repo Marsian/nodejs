@@ -1,0 +1,20 @@
+<div class='ng-modal'>
+    <div class='ng-modal-overlay' ng-click='cancel()'></div>
+    <div class='ng-modal-dialog' ng-style='dialogStyle'>
+        <div class="ng-modal-dialog-header">
+            <div class="ng-modal-dialog-header-text">Delete</div> 
+            <div class='ng-modal-close' ng-click='cancel()'>
+                <span class="glyphicon glyphicon-remove" ></span>
+            </div>
+        </div>
+        <div class='ng-modal-dialog-content delete-content'>
+            Do you really want to delete the selected photo(s)?
+
+        </div>
+
+        <div class="ng-modal-dialog-footer">
+            <button class="btn btn-warning" ng-click="ok()">Delete</button>
+            <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+        </div>
+    </div>
+</div>

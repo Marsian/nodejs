@@ -1,6 +1,5 @@
 <div class='ng-modal'>
     <div class='ng-modal-pure' ng-click="close()"> 
-        <!--<div class='ng-modal-pure-overlay' ng-click='close()'></div>-->
         <button class="detail-close">
             <span class="glyphicon glyphicon-remove"></span>
         </button>
@@ -38,16 +37,11 @@
                         </div>
                     </div>
                     <input type="text" ng-model="newComment" class="form-control" placeholder="New comment" style="width: 100%;">
-                    <button class="btn btn-primary button-post" ng-click="postComment(currentPhoto._id, newComment)">
+                    <button type="submit" class="btn btn-primary button-post" ng-click="postComment(currentPhoto._id, newComment)">
                         Post
                     </button>
                 </div>
             </div>
         </div>
-        <!--
-        <div class="ng-modal-dialog-footer">
-            <button class="btn btn-default" ng-click="close()">Close</button>
-        </div>
-        -->
     </div>
 </div>

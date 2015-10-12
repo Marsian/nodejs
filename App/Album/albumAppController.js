@@ -45,6 +45,11 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
     $scope.$on('closeDetailDialog', function() {
         $scope.showDetailDialog = false;
     });
+    
+    $scope.showDeleteDialog = false;
+    $scope.$on('closeDeleteDialog', function() {
+        $scope.showDeleteDialog = false;
+    });
 
     $scope.dialogOpened = function() {
         return $scope.showDetailDialog ||
@@ -134,6 +139,10 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         _initialize();
     });
 
+    $scope.$on("confirmDelete", function() {
+        $scope.deletePhotoByIds();
+    });
+
     window.onscroll = function(ev) {
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
             $scope.getMorePhotos();
@@ -152,6 +161,7 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
             .error(function(data) {
                 console.log(data);
             });
+
     };
 
     _initialize();
@@ -294,6 +304,31 @@ app.directive('detailDialog', function() {
         $scope.$apply();
     });
 }]);
+
+//######## Delete Dialog ############
+app.directive('deleteDialog', function() {
+    return {
+        restrict: 'E',
+        replace: true, // Replace with the template below
+        transclude: true, // we want to insert custom content inside the directive
+        templateUrl: './App/Album/deleteDialog.html'
+    };
+}).controller('deleteDialogController', [ '$scope', '$http', function($scope, $http) {
+    
+    $scope.hideModal = function() {
+        $scope.$emit("closeDeleteDialog");
+    };
+            
+    $scope.cancel = function() {
+        $scope.hideModal();
+    };
+
+    $scope.ok = function(event) {
+        $scope.$emit("confirmDelete");
+        $scope.hideModal();
+    };
+}]);
+
 
 
 
