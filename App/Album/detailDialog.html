@@ -32,7 +32,7 @@
                         <div class="comment-user">{{comment.user}}</div>
                         <div class="comment-text">{{comment.text}}</div>
                         <div class="comment-date">{{getDate(comment.date)}}</div>
-                        <div ng-show="comment.show && comment.user == user" class="comment-delete" ng-click="deleteComment(currentPhoto._id, comment._id)">
+                        <div ng-show="comment.show && (comment.user == user || comment.user == 'Anonymous')" class="comment-delete" ng-click="deleteComment(currentPhoto._id, comment._id)">
                             <span class="glyphicon glyphicon-remove"></span>
                         </div>
                     </div>

@@ -1,14 +1,14 @@
-var app = angular.module('albumApp', ['angularFileUpload']);
+var app = angular.module('albumApp', ['util', 'angularFileUpload']);
 
 app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout', 'dateService', function($scope, $http, $window, $timeout, dateService) {
     // Variable initialize
     $scope.photos = [];
     $scope.loadCount = 0;
 
-    $scope.deleteNum = 0;
+    $scope.selectCount = 0;
+    $scope.selectMode = false;
     $scope.deleteIds = [];
     $scope.deleteSet = new Set();
-    $scope.deleteMode = false;
 
     $scope.getDate = function(date) {
         return dateService.getDate(date);
@@ -19,11 +19,11 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
     $scope.toggleEditMode = function () {
         $scope.editMode = !$scope.editMode;
         if (!$scope.editMode) {
-            $scope.deleteNum = 0;
+            $scope.selectCount = 0;
+            $scope.selectMode = false;
             $scope.deleteIds = [];
-            $scope.deleteMode = false;
             angular.forEach($scope.photoData, function(photo) {
-                photo.toDelete = false;
+                photo.selected = false;
             });
         }
     };
@@ -56,15 +56,15 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
                $scope.showUploadDialog;
     };
 
-    $scope.deleteCheck = function(photo) {
-        if (photo.toDelete) {
-            $scope.deleteNum += 1;
-            if ($scope.deleteNum > 0)
-                $scope.deleteMode = true;
+    $scope.selectCheck = function(photo) {
+        if (photo.selected) {
+            $scope.selectCount += 1;
+            if ($scope.selectCount > 0)
+                $scope.selectMode = true;
         } else {
-            $scope.deleteNum -= 1;
-            if ($scope.deleteNum == 0)
-                $scope.deleteMode = false;
+            $scope.selectCount -= 1;
+            if ($scope.selectCount == 0)
+                $scope.selectMode = false;
         } 
     }
 
@@ -82,7 +82,7 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
 
     $scope.deletePhotoByIds = function() {
         angular.forEach($scope.photoData, function(photo) {
-            if (photo.toDelete) {
+            if (photo.selected) {
                 $scope.deleteIds.push(photo._id);
                 $scope.deleteSet.add(photo._id);
             }
@@ -100,8 +100,8 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
                 }  
                 $scope.deleteSet = new Set();
                 $scope.deleteIds = []
-                $scope.deleteMode = false;
-                $scope.deleteNum = 0;
+                $scope.selectMode = false;
+                $scope.selectCount = 0;
             })
             .error(function(data) {
                 console.log('Error: ' + data);
@@ -432,64 +432,3 @@ app.directive('ngThumb', ['$window', function($window) {
         }
     };
 }]);
-
-app.factory('dateService', [ '$window', function($window) {
-
-    var monthNames = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-                       "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    var dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
-                    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-    var _pad = function (val, len) {
-            val = String(val);
-            len = len || 2;
-            while (val.length < len) val = "0" + val;
-            return val;
-        };
-
-    return {
-        // localize Date and format the date string
-        getDate: function(date) {
-            var jsDate = new Date(date);
-            var _ = "get";
-            var d = jsDate[_ + "Date"](),
-                D = jsDate[_ + "Day"](),
-                m = jsDate[_ + "Month"](),
-                y = jsDate[_ + "FullYear"](),
-                H = jsDate[_ + "Hours"](),
-                M = jsDate[_ + "Minutes"](),
-                flags = {
-                    d:    d,
-                    dd:   _pad(d),
-                    ddd:  dayNames[D],
-                    dddd: dayNames[D + 7],
-                    m:    m + 1,
-                    mm:   _pad(m + 1),
-                    mmm:  monthNames[m],
-                    mmmm: monthNames[m + 12],
-                    yy:   String(y).slice(2),
-                    yyyy: y,
-                    h:    H % 12 || 12,
-                    hh:   _pad(H % 12 || 12),
-                    H:    H,
-                    HH:   _pad(H),
-                    M:    M,
-                    MM:   _pad(M),
-                    t:    H < 12 ? "a"  : "p",
-                    tt:   H < 12 ? "am" : "pm",
-                    T:    H < 12 ? "A"  : "P",
-                    TT:   H < 12 ? "AM" : "PM",
-                    S:    ["th", "st", "nd", "rd"][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10]
-                };
-
-            var mask = "yyyy mmmm ddS hh:MM tt";
-            var token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g;
-            return mask.replace(token, function ($0) {
-                return $0 in flags ? flags[$0] : $0.slice(1, $0.length - 1);
-            });    
-        }
-    };
-
-}]);
-
-
