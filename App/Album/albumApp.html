@@ -50,8 +50,8 @@
                         <a href="#" ng-show="!editMode" ng-click="toggleEditMode()" data-toggle="tooltip" data-placement="bottom" title="Edit" ><span class="glyphicon glyphicon-edit"></span></a>
                         <a href="#" ng-show="editMode" ng-click="toggleEditMode()" data-toggle="tooltip" data-placement="bottom" title="Ok"><span class="glyphicon glyphicon-check"></span></a>
                     </li>
-                    <li ng-show="loggedIn" class="action-button">
-                        <a href="#" ng-click="toggleUploadDialog()" data-toggle="tooltip" data-placement="bottom" title="Upload"><span class="glyphicon glyphicon-upload"></span></a></li>
+                    <li ng-show="loggedIn && !editMode" class="action-button">
+                        <a href="#" ng-click="showUploadDialog()" data-toggle="tooltip" data-placement="bottom" title="Upload"><span class="glyphicon glyphicon-upload"></span></a></li>
                     <li ng-show="loggedIn" class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" ng-cloak >{{user}} <span class="caret"></span></a>
                         <ul class="dropdown-menu">
@@ -77,9 +77,9 @@
         </div>
     </div>
 
-    <upload-dialog ng-if="showUploadDialog" class="modal-dialog" ng-controller="uploadDialogController"></upload-dialog>
     <detail-dialog ng-if="showDetailDialog" class="modal-dialog detail-dialog" ng-controller="detailDialogController"></detail-dialog>
 
+    <iframe id="downloadIFrame" src="javascript:false" style="height: 1px; width: 1px; visibility: hidden; position: absolute;"></iframe>
     <!--Placed at the end of the document so the pages load faster-->
     <script src="Assets/Script/angular.min.js"></script>
     <script src="Assets/Script/jquery-2.1.4.min.js"></script>
@@ -87,6 +87,7 @@
     <script src="Assets/Script/bootstrap/js/bootstrap.min.js"></script>
     <script src="js-src/util.js"></script>
     <script src="App/Album/albumAppController.js"></script>
+    <script src="App/Album/Dialog/uploadDialogController.js"></script>
     <script src="App/Album/Dialog/deleteDialogController.js"></script>
 
     <!--Bootstrap angular module at last-->

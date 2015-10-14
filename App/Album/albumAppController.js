@@ -1,6 +1,6 @@
 var app = angular.module('albumApp', ['util', 'angularFileUpload']);
 
-app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout', 'dateService', 'dialogService', function($scope, $http, $window, $timeout, dateServicei, dialogService) {
+app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout', 'dateService', 'dialogService', function($scope, $http, $window, $timeout, dateService, dialogService) {
     // Variable initialize
     $scope.photos = [];
     $scope.loadCount = 0;
@@ -28,13 +28,15 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         }
     };
 
-    $scope.showUploadDialog = false;
-    $scope.toggleUploadDialog = function() {
-        $scope.showUploadDialog = !$scope.showUploadDialog;
-    };   
-    $scope.$on('closeUploadDialog', function() {
-        $scope.showUploadDialog = false;
-    });
+    $scope.showUploadDialog = function() {
+        dialogService.openDialog('./App/Album/Dialog/uploadDialog.html', {}, 'uploadDialogController')
+            .then(function(result) {
+                if (result) {
+                    _initialize();
+                }
+            }); 
+
+    };
     
     $scope.showDetailDialog = false;
     $scope.currentPhoto = null;
@@ -57,7 +59,6 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
 
     $scope.dialogOpened = function() {
         return $scope.showDetailDialog ||
-               $scope.showUploadDialog ||
                dialogService.isOpen();
     };
 
@@ -114,26 +115,25 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
     };
 
     $scope.downloadPhotos = function() {
-        dialogService.openDialog('./App/Album/Dialog/deleteDialog.html', { a: 'b' }, 'deleteDialogController')
-            .then(function(result) {
-                console.log(result);
-            }); 
-
-        /*
         var downloadIds = [];
         angular.forEach($scope.photoData, function(photo) {
             if (photo.selected) {
-                $scope.downloadIds.push(photo._id);
+                downloadIds.push(photo._id);
             }
         });
-        $http.post('/api/downloadPhotoByIds', { photo_id: downloadIds[0] })
-            .success(function(data) {
+        if (downloadIds.length == 1) {
+            var iframe = $('#downloadIFrame');      
+            var src = "/api/getPhotoImage/" + downloadIds[0];
+            iframe.attr('src', src);    
+        } else if (downloadIds.length > 1) {
+            $http.post('/api/downloadPhotoByIds', { photo_id: downloadIds[0] })
+                .success(function(data) {
 
-            })
-            .error(function(data) {
-                console.log('Error: ' + data);
-            });
-        */
+                })
+                .error(function(data) {
+                    console.log('Error: ' + data);
+                });
+        }
     };
 
     $scope.getMorePhotos = function() {
@@ -193,77 +193,6 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
     };
 
     _initialize();
-}]);
-
-//######## Upload Dialog ############
-app.directive('uploadDialog', function() {
-    return {
-        restrict: 'E',
-        replace: true, // Replace with the template below
-        transclude: true, // we want to insert custom content inside the directive
-        templateUrl: './App/Album/uploadDialog.html'
-    };
-}).controller('uploadDialogController', [ '$scope', '$http', 'FileUploader', function($scope, $http, FileUploader) {
-    
-    var uploader = $scope.uploader = new FileUploader({
-        url: '/api/photo'
-    });
-
-    $scope.hideModal = function() {
-        $scope.$emit("closeUploadDialog");
-    };
-            
-    $scope.ok = function() {
-        $scope.uploader.clearQueue();
-        $scope.$emit("uploadComplete");
-        $scope.hideModal();
-    };
-    
-    $scope.cancel = function() {
-        angular.forEach($scope.uploader.queue, function(item) {
-            if (item.uploadId)
-                $scope.remove(item);
-        }); 
-
-        $scope.hideModal();
-    };
-
-
-    $scope.remove = function(item) {
-        $http.post('/api/deletePhoto', { id: item.uploadId })
-            .success( function(data) {
-                if (data.err) {
-                    $scope.err = data.err;
-                    return;
-                } else
-                    $scope.uploader.removeFromQueue(item);
-            })
-            .error( function(data) {
-                $scope.err = data.err;
-            });
-    };
-
-    uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
-        console.info('onWhenAddingFileFailed', item, filter, options);
-    };
-    uploader.onAfterAddingFile = function(fileItem) {
-        $scope.currentFile = fileItem.file.name;
-        fileItem.formData.push( { lastModified: fileItem.file.lastModifiedDate } );
-        console.info('onAfterAddingFile', fileItem);
-        fileItem.upload();
-    };
-    uploader.onSuccessItem = function(fileItem, response, status, headers) {
-        console.info('onSuccessItem', fileItem, response, status, headers);
-        console.log(response);
-        fileItem.uploadId = response.id;
-    };
-    uploader.onErrorItem = function(fileItem, response, status, headers) {
-        fileItem.uploadId = response.id;
-        console.info('onErrorItem', fileItem, response, status, headers);
-    };
-    uploader.onCompleteItem = function(fileItem, response, status, headers) {
-        console.info('onCompleteItem', fileItem, response, status, headers);
-    };
 }]);
 
 //######## Detail Dialog ############
