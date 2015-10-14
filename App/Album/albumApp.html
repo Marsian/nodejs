@@ -44,7 +44,7 @@
                         <a href="#" ng-click="downloadPhotos()" data-toggle="tooltip" data-placement="bottom" title="Download"><span class="glyphicon glyphicon-download"></span></a>
                     </li>
                     <li ng-show="loggedIn && selectMode" class="action-button">
-                        <a href="#" ng-click="showDeleteDialog = true;" data-toggle="tooltip" data-placement="bottom" title="Delete"><span class="glyphicon glyphicon-trash"></span></a>
+                        <a href="#" ng-click="showDeleteDialog()" data-toggle="tooltip" data-placement="bottom" title="Delete"><span class="glyphicon glyphicon-trash"></span></a>
                     </li>
                     <li ng-show="loggedIn" class="action-button">
                         <a href="#" ng-show="!editMode" ng-click="toggleEditMode()" data-toggle="tooltip" data-placement="bottom" title="Edit" ><span class="glyphicon glyphicon-edit"></span></a>
@@ -79,7 +79,6 @@
 
     <upload-dialog ng-if="showUploadDialog" class="modal-dialog" ng-controller="uploadDialogController"></upload-dialog>
     <detail-dialog ng-if="showDetailDialog" class="modal-dialog detail-dialog" ng-controller="detailDialogController"></detail-dialog>
-    <delete-dialog ng-if="showDeleteDialog" class="modal-dialog delete-dialog" ng-controller="deleteDialogController"></delete-dialog>
 
     <!--Placed at the end of the document so the pages load faster-->
     <script src="Assets/Script/angular.min.js"></script>
@@ -88,6 +87,7 @@
     <script src="Assets/Script/bootstrap/js/bootstrap.min.js"></script>
     <script src="js-src/util.js"></script>
     <script src="App/Album/albumAppController.js"></script>
+    <script src="App/Album/Dialog/deleteDialogController.js"></script>
 
     <!--Bootstrap angular module at last-->
     <script>

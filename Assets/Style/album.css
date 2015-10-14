@@ -177,10 +177,10 @@
 
 
 /* Delete Dialog */
-.delete-dialog .ng-modal-dialog {
+.deleteDialogController .ng-modal-dialog {
     height: inherit;
 }
 
-.delete-content {
+.deleteDialogController .delete-content {
     font-size: 20px;
 }

@@ -1,6 +1,6 @@
 var app = angular.module('albumApp', ['util', 'angularFileUpload']);
 
-app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout', 'dateService', function($scope, $http, $window, $timeout, dateService) {
+app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout', 'dateService', 'dialogService', function($scope, $http, $window, $timeout, dateServicei, dialogService) {
     // Variable initialize
     $scope.photos = [];
     $scope.loadCount = 0;
@@ -46,14 +46,19 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         $scope.showDetailDialog = false;
     });
     
-    $scope.showDeleteDialog = false;
-    $scope.$on('closeDeleteDialog', function() {
-        $scope.showDeleteDialog = false;
-    });
+    $scope.showDeleteDialog = function() {
+        dialogService.openDialog('./App/Album/Dialog/deleteDialog.html', {}, 'deleteDialogController')
+            .then(function(result) {
+                if (result) {
+                    $scope.deletePhotoByIds();
+                }
+            }); 
+    };
 
     $scope.dialogOpened = function() {
         return $scope.showDetailDialog ||
-               $scope.showUploadDialog;
+               $scope.showUploadDialog ||
+               dialogService.isOpen();
     };
 
     $scope.selectCheck = function(photo) {
@@ -106,6 +111,29 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
             .error(function(data) {
                 console.log('Error: ' + data);
             });
+    };
+
+    $scope.downloadPhotos = function() {
+        dialogService.openDialog('./App/Album/Dialog/deleteDialog.html', { a: 'b' }, 'deleteDialogController')
+            .then(function(result) {
+                console.log(result);
+            }); 
+
+        /*
+        var downloadIds = [];
+        angular.forEach($scope.photoData, function(photo) {
+            if (photo.selected) {
+                $scope.downloadIds.push(photo._id);
+            }
+        });
+        $http.post('/api/downloadPhotoByIds', { photo_id: downloadIds[0] })
+            .success(function(data) {
+
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+        */
     };
 
     $scope.getMorePhotos = function() {
@@ -304,33 +332,6 @@ app.directive('detailDialog', function() {
         $scope.$apply();
     });
 }]);
-
-//######## Delete Dialog ############
-app.directive('deleteDialog', function() {
-    return {
-        restrict: 'E',
-        replace: true, // Replace with the template below
-        transclude: true, // we want to insert custom content inside the directive
-        templateUrl: './App/Album/deleteDialog.html'
-    };
-}).controller('deleteDialogController', [ '$scope', '$http', function($scope, $http) {
-    
-    $scope.hideModal = function() {
-        $scope.$emit("closeDeleteDialog");
-    };
-            
-    $scope.cancel = function() {
-        $scope.hideModal();
-    };
-
-    $scope.ok = function(event) {
-        $scope.$emit("confirmDelete");
-        $scope.hideModal();
-    };
-}]);
-
-
-
 
 //######## Utility #################
 app.directive('ngThumb', ['$window', function($window) {

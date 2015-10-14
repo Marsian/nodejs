@@ -1,18 +1,195 @@
 var app = angular.module('util', []);
 
 app.provider('$dialog', function dialogProvider() {
-   this.$get = [ function dialogFactory() {
-   
-        
-   }];
+    this.$get = ["$http", "$document", "$compile", "$rootScope", "$controller", "$templateCache", "$q", "$injector",
+        function ($http, $document, $compile, $rootScope, $controller, $templateCache, $q, $injector) {
+
+        var body = $document.find('body');
+
+        function createElement(clazz) {
+            var el = angular.element("<div>");
+            el.addClass(clazz);
+            return el;
+        }
+
+        // var d = new Dialog({templateUrl: 'foo.html', controller: 'BarController'});
+        function Dialog(opts) {
+
+            var self = this;
+            var options = this.options = opts;
+            this._open = false;
+
+            this.modalEl = createElement(options.dialogClass);
+
+            this.handledEscapeKey = function(e) {
+                if (e.which === 27) {
+                    self.close();
+                    e.preventDefault();
+                    self.$scope.$apply();
+                }
+            };
+        }
+
+        Dialog.prototype.isOpen = function(){
+            return this._open;
+        };
+
+        Dialog.prototype.open = function(){
+            var self = this, options = this.options;
+
+            if(!options.templateUrl) {
+                throw new Error('Dialog.open expected templateUrl. Use options to specify it.');
+            }
+
+            this._loadResolves().then(function(locals) {
+                var $scope = locals.$scope = self.$scope = locals.$scope ? locals.$scope : $rootScope.$new();
+
+                self.modalEl.html(locals.$template);
+
+                if (self.options.controller) {
+                    var ctrl = $controller(self.options.controller, locals);
+                    self.modalEl.children().data('ngControllerController', ctrl);
+                }
+
+                $compile(self.modalEl)($scope);
+                self._addElementsToDom();
+                
+                self._bindEvents();
+            });
+
+            this.deferred = $q.defer();
+            return this.deferred.promise;
+        };
+
+        // closes the dialog and resolves the promise returned by the `open` method with the specified result.
+        Dialog.prototype.close = function(result){
+            var self = this;
+
+            this._onCloseComplete(result);
+        };
+
+        Dialog.prototype._bindEvents = function() {
+            if(this.options.keyboard){ body.bind('keydown', this.handledEscapeKey); }
+        };
+
+        Dialog.prototype._unbindEvents = function() {
+            if(this.options.keyboard){ body.unbind('keydown', this.handledEscapeKey); }
+        };
+
+        Dialog.prototype._onCloseComplete = function(result) {
+            this._removeElementsFromDom();
+            this._unbindEvents();
+
+            this.deferred.resolve(result);
+        };
+
+        Dialog.prototype._addElementsToDom = function(){
+            body.append(this.modalEl);
+
+            this._open = true;
+        };
+
+        Dialog.prototype._removeElementsFromDom = function(){
+            this.modalEl.remove();
+          
+            this._open = false;
+        };
+
+        // Loads all `options.resolve` members to be used as locals for the controller associated with the dialog.
+        Dialog.prototype._loadResolves = function(){
+            var values = [], keys = [], templatePromise, self = this;
+
+            if (this.options.templateUrl) {
+                templatePromise = $http.get(this.options.templateUrl, {cache:$templateCache})
+                    .then(function(response) { return response.data; });
+            }
+
+            angular.forEach(this.options.resolve || [], function(value, key) {
+                keys.push(key);
+                values.push(angular.isString(value) ? $injector.get(value) : $injector.invoke(value));
+            });
+
+            keys.push('$template');
+            values.push(templatePromise);
+
+            return $q.all(values).then(function(values) {
+                var locals = {};
+                angular.forEach(values, function(value, index) {
+                    locals[keys[index]] = value;
+                });
+                locals.dialog = self;
+                return locals;
+            });
+        };
+
+        return {
+            // Creates a new `Dialog` with the specified options.
+            dialog: function(opts){
+                return new Dialog(opts);
+            }
+        };
+    }];
 });
 
 app.provider('dialogService', function dialogServiceProvider() {
+    this.$get = ['$dialog', '$templateCache', '$q', '$rootScope', '$timeout', function ($dialog, $templateCache, $q, $rootScope, $timeout) {
+        // singleton dialog
+        var dialog = null;
 
-    this.$get = [ '$dialog', function dialogServiceFactory($dialog) {
+        var _removeDialog = function (dialog) {
+            dialog.$scope.$destroy();
+        };
+
+        // basePath: url of dialog
+        // params: object to be injected to the controller
+        // controllerName: name of controller class
+        var _openDialog = function (basePath, params, controllerName) {
         
+            // actually show the dialog.  call when all dependencies are ready
+            var _showDialog = function () {
+                var opts = {
+                    templateUrl: basePath,
+                    controller: controllerName,
+                    resolve: { params: function () { return angular.copy(params); } }
+                };
+
+                opts.dialogClass = controllerName;
+
+                dialog = $dialog.dialog(opts);
+
+                var promise = dialog.open();
+                promise.then(function () {
+                    $templateCache.remove(opts.templateUrl);
+                    _removeDialog(dialog);
+                }, function (err) {
+                    var msg = "";
+                    if (typeof (err) == 'string')
+                        msg = err;
+                    else if (err.Message)
+                        msg = err.Message;
+                    alert("Error loading dialog: " + msg);
+                });
+                
+                return promise;
+            };
+ 
+            return _showDialog();
+        };
+
+        var _isOpen = function() {
+            if (dialog)
+                return dialog.isOpen();
+            else
+                return false;
+        };
+
         return {
-            
+            openDialog: function (basePath, params, controllerName) {
+                return _openDialog(basePath, params, controllerName);
+            },
+            isOpen: function () {
+                return _isOpen();
+            }
         };
     }];
 });

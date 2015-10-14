@@ -235,6 +235,24 @@ app.get('/api/getPhotoPreview/:photo_id', function(req, res) {
     });
 });
 
+// download photo by ids
+app.post('/api/downloadPhotoByIds', function(req, res) {
+    var params = { Key: "" + req.params.photo_id };
+    s3bucket.getObject(params, function(err, data) {
+        if (err) {
+            res.status(500).send(err);
+            console.log(err);
+            return;
+        }
+
+        if (data && data.Body) {
+            res.send(data.Body);
+        }
+        else 
+            res.status(500).send('Photo not found!');
+    });
+
+});
 
 // delete a photo
 app.post('/api/deletePhoto', function(req, res) {
