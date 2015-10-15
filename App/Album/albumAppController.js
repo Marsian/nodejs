@@ -121,9 +121,10 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
                 downloadIds.push(photo._id);
             }
         });
+
         if (downloadIds.length == 1) {
             var iframe = $('#downloadIFrame');      
-            var src = "/api/getPhotoImage/" + downloadIds[0];
+            var src = "/api/downloadSinglePhoto/" + downloadIds[0];
             iframe.attr('src', src);    
         } else if (downloadIds.length > 1) {
             $http.post('/api/downloadPhotoByIds', { photo_id: downloadIds[0] })

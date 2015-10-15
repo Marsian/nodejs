@@ -222,13 +222,45 @@ app.get('/api/getPhotoPreview/:photo_id', function(req, res) {
     Photo.find({ _id: req.params.photo_id }, function(err, data) {
         if (err) {
             res.status(500).send(err);
-            console.log(err);
             return;
         }
 
         if (data && data.length > 0) {
             var photo = data[0];
             res.send(photo.preview);
+        }
+        else 
+            res.status(500).send('Photo not found!');
+    });
+});
+
+// download single photo
+app.get('/api/downloadSinglePhoto/:photo_id', function(req, res) {
+    Photo.find({ _id: req.params.photo_id }, function(err, data) {
+        if (err) {
+            res.status(500).send(err);
+            return;
+        }
+
+        if (data && data.length > 0) {
+            var photo = data[0];
+            var params = { Key: "" + req.params.photo_id };
+
+            s3bucket.headObject(params, function(err, data) {
+                if (err && err.code == "NotFound") {
+                    console.log(err);
+                    res.status(500).send(err);
+                    return;
+                }else {
+                    res.setHeader('Content-disposition', 'attachment; filename=' + photo.name);
+                    res.setHeader('Content-type', photo.mimeType);
+                    var readStream = s3bucket.getObject(params).createReadStream();
+                    readStream.pipe(res);
+                    readStream.on('end', function() {
+                        res.end()
+                    });
+                }
+            });
         }
         else 
             res.status(500).send('Photo not found!');
