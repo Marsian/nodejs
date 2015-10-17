@@ -184,3 +184,19 @@
 .deleteDialogController .delete-content {
     font-size: 20px;
 }
+
+/* Download Dialog */
+.downloadDialogController .ng-modal-dialog {
+    height: inherit;
+    min-height: initial;
+}
+.downloadDialogController .download-content {
+    font-size: 18px;
+}
+.downloadDialogController .progress {
+    height: 32px;
+}
+.downloadDialogController .progress-bar {
+    font-size: 18px;
+    line-height: 32px;
+}

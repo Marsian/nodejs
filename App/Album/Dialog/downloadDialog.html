@@ -1,0 +1,25 @@
+<div class='ng-modal'>
+    <div class='ng-modal-overlay'></div>
+    <div class='ng-modal-dialog'>
+        <div class="ng-modal-dialog-header">
+            <div class="ng-modal-dialog-header-text">Download</div> 
+            <!--
+            <div class='ng-modal-close' ng-click='cancel()'>
+                <span class="glyphicon glyphicon-remove" ></span>
+            </div>
+            -->
+        </div>
+        <div class='ng-modal-dialog-content download-content'>
+            <div style="padding-bottom: 16px;">
+                Exporting {{downloadIds.length}} images: 
+            </div>
+            <div class="progress">
+                <div class="progress-bar progress-bar-info progress-bar-striped active" 
+                     role="progressbar" aria-valuenow="{{getProgress()}}" aria-valuemin="0" 
+                     aria-valuemax="100" ng-style="{width : ( getProgress() + '%' ) }">
+                     {{getProgress()}}%
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
