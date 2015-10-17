@@ -8,8 +8,8 @@ var lwip = require('lwip');
 var AWS = require('aws-sdk');
 var uuid = require('node-uuid');
 var archiver = require('archiver');
-var Photo = require('../Models/photoModel');
-var Export = require('../Models/exportModel');
+var Photo = require('../Model/photoModel');
+var Export = require('../Model/exportModel');
 
 var app = module.exports = express();
 
