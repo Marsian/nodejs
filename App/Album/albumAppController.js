@@ -1,6 +1,6 @@
 var app = angular.module('albumApp', ['util', 'angularFileUpload']);
 
-app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout', 'dateService', 'dialogService', function($scope, $http, $window, $timeout, dateService, dialogService) {
+app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout', '$interval', 'dateService', 'dialogService', function($scope, $http, $window, $timeout, $interval, dateService, dialogService) {
     // Variable initialize
     $scope.photos = [];
     $scope.loadCount = 0;
@@ -127,9 +127,25 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
             var src = "/api/downloadSinglePhoto/" + downloadIds[0];
             iframe.attr('src', src);    
         } else if (downloadIds.length > 1) {
-            $http.post('/api/downloadPhotoByIds', { photo_id: downloadIds[0] })
-                .success(function(data) {
-
+            $http.post('/api/exportPhotoByIds', { ids: downloadIds })
+                .success(function(token) {
+                    var checkStatus = $interval(function() {
+                        $http.get('/api/getExportStatus/' + token)
+                            .success(function(data) {
+                                if (data.err) {
+                                    console.log(data.err);
+                                } else if (data.status) {
+                                    console.log(data.status);
+                                    if (data.status.progress && data.status.progress == 100) {
+                                        $interval.cancel(checkStatus);
+    
+                                        var iframe = $('#downloadIFrame');      
+                                        var src = "/api/downloadPhotos/" + token;
+                                        iframe.attr('src', src);    
+                                    }
+                                }
+                            })
+                    }, 500);
                 })
                 .error(function(data) {
                     console.log('Error: ' + data);
