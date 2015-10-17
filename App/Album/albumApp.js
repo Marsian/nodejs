@@ -8,6 +8,9 @@ var lwip = require('lwip');
 var AWS = require('aws-sdk');
 var uuid = require('node-uuid');
 var archiver = require('archiver');
+var Photo = require('./Models/photoModel');
+var Export = require('./Models/exportModel');
+var DownloadService = require('./Service/downloadService.js');
 
 var app = module.exports = express();
 var upload = multer();
@@ -17,6 +20,7 @@ app.use(bodyParser.urlencoded({'extended':'true'}));            // parse applica
 app.use(bodyParser.json());                                     // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 app.use(methodOverride());
+app.use(DownloadService);
 
 // page cache
 var cache = { 
@@ -49,24 +53,6 @@ app.get('/Album-Logout', function(req, res){
     req.session.destroy(function(){
         res.redirect('/Album');
     });
-});
-
-// define photo list model =================
-var Photo = mongoose.model('Photo', {
-    name : String,
-    user: String,
-    mimeType: String,
-    date: { type: Date, default: Date.now },
-    posted: { type: Date, default: Date.now },
-    preview: { type: Buffer, contentType: String },
-    comments: [ { text: String, 
-                  user: String, 
-                  date: { type: Date, default: Date.now } } ]
-});
-
-var Export = mongoose.model('Export', {
-    token: String,
-    progress: { type: Number, min: 0, max: 100 }
 });
 
 // Create AWS S3 instance
@@ -241,73 +227,6 @@ app.get('/api/getPhotoPreview/:photo_id', function(req, res) {
     });
 });
 
-// download single photo
-app.get('/api/downloadSinglePhoto/:photo_id', function(req, res) {
-    Photo.find({ _id: req.params.photo_id }, function(err, data) {
-        if (err) {
-            res.status(500).send(err);
-            return;
-        }
-
-        if (data && data.length > 0) {
-            var photo = data[0];
-            var params = { Key: "" + req.params.photo_id };
-
-            s3bucket.headObject(params, function(err, data) {
-                if (err && err.code == "NotFound") {
-                    console.log(err);
-                    res.status(500).send(err);
-                    return;
-                }else {
-                    res.setHeader('Content-disposition', 'attachment; filename=' + photo.name);
-                    res.setHeader('Content-type', photo.mimeType);
-                    var readStream = s3bucket.getObject(params).createReadStream();
-                    readStream.pipe(res);
-                    readStream.on('end', function() {
-                        res.end()
-                    });
-                }
-            });
-        }
-        else 
-            res.status(500).send('Photo not found!');
-    });
-});
-
-// download photo zip by token
-app.get('/api/downloadPhotos/:token', function(req, res) {
-    var token = req.params.token;
-    Export.remove({ token: token });
-    res.setHeader('Content-disposition', 'attachment; filename=download.zip');
-    res.setHeader('Content-type', 'application/zip');
-    
-    var filePath = './temp/' + token + '.zip';
-    var readStream = fs.createReadStream(filePath);
-    readStream.pipe(res);  
-    readStream.on('end', function() {
-        res.end()
-        // delete the zip file
-        fs.unlinkSync(filePath);
-    });
-});
-
-app.get('/api/getExportStatus/:token', function(req, res) {
-    var token = req.params.token;
-    Export.find({ token: token }, function(err, data) {
-        if (err) {
-            console.log(err);
-            res.status(500).json( { err: err });
-        } else {
-            if (data && data.length > 0) {
-                res.json({ status: data[0] });
-            } else {
-                console.log(err);
-                res.status(500).json({ err: "Status not found!" });
-            }
-        }
-    });
-});
-
 // delete a photo
 app.post('/api/deletePhoto', function(req, res) {
     if (!req.session.user) {
@@ -421,121 +340,3 @@ app.post('/api/deletePhotoComment', function(req, res) {
             }
     });
 });
-
-// export photos to zip by ids
-app.post('/api/exportPhotoByIds', function(req, res) {
-    var ids = req.body.ids;
-
-    var _updateStatus = function(token, progress) {
-        Export.update({ token: token }, { $set: { progress: progress} }, function(err, data) {
-            if (err)
-                console.log(err);
-        });
-    };
-
-    var _removeData = function(path) {
-        if( fs.existsSync(path) ) {
-            fs.readdirSync(path).forEach(function(file,index){
-                var curPath = path + "/" + file;
-                fs.unlinkSync(curPath);
-            });
-            fs.rmdirSync(path);
-        }
-    };
-
-    var _createZip = function() {
-        console.log('end');
-        var zipPath = './temp/' + token + '.zip'; 
-        var output = fs.createWriteStream(zipPath);
-        var archive = archiver('zip');
-
-        output.on('close', function () {
-            console.log(archive.pointer() + ' total bytes');
-            console.log('archiver has been finalized and the output file descriptor has closed.');
-            _updateStatus(token, 100);
-
-            var path = './temp/' + token;
-            _removeData(path);
-        });
-
-        archive.on('error', function(err){
-            throw err;
-        });
-
-        archive.pipe(output);
-        archive.bulk([
-            { expand: true, cwd: './temp/' + token, src: ['**'] }
-        ]);
-        archive.finalize();
-    };
-
-    var _getData = function(photo) {
-        var params = { Key: "" + photo._id };
-        s3bucket.getObject(params, function(err, data) {
-            if (err) {
-                getCount ++;
-                if (getCount == ids.length)
-                    _createZip();
-                console.log(err);
-                return;
-            }
-
-            if (data && data.Body) {
-                fs.mkdir('./temp/' + token, function(err) {
-                    if (err && err.code != "EEXIST") {
-                        getCount ++;
-                        if (getCount == ids.length)
-                            _createZip();
-                        console.log(err);
-                        return;
-                    }
-                    var filePath = './temp/' + token + '/' + photo.name;
-                    fs.appendFile(filePath, data.Body, function(err) {
-                        if (err)
-                            console.log(err);
-                        getCount ++;
-                        var progress = Math.floor( getCount / ids.length * 80 ); 
-                        _updateStatus(token, progress);
-                        console.log(getCount);
-                        console.log(photo.name);
-                        if (getCount == ids.length)
-                            _createZip();
-                    });
-                })
-            }
-        });
-    };
-
-    var _exportPhoto = function(id) {
-        Photo.find({ _id: id }, function(err, data) {
-            if (err) {
-                getCount ++;
-                if (getCount == ids.length)
-                    _createZip();
-                console.log(err);
-                return;
-            }
-            
-            if (data && data.length > 0) {
-                var photo = data[0];
-                _getData(photo);
-            } else {
-                console.log('Photo not found in local db')
-            }
-        });
-
-    };
-    
-
-    var getCount = 0;
-    var token = uuid.v4();
-    var exportTask = new Export({ token: token, progress: 0 });
-    exportTask.save();
-    for (var i in ids) {
-        var id = ids[i];
-        _exportPhoto(id);
-    }
-    res.end(token);
-});
-
-

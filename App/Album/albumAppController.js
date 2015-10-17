@@ -38,15 +38,15 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
 
     };
     
-    $scope.showDetailDialog = false;
-    $scope.currentPhoto = null;
-    $scope.toggleDetailDialog = function(photo) {
-        $scope.currentPhoto = photo;
-        $scope.showDetailDialog = !$scope.showDetailDialog;
+    $scope.showDetailDialog = function(photo) {
+        var params = { currentPhoto: photo, user: $scope.user };
+        dialogService.openDialog('./App/Album/Dialog/detailDialog.html', params, 'detailDialogController')
+            .then(function(result) {
+                if (result) {
+                    photo.comments = result;
+                }
+            });
     };   
-    $scope.$on('closeDetailDialog', function() {
-        $scope.showDetailDialog = false;
-    });
     
     $scope.showDeleteDialog = function() {
         dialogService.openDialog('./App/Album/Dialog/deleteDialog.html', {}, 'deleteDialogController')
@@ -58,8 +58,7 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
     };
 
     $scope.dialogOpened = function() {
-        return $scope.showDetailDialog ||
-               dialogService.isOpen();
+        return dialogService.isOpen();
     };
 
     $scope.selectCheck = function(photo) {
@@ -121,6 +120,7 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
                 downloadIds.push(photo._id);
             }
         });
+        $scope.toggleEditMode(); 
 
         if (downloadIds.length == 1) {
             var iframe = $('#downloadIFrame');      
@@ -210,73 +210,6 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
     };
 
     _initialize();
-}]);
-
-//######## Detail Dialog ############
-app.directive('detailDialog', function() {
-    return {
-        restrict: 'E',
-        replace: true, // Replace with the template below
-        transclude: true, // we want to insert custom content inside the directive
-        templateUrl: './App/Album/detailDialog.html'
-    };
-}).controller('detailDialogController', [ '$scope', '$http', function($scope, $http) {
-    
-    $scope.hideModal = function() {
-        $scope.$emit("closeDetailDialog");
-    };
-            
-    $scope.close = function() {
-        $scope.hideModal();
-    };
-
-    $scope.fakeClick = function(event) {
-        event.stopPropagation();
-    };
-
-    $scope.commentToggle = function(comment) {
-        if (comment.show) {
-            comment.show = false;
-        } else {
-            comment.show = true;
-        }
-    }; 
-
-    $scope.postComment = function(id, comment) {
-        $http.post('/api/postPhotoComment', { id: id, comment: comment })
-            .success(function(data) {
-                if (data && data.comments && data.comments.length > 0) {
-                    $scope.newComment = "";
-                    $scope.currentPhoto.comments = data.comments;
-                }
-            })
-            .error(function(data) {
-                console.log('Error: ' + data);
-            });
-
-    };
-
-    $scope.deleteComment = function(id, commentId) {
-        $http.post('/api/deletePhotoComment', { id: id, commentId: commentId })
-            .success(function(data) {
-                if (data && data.comments) {
-                    $scope.currentPhoto.comments = data.comments;
-                }
-            })
-            .error(function(data) {
-                console.log('Error: ' + data);
-            });
-
-    };
-
-    $scope.$on("ImageLoading", function(){
-        $scope.loading = true;
-    });
-
-    $scope.$on("ImageLoaded", function(){
-        $scope.loading = false;
-        $scope.$apply();
-    });
 }]);
 
 //######## Utility #################

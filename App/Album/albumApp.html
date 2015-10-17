@@ -66,7 +66,7 @@
 
     <div class="container">
         <div ng-repeat="photo in photoData" class="panel panel-default photo-canvas pull-left" >
-            <div ng-preview="{ id: photo._id, height: 200 }" ng-click="toggleDetailDialog(photo)" class="photo-canvas-image"></div>
+            <div ng-preview="{ id: photo._id, height: 200 }" ng-click="showDetailDialog(photo)" class="photo-canvas-image"></div>
             <div ng-show="editMode" class="input-checkbox">
                 <label>
                     <span ng-if="photo.selected" class="glyphicon glyphicon-check"></span>
@@ -77,7 +77,7 @@
         </div>
     </div>
 
-    <detail-dialog ng-if="showDetailDialog" class="modal-dialog detail-dialog" ng-controller="detailDialogController"></detail-dialog>
+    <!--<detail-dialog ng-if="showDetailDialog" class="modal-dialog detail-dialog" ng-controller="detailDialogController"></detail-dialog>-->
 
     <iframe id="downloadIFrame" src="javascript:false" style="height: 1px; width: 1px; visibility: hidden; position: absolute;"></iframe>
     <!--Placed at the end of the document so the pages load faster-->
@@ -89,6 +89,7 @@
     <script src="App/Album/albumAppController.js"></script>
     <script src="App/Album/Dialog/uploadDialogController.js"></script>
     <script src="App/Album/Dialog/deleteDialogController.js"></script>
+    <script src="App/Album/Dialog/detailDialogController.js"></script>
 
     <!--Bootstrap angular module at last-->
     <script>
