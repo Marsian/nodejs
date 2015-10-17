@@ -1,6 +1,6 @@
 var app = angular.module('albumApp');
 
-app.controller('detailDialogController', [ '$scope', '$http', 'dialog', 'params', function($scope, $http, dialog, params) {
+app.controller('detailDialogController', [ '$scope', '$http', 'dialog', 'params', 'dateService', function($scope, $http, dialog, params, dateService) {
    
     $scope.currentPhoto = params.currentPhoto;
     $scope.user = params.user;
@@ -11,6 +11,10 @@ app.controller('detailDialogController', [ '$scope', '$http', 'dialog', 'params'
 
     $scope.fakeClick = function(event) {
         event.stopPropagation();
+    };
+
+    $scope.getDate = function(date) {
+        return dateService.getDate(date);
     };
 
     $scope.commentToggle = function(comment) {

@@ -68,12 +68,39 @@
 
 /* Detail Dialog */
 .photo-canvas {
+    position: relative;
     padding: 8px;
     margin-right: 8px;
     margin-left: 8px;
 }
 .photo-canvas-image {
     cursor: zoom-in;
+}
+.photo-date-container {
+    position: absolute;
+    top: 208px;
+    right: 8px;
+    width: 100%;
+    max-width: calc(100% - 16px);
+    padding-right: 8px;
+    text-align: right;
+    line-height: 24px;
+    color: #fff;
+}
+.photo-date-backlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 24px;
+    width: 100%;
+    padding-right: 8px;
+    padding-bottom: 8px;
+    background: rgba(0,0,0,0.6);
+    background: -webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(0,0,0,0.6)));
+    background: -moz-linear-gradient(top, transparent, rgba(0,0,0,0.6));
+    text-shadow: #000 0 1px 1px;
+    -webkit-transition: all 0.05s ease-in 0s;
+    transition: all 0.05s ease-in 0s;
 }
 .detail-table table {
     margin-bottom: 0 !important;

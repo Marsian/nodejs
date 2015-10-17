@@ -13,7 +13,19 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
     $scope.getDate = function(date) {
         return dateService.getDate(date);
     };
+
+    $scope.getPreviewDate = function(date) {
+        return dateService.getDate(date, "yyyy mmm dd");
+    };
     
+    $scope.dateToggle = function(photo) {
+        if (photo.showDate) {
+            photo.showDate = false;
+        } else {
+            photo.showDate = true;
+        }
+    };
+
     // View
     $scope.editMode = false;
     $scope.toggleEditMode = function () {

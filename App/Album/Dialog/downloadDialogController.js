@@ -18,7 +18,7 @@ app.controller('downloadDialogController', [ '$scope', '$http', '$interval', '$t
 
     var _downloadById = function(downloadId) {
         var iframe = $('#downloadIFrame');      
-        var src = "/api/downloadSinglePhoto/" + downloadIds[0];
+        var src = "/api/downloadSinglePhoto/" + downloadId;
         iframe.attr('src', src);    
 
         $scope.close();

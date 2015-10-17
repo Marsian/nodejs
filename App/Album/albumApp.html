@@ -66,7 +66,16 @@
 
     <div class="container">
         <div ng-repeat="photo in photoData" class="panel panel-default photo-canvas pull-left" >
-            <div ng-preview="{ id: photo._id, height: 200 }" ng-click="showDetailDialog(photo)" class="photo-canvas-image"></div>
+            <div ng-preview="{ id: photo._id, height: 200 }" ng-click="showDetailDialog(photo)" 
+                 ng-mouseenter="dateToggle(photo)" ng-mouseleave="dateToggle(photo)"
+                 class="photo-canvas-image"></div>
+            <div ng-show="photo.showDate" class="photo-date-container" ng-cloak
+                 ng-mouseenter="photo.showDate = true" ng-mouseleave="photo.showDate = false">
+                
+                <div class='photo-date-backlay'>
+                    {{getPreviewDate(photo.date)}} 
+                </div>
+            </div>
             <div ng-show="editMode" class="input-checkbox">
                 <label>
                     <span ng-if="photo.selected" class="glyphicon glyphicon-check"></span>
