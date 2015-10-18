@@ -1,9 +1,10 @@
 var app = angular.module('albumApp');
 
-app.controller('detailDialogController', [ '$scope', '$http', 'dialog', 'params', 'dateService', function($scope, $http, dialog, params, dateService) {
+app.controller('detailDialogController', [ '$scope', '$http', '$timeout', 'dialog', 'params', 'dateService', function($scope, $http, $timeout, dialog, params, dateService) {
    
     $scope.currentPhoto = params.currentPhoto;
     $scope.user = params.user;
+    $scope.hasLocation = false;
 
     $scope.close = function() {
         dialog.close($scope.currentPhoto.comments);
@@ -60,6 +61,23 @@ app.controller('detailDialogController', [ '$scope', '$http', 'dialog', 'params'
         $scope.loading = false;
         $scope.$apply();
     });
+
+    $timeout(function() {
+        $http.post('/api/getLocation', { id: $scope.currentPhoto._id })
+            .success(function(data) {
+                if (data && data.err) {
+                    console.log(data.err);
+                } else if (data && data.results) {
+                    $scope.hasLocation = true;
+                    $scope.formattedAddress = data.results[0].formatted_address;
+                }
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+
+
+    }, 0);
 }]);
 
 

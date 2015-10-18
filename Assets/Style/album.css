@@ -154,11 +154,17 @@
     padding-bottom: 100px;
 }
 
+/* Map Style */
+.detail-map {
+    position: relative;
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
 /* Comment Style */
 .detail-comment-list {
     position: relative;
-}
-.detail-comment-list {
     background: #fff;
     padding: 20px;
     border-radius: 6px;

@@ -8,12 +8,13 @@ var lwip = require('lwip');
 var AWS = require('aws-sdk');
 var uuid = require('node-uuid');
 var archiver = require('archiver');
+var request = require('request');
 var Photo = require('./Model/photoModel');
 var Export = require('./Model/exportModel');
+var UploadService = require('./Service/uploadService.js');
 var DownloadService = require('./Service/downloadService.js');
 
 var app = module.exports = express();
-var upload = multer();
 
 // configuration =================
 app.use(bodyParser.urlencoded({'extended':'true'}));            // parse application/x-www-form-urlencoded
@@ -21,6 +22,7 @@ app.use(bodyParser.json());                                     // parse applica
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 app.use(methodOverride());
 app.use(DownloadService);
+app.use(UploadService);
 
 // page cache
 var cache = { 
@@ -71,23 +73,6 @@ s3bucket.listBuckets(function(error, data) {
     }
 });
 
-// Help function for uploading photo to S3
-var _uploadPhoto = function(id, photo, callback) {
-    if (!id || !photo)
-        return;
-
-    var params = { Key: "" + id, Body: photo };
-    s3bucket.upload(params, function(err, data) {
-        if (err) {
-            callback(err);
-            console.log("Error uploading data: ", err);
-        } else {
-            callback();
-            console.log("Successfully uploaded data to yanxi-album");
-        }
-    });
-}
-
 // initial api
 app.get('/api/album', function(req, res) {
     var data = {};
@@ -135,61 +120,6 @@ app.post('/api/getPhotoData', function(req, res) {
         }
         res.json(data);
    });
-});
-
-// add a photo
-app.post('/api/photo', upload.single('file'), function (req, res, next) {
-    // req.file is the `avatar` file
-    // req.body will hold the text fields, if there were any
-    console.log(req.file);
-    console.log(req.body);
-    if (req.file) {
-        var extension = req.file.mimetype.replace("image/", "");
-        if (extension == "jepg")
-            extension = "jpg";
-        lwip.open(req.file.buffer, extension, function(err, image){
-            if (err) {
-                res.status(500).send("Empty file!");
-                return;
-            } 
-            // use one percent of originam image for preview
-            image.scale(0.1, function(err, image) {
-                if (err) {
-                    res.status(500).send("Empty file!");
-                    return;
-                }
-                image.toBuffer(extension, function(err, image) {
-                    if (err) {
-                        res.status(500).send("Empty file!");
-                        return;
-                    }
-                    Photo.create({
-                        name: req.file.originalname,
-                        user: req.session.user.name,
-                        mimeType: req.file.mimetype,
-                        date: req.body.lastModified,
-                        preview: image
-                    }, function(err, photo) {
-                        if (err) {
-                            err.id = photo._id;
-                            res.status(500).send(err);
-                        } else {
-                            _uploadPhoto(photo._id, req.file.buffer, function(err) {
-                                if (err) {
-                                    err.id = photo._id;
-                                    res.status(500).send(err);
-                                } else {
-                                    res.json( { id: photo._id } );
-                                }
-                            });
-                        }
-                    });
-                });
-                
-            });
-        });
-    } else
-        res.status(500).send("Empty file!");
 });
 
 // get image of a photo
@@ -338,5 +268,48 @@ app.post('/api/deletePhotoComment', function(req, res) {
                     }
                 });
             }
+    });
+});
+
+// get location info
+app.post('/api/getLocation', function(req, res) {
+    var id = req.body.id;
+
+    Photo.find({ _id: id }, function(err, photo) {
+        if (err) {
+            res.status(500).send(err);
+        } else if (photo && photo.length > 0) {
+            photo = photo[0];
+            if (photo && photo.latitude == 0 && photo.longitude && photo.longitude == 0) {
+                res.send({ err: "No location info." });
+                return;
+            }
+            
+            var apiKey = process.env.GOOGLE_API_KEY;
+            if (typeof apiKey === "undefined") {
+                res.send({ err: "No Google Api key." });
+            } else {
+                var query = "https://maps.google.com/maps/api/geocode/json";
+                query += "?latlng=" + photo.latitude + ',' + photo.longitude;
+                //query += "&key=" + apiKey;
+                request.get(query, function(err, data) {
+                    if (err) {
+                        res.status(500).send({ err: err });
+                        return;
+                    }
+
+                    data = JSON.parse(data.body);
+                    if (data.error_message) {
+                        res.status(500).send({ err: data.error_message });
+                        return;
+                    }
+                    
+                    res.json({ results: data.results });
+                });            
+
+            }
+        } else {
+            res.send({ err: "Photo not found" });
+        }
     });
 });

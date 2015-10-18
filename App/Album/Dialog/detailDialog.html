@@ -27,6 +27,11 @@
                         </table>
                     </div>
                 </div>
+
+                <div ng-show="hasLocation" class="detail-map" ng-cloak>
+                    {{formattedAddress}}
+                </div>
+
                 <div class="detail-comment-list">
                     <div ng-repeat="comment in currentPhoto.comments" ng-mouseenter="commentToggle(comment)" ng-mouseleave="commentToggle(comment)" class="detail-comment">
                         <div class="comment-user">{{comment.user}}</div>
