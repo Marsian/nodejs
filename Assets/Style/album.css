@@ -162,6 +162,21 @@
     border-radius: 6px;
     margin-bottom: 16px;
 }
+.map-address {
+    padding-bottom: 8px;
+    cursor: pointer;
+}
+.more-icon {
+    margin-left: 8px;
+}
+.map-container {
+    width: 100%;
+    height: 400px;
+}
+.map-canvas {
+    width: 100%;
+    height: 100%;
+}
 /* Comment Style */
 .detail-comment-list {
     position: relative;

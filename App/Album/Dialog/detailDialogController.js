@@ -5,6 +5,9 @@ app.controller('detailDialogController', [ '$scope', '$http', '$timeout', 'dialo
     $scope.currentPhoto = params.currentPhoto;
     $scope.user = params.user;
     $scope.hasLocation = false;
+    $scope.showMap = false;
+    $scope.mapLoaded = false;
+    $scope.coordinate = null;
 
     $scope.close = function() {
         dialog.close($scope.currentPhoto.comments);
@@ -16,6 +19,33 @@ app.controller('detailDialogController', [ '$scope', '$http', '$timeout', 'dialo
 
     $scope.getDate = function(date) {
         return dateService.getDate(date);
+    };
+
+    $scope.mapToggle = function() {
+        $scope.showMap = !$scope.showMap;
+        if ($scope.showMap && $scope.coordinate && !$scope.mapLoaded) {
+            // Create a map object and specify the DOM element for display.
+            var map = new google.maps.Map(document.getElementById('map-canvas'), {
+                center: $scope.coordinate,
+                scrollwheel: false,
+                zoom: 8
+            });
+
+            // Create a marker and set its position.
+            var marker = new google.maps.Marker({
+                map: map,
+                position: $scope.coordinate,
+                title: 'Photo location'
+            });            
+
+            // Resize every time to make sure the map shows up 
+            google.maps.event.addListenerOnce(map, 'idle', function () {
+                google.maps.event.trigger(map, 'resize');
+                map.setCenter($scope.coordinate);
+            });
+            
+            $scope.mapLoaded = true;
+        }
     };
 
     $scope.commentToggle = function(comment) {
@@ -37,7 +67,6 @@ app.controller('detailDialogController', [ '$scope', '$http', '$timeout', 'dialo
             .error(function(data) {
                 console.log('Error: ' + data);
             });
-
     };
 
     $scope.deleteComment = function(id, commentId) {
@@ -67,9 +96,10 @@ app.controller('detailDialogController', [ '$scope', '$http', '$timeout', 'dialo
             .success(function(data) {
                 if (data && data.err) {
                     console.log(data.err);
-                } else if (data && data.results) {
+                } else if (data && data.results && data.results.length > 0) {
                     $scope.hasLocation = true;
                     $scope.formattedAddress = data.results[0].formatted_address;
+                    $scope.coordinate = data.coordinate;
                 }
             })
             .error(function(data) {

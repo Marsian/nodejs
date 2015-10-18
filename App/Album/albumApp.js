@@ -304,7 +304,8 @@ app.post('/api/getLocation', function(req, res) {
                         return;
                     }
                     
-                    res.json({ results: data.results });
+                    res.json({ results: data.results, 
+                               coordinate: { lat: photo.latitude, lng: photo.longitude } });
                 });            
 
             }

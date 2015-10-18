@@ -29,7 +29,14 @@
                 </div>
 
                 <div ng-show="hasLocation" class="detail-map" ng-cloak>
-                    {{formattedAddress}}
+                    <div ng-click="mapToggle()" class="btn btn-link map-address">
+                        {{formattedAddress}}
+                        <span ng-show="!showMap" class="glyphicon glyphicon-chevron-up more-icon"></span>
+                        <span ng-show="showMap" class="glyphicon glyphicon-chevron-down more-icon"></span>
+                    </div>
+                    <div ng-show="showMap" class="map-container">
+                        <div id="map-canvas" class="map-canvas"></div>
+                    </div>
                 </div>
 
                 <div class="detail-comment-list">
