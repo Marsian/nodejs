@@ -280,7 +280,7 @@ app.post('/api/getLocation', function(req, res) {
             res.status(500).send(err);
         } else if (photo && photo.length > 0) {
             photo = photo[0];
-            if (photo && photo.latitude == 0 && photo.longitude && photo.longitude == 0) {
+            if (photo.latitude == 0 && photo.longitude == 0) {
                 res.send({ err: "No location info." });
                 return;
             }
