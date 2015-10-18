@@ -28,7 +28,7 @@ app.controller('detailDialogController', [ '$scope', '$http', '$timeout', 'dialo
             var map = new google.maps.Map(document.getElementById('map-canvas'), {
                 center: $scope.coordinate,
                 scrollwheel: false,
-                zoom: 8
+                zoom: 10
             });
 
             // Create a marker and set its position.

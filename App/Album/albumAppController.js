@@ -125,6 +125,11 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
             });
     };
 
+    $scope.downloadPhoto = function(photoId) {
+        var params = { downloadIds: [photoId] };
+        dialogService.openDialog('./App/Album/Dialog/downloadDialog.html', params, 'downloadDialogController');
+    };
+
     $scope.downloadPhotos = function() {
         var downloadIds = [];
         angular.forEach($scope.photoData, function(photo) {
@@ -193,6 +198,10 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
             });
 
     };
+    
+    $scope.test = function(id) {
+        console.log(id);
+    };
 
     _initialize();
 }]);
@@ -252,6 +261,7 @@ app.directive('ngThumb', ['$window', function($window) {
             if (!helper.support) return;
 
             var params = scope.$eval(attributes.ngPreview);
+            scope.params = params;
 
             var canvas = element.find('canvas');
 
@@ -297,3 +307,54 @@ app.directive('ngThumb', ['$window', function($window) {
         }
     };
 }]);
+
+app.directive('ngContextMenu', function($compile) {
+    return  {
+        link: function(scope, element, attrs) {
+            element.bind('contextmenu', function(event) {
+                // Prevent default context menu
+                event.preventDefault();
+                
+                // Get photo id
+                scope.contextId = attrs.ngContextMenu;
+
+                // Remove old context menu
+                var oldContextMenu = element[0].getElementsByClassName('context-menu')
+                if (oldContextMenu && oldContextMenu.length > 0) {
+                    angular.forEach(oldContextMenu, function(elem) {
+                        elem.remove();
+                    });
+                }
+
+                // Create a new context menu
+                var template = '<div class="context-menu dropdown open">' +
+                                    '<ul class="dropdown-menu" role="menu" >' +
+                                       '<li><a tabindex="-1" href="#">Edit</a></li>' +
+                                       '<li><a tabindex="-1" href="#" ng-click="downloadPhoto(contextId)">Download</a></li>' +
+                                    '</ul>' +
+                                '</div>';
+                var content = angular.element(template);
+                content.bind('contextmenu', function(event) {
+                    // Prevent openning context menu when right click in a context menu
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
+                content.css("top", event.offsetY + 8 + 'px');                
+                content.css("left", event.offsetX + 8 + 'px');                
+
+                element.append(content);
+                $compile(content)(scope);
+            });
+
+            element.bind('mouseleave', function(){
+                // Remove existing context menu when leave
+                var oldContextMenu = element[0].getElementsByClassName('context-menu')
+                if (oldContextMenu && oldContextMenu.length > 0) {
+                    angular.forEach(oldContextMenu, function(elem) {
+                        elem.remove();
+                    });
+                }
+            });
+        }
+    }
+});
