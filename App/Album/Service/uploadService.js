@@ -6,8 +6,6 @@ var methodOverride = require('method-override'); // simulate DELETE and PUT (exp
 var multer  = require('multer');
 var lwip = require('lwip');
 var AWS = require('aws-sdk');
-var uuid = require('node-uuid');
-var archiver = require('archiver');
 var ExifImage = require('exif').ExifImage;
 var Photo = require('../Model/photoModel');
 
@@ -144,5 +142,4 @@ app.post('/api/photo', upload.single('file'), function (req, res, next) {
     } else
         res.status(500).send("Empty file!");
 });
-
 

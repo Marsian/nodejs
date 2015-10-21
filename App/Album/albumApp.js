@@ -9,10 +9,13 @@ var AWS = require('aws-sdk');
 var uuid = require('node-uuid');
 var archiver = require('archiver');
 var request = require('request');
+// Mongoose model
 var Photo = require('./Model/photoModel');
 var Export = require('./Model/exportModel');
-var UploadService = require('./Service/uploadService.js');
+// local service
+var EditService = require('./Service/editService.js');
 var DownloadService = require('./Service/downloadService.js');
+var UploadService = require('./Service/uploadService.js');
 
 var app = module.exports = express();
 
@@ -21,6 +24,7 @@ app.use(bodyParser.urlencoded({'extended':'true'}));            // parse applica
 app.use(bodyParser.json());                                     // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 app.use(methodOverride());
+app.use(EditService);
 app.use(DownloadService);
 app.use(UploadService);
 

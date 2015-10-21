@@ -1,10 +1,10 @@
 <div class='ng-modal'>
     <div class='ng-modal-pure' ng-click="close()"> 
-        <button class="detail-close">
+        <button class="pure-close">
             <span class="glyphicon glyphicon-remove"></span>
         </button>
-        <div class='ng-modal-pure-container' ng-click="fakeClick($event)">
-            <div class="ng-modal-pure-content detail-content">
+        <div class='ng-modal-pure-container-medium' ng-click="fakeClick($event)">
+            <div class="ng-modal-pure-content-medium detail-content">
                 <div class="detail-photo">
                     <div class="detail-photo-canvas">
                         <div ng-if="loading" class="image-loader">
@@ -12,7 +12,7 @@
                                 Loading…
                             </div>
                         </div>
-                        <div ng-image="{ id: currentPhoto._id, width: 672 }"></div>
+                        <div ng-image photo-id="currentPhoto._id" photo-width="672"></div>
                     </div>
                     <div class="detail-table">          
                         <table class="table">

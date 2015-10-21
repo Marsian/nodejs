@@ -1,0 +1,40 @@
+<div class='ng-modal'>
+    <div class='ng-modal-pure' ng-click="close()"> 
+        <button class="pure-close">
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
+        <div class='ng-modal-pure-container-large' ng-click="fakeClick($event)">
+            <div class="ng-modal-pure-content-small edit-content">
+                <div class="edit-photo">
+                    <div class="edit-photo-canvas">
+                        <div ng-if="loading || true" class="image-loader">
+                            <div class="throbber-loader">
+                                Loading…
+                            </div>
+                        </div>
+                        <div ng-sketch photo-id="photoId" photo-size="600" 
+                             angle-in-degree="angle" refresh-count="refreshCount" 
+                             style="width: 600px; height: 600px; position: relative"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="ng-modal-pure-sidebar">
+                <div class="edit-pane">
+                    <div class="edit-pane-header">
+                        <div ng-click="saveChanges()" class="btn btn-primary" ng-class="{ disabled: !edited }">Save</div>
+                        <span ng-show="saving" class="save-spinner">
+                            <div class="spinner-loader">
+                              Loading…
+                            </div>
+                        </span>
+                    </div>
+                    <div class="edit-rotate">
+                       <div class="btn" ng-click="rotateImage()">
+                            <span class="glyphicon glyphicon-repeat"></span>
+                       </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

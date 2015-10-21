@@ -123,36 +123,6 @@
 .detail-table td {
     border-top: none !important;
 }
-.detail-close {
-    -webkit-transform: translateZ(0);
-    padding-top: 8px;
-    position: fixed;
-    top: 0;
-    right: 32px;
-    z-index: 652;
-    border: 0;
-    margin: 0;
-    font-size: 24px;
-    color: grey;
-    background-color: #f5f5f5;
-    background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ebebeb));
-    background: -webkit-linear-gradient(#fff, #ebebeb);
-    background: linear-gradient(#fff, #ebebeb);
-    border-radius: 0 0 6px 6px;
-    -webkit-box-shadow: 0 1px 4px rgba(0,0,0,0.34),1px 0 0 rgba(255,255,255,0.9) inset;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.34),1px 0 0 rgba(255,255,255,0.9) inset;
-    cursor: pointer;
-    height: 44px;
-    width: 44px;
-    outline: none;
-}
-.detail-close:focus,
-.detail-close:hover,
-.detail-close:active {
-    background: none;
-    background-color: #e6e6e6;
-    border-color: #adadad;
-}
 .detail-photo {
     background: #fff;
     padding: 20px;
@@ -262,4 +232,41 @@
 .downloadDialogController .progress-bar {
     font-size: 18px;
     line-height: 32px;
+}
+
+/* Edit Dialog */
+.edit-photo {
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+.edit-pane {
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+.edit-pane-header {
+
+}
+.save-spinner {
+    padding-left: 8px;
+    vertical-align: -webkit-baseline-middle;
+}
+.edit-photo-canvas {
+    position: relative;
+    margin: auto;
+    width: 100%;
+    text-align: center;
+}
+.edit-photo-canvas .image-loader {
+    position: absolute;
+    left: 275px;
+    top: 150px;
+}
+.edit-photo-canvas canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
 }

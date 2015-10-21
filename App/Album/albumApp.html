@@ -32,30 +32,30 @@
                 </button>
                 <a class="navbar-brand" href="/" data-toggle="tooltip" data-placement="bottom" title="Home"><span class="glyphicon glyphicon-home" ></span></a>
             </div>
-            <div class="collapse navbar-collapse" ng-model="smallWindow" id="bs-navbar-collapse">
+            <div class="collapse navbar-collapse" ng-model="smallWindow" id="bs-navbar-collapse" ng-cloak>
                 <ul class="nav navbar-nav"> 
                     <li><a href="/Todo">Todo</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right"> 
                     <!-- Before login -->
-                    <li ng-show="!loggedIn" class="action-button">
+                    <li ng-show="!loggedIn" class="action-button" ng-cloak>
                         <a href="/Album-Admin" data-toggle="tooltip" data-placement="bottom" title="Login"><span class="glyphicon glyphicon-log-in"></span></a>
                     </li>
 
                     <!-- After login-->
-                    <li ng-show="loggedIn && selectMode" class="action-button">
+                    <li ng-show="loggedIn && selectMode" class="action-button" ng-cloak>
                         <a href="#" ng-click="downloadPhotos()" data-toggle="tooltip" data-placement="bottom" title="Download"><span class="glyphicon glyphicon-download"></span></a>
                     </li>
-                    <li ng-show="loggedIn && selectMode" class="action-button">
+                    <li ng-show="loggedIn && selectMode" class="action-button" ng-cloak>
                         <a href="#" ng-click="showDeleteDialog()" data-toggle="tooltip" data-placement="bottom" title="Delete"><span class="glyphicon glyphicon-trash"></span></a>
                     </li>
-                    <li ng-show="loggedIn" class="action-button">
+                    <li ng-show="loggedIn" class="action-button" ng-cloak>
                         <a href="#" ng-show="!editMode" ng-click="toggleEditMode()" data-toggle="tooltip" data-placement="bottom" title="Edit" ><span class="glyphicon glyphicon-edit"></span></a>
                         <a href="#" ng-show="editMode" ng-click="toggleEditMode()" data-toggle="tooltip" data-placement="bottom" title="Ok"><span class="glyphicon glyphicon-check"></span></a>
                     </li>
-                    <li ng-show="loggedIn && !editMode" class="action-button">
+                    <li ng-show="loggedIn && !editMode" class="action-button" ng-cloak>
                         <a href="#" ng-click="showUploadDialog()" data-toggle="tooltip" data-placement="bottom" title="Upload"><span class="glyphicon glyphicon-upload"></span></a></li>
-                    <li ng-show="loggedIn" class="dropdown">
+                    <li ng-show="loggedIn" class="dropdown" ng-cloak>
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" ng-cloak >{{user}} <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="/Album-Logout">Logout</a></li>
@@ -80,7 +80,7 @@
                     {{getPreviewDate(photo.date)}} 
                 </div>
             </div>
-            <div ng-show="editMode" class="input-checkbox">
+            <div ng-show="editMode" class="input-checkbox" ng-cloak>
                 <label>
                     <span ng-if="photo.selected" class="glyphicon glyphicon-check"></span>
                     <span ng-if="!photo.selected" class="glyphicon glyphicon-unchecked"></span>
@@ -103,6 +103,7 @@
     <script src="App/Album/Dialog/deleteDialogController.js"></script>
     <script src="App/Album/Dialog/detailDialogController.js"></script>
     <script src="App/Album/Dialog/downloadDialogController.js"></script>
+    <script src="App/Album/Dialog/editDialogController.js"></script>
 
     <!--External resources-->
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>

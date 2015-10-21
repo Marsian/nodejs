@@ -142,6 +142,11 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         var params = { downloadIds: downloadIds };
         dialogService.openDialog('./App/Album/Dialog/downloadDialog.html', params, 'downloadDialogController');
     };
+    
+    $scope.editPhoto = function(photoId) {
+        var params = { photoId: photoId };
+        dialogService.openDialog('./App/Album/Dialog/editDialog.html', params, 'editDialogController');
+    };
 
     $scope.getMorePhotos = function() {
         var begin = $scope.photoData.length + 1;
@@ -278,31 +283,36 @@ app.directive('ngThumb', ['$window', function($window) {
             }
         }
     };
-}]).directive('ngImage', ['$window', function($window) {
+}]).directive('ngImage', ['$window', '$rootScope', function($window, $rootScope) {
     var helper = {
         support: !!($window.CanvasRenderingContext2D),
     }
     return {
         restrict: 'A',
+        scope: {
+            photoId: "=",
+            photoWidth: "@",
+            photoHeight: "@",
+            angleInDegree: "="
+        },
         template: '<canvas/>',
         link: function(scope, element, attributes) {
             if (!helper.support) return;
 
-            var params = scope.$eval(attributes.ngImage);
-
             var canvas = element.find('canvas');
+            var context = canvas[0].getContext('2d');
 
-            var img = new Image();
-            img.onload = onLoadImage;
-            img.src = "/api/getPhotoImage/" + params.id;
-            scope.$broadcast("ImageLoading");
+            var image = new Image();
+            image.onload = onLoadImage;
+            image.src = "/api/getPhotoImage/" + scope.photoId;
+            $rootScope.$broadcast("ImageLoading");
 
             function onLoadImage() {
-                var width = params.width || this.width / this.height * params.height;
-                var height = params.height || this.height / this.width * params.width;
+                var width = scope.photoWidth || this.width / this.height * scope.photoHeight;
+                var height = scope.photoHeight || this.height / this.width * scope.photoWidth;
                 canvas.attr({ width: width, height: height });
                 canvas[0].getContext('2d').drawImage(this, 0, 0,  width, height);
-                scope.$broadcast("ImageLoaded");
+                $rootScope.$broadcast("ImageLoaded");
             }
         }
     };
@@ -329,7 +339,7 @@ app.directive('ngContextMenu', function($compile) {
                 // Create a new context menu
                 var template = '<div class="context-menu dropdown open">' +
                                     '<ul class="dropdown-menu" role="menu" >' +
-                                       '<li><a tabindex="-1" href="#">Edit</a></li>' +
+                                       '<li><a tabindex="-1" href="#" ng-click="editPhoto(contextId)">Edit</a></li>' +
                                        '<li><a tabindex="-1" href="#" ng-click="downloadPhoto(contextId)">Download</a></li>' +
                                     '</ul>' +
                                 '</div>';
