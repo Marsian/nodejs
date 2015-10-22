@@ -5,6 +5,9 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
     $scope.formData = {};
     $scope.userList = [];
     $scope.displayUser = 'All';
+    $scope.priorities = [ { name: 'Low', value: 0 },
+                          { name: 'Medium', value: 1 },
+                          { name: 'High', value: 2 } ];
 
     $scope.getDate = function(date) {
         return dateService.getDate(date, "ddd mmm ddS hh:MM tt");
@@ -55,17 +58,19 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
             if (todo._id == id) 
                 todo.edit = true;
                 todo.newText = todo.text;
+                todo.newPriority = todo.priority
         });
     };
 
-    $scope.confirmEdit = function(id, newText) {
-        var request = { id: id, text: newText };
+    $scope.confirmEdit = function(id, newText, newPriority) {
+        var request = { id: id, text: newText, priority: newPriority };
         $http.post('api/updateTodo', request)
             .success( function(data) {
                 if (data.length > 0) {
                     angular.forEach($scope.todos, function (todo) {
                         if (todo._id == id) {
                             todo.text = data[0].text;
+                            todo.priority = data[0].priority;
                             todo.edit = false;
                         }
                     });

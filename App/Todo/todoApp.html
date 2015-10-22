@@ -61,7 +61,11 @@
         <!-- List -->
         <div id="todo-list" class="list-block">
             <ul class="list-group">
-                <li class="list-group-item" ng-repeat="todo in todos" ng-class="{ 'todo-selected': todo.selected }" >
+                <li class="list-group-item" ng-repeat="todo in todos" 
+                    ng-class="{ 'todo-selected': todo.selected,
+                                'low-priority': todo.priority == 0,
+                                'medium-priority': todo.priority == 1, 
+                                'high-priority': todo.priority == 2 }" >
                     <div ng-show="!todo.edit">
                         <div class="todo-content" style="width: 100%;" ng-click="toggleSelect(todo._id)">
                             <div class="todo-text">{{ todo.text }}</div>
@@ -76,10 +80,20 @@
                             </button>
                         </span>
                     </div>
-                    <div ng-show="todo.edit">
-                        <input type="text" ng-model="todo.newText" style="width: 100%;">
+                    <div ng-if="todo.edit">
+                        <input type="text" ng-model="todo.newText" class="form-control" style="width: 100%;">
+                        <div class="btn-group todo-btn-group" data-toggle="buttons">
+                            <label class="btn"
+                                   ng-repeat="priority in priorities"
+                                   ng-class="{ 'btn-primary': priority.value == todo.newPriority,
+                                               'btn-default': priority.value != todo.newPriority }"
+                                   ng-click="todo.newPriority = priority.value">
+                                <input type="radio"/> {{priority.name}}
+                            </label> 
+                        </div>
                         <span class="pull-right button-group">
-                            <button class="btn btn-default" ng-click="confirmEdit(todo._id, todo.newText)">
+                            <button class="btn btn-default" 
+                                    ng-click="confirmEdit(todo._id, todo.newText, todo.newPriority)">
                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                             </button>
                             <button class="btn btn-default" ng-click="cancelEdit(todo._id)">

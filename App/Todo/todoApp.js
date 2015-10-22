@@ -23,6 +23,7 @@ var Todo = mongoose.model('Todo', {
     text : String,
     user: String,
     date : { type: Date, default: Date.now },
+    priority: { type: Number, min: 0, max: 2, default: 0 },
     comments: [ { text: String, 
                   user: String, 
                   date: { type: Date, default: Date.now } } ]
@@ -102,9 +103,12 @@ app.post('/api/todos', function(req, res) {
 app.post('/api/updateTodo', function(req, res) {
     var user = req.session.user.name; 
     // update a todo, information comes from AJAX request from Angular
-    Todo.update({ _id: req.body.id, user: user }, { text: req.body.text }, {}, function(err, todo) {
-        if (err)
+    Todo.update({ _id: req.body.id, user: user }, 
+                { text: req.body.text, priority: req.body.priority }, {}, function(err, todo) {
+        if (err) {
             res.send(err);
+            return;
+        }
 
         // get and return all the todos after you create another
         Todo.find( { _id: req.body.id }, function(err, todo) {

@@ -6,14 +6,34 @@
 .button-group {
     position: absolute;
     right: 8px;
-    top: 6px;
+    top: 10px;
 }
 
 .list-group-item {
+    height: 100%;
     padding-right: 100px !important;
+    padding-left: 25px !important;
 }
 .list-group-item:hover {
     background-color: rgba(229, 243, 247, 0.5);
+}
+.list-group-item:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 10px;
+}
+.low-priority:after {
+    background-color: #78cd51;
+}
+.medium-priority:after {
+    background-color: #fabb3d;
+}
+.high-priority:after {
+    background-color: #ff4136;
 }
 .todo-selected {
     background-color:#e2f3f7 !important;
@@ -30,6 +50,9 @@
     font-size: 10pt;
     font-weight: 400;
     color: lightgray;
+}
+.todo-btn-group {
+    margin-top: 8px;
 }
 .button-post {
     position: absolute;

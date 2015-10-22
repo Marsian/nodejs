@@ -40,7 +40,7 @@ app.controller('editDialogController', [ '$scope', '$http', '$timeout', 'dialog'
                 if (data.data) {
                     $scope.angle = 0;
                     $scope.edited = false;
-                    //$scope.refreshCount ++;
+                    $scope.refreshCount ++;
                 }
             })
             .error(function(data) {
