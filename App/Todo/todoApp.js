@@ -45,8 +45,8 @@ app.get('/Todo', restrict, function( req, res ) {
 });
 
 app.get('/Todo-Logout', function(req, res){
-  // destroy the user's session to log them out
-  // will be re-created next request
+    // destroy the user's session to log them out
+    // will be re-created next request
     req.session.destroy(function(){
         res.redirect('/');
     });
@@ -56,8 +56,10 @@ app.get('/api/todos', function(req, res) {
     var user = req.session.user.name; 
     // use mongoose to get all todos in the database
     User.find( {}, function(err, users) {
-        if (err)
+        if (err) {
             res.send(err);
+            return;
+        }
 
         var userList = [];
         for (var index in users ) {
@@ -66,9 +68,11 @@ app.get('/api/todos', function(req, res) {
                 userList.push( { user: users[index].name, name: users[index].name } );
         }
 
-        Todo.find( {}, function(err, todos) {
-            if (err)
+        Todo.find( {}, { sort: 'priority' }, function(err, todos) {
+            if (err) {
                 res.send(err);
+                return;
+            }
 
             var data = { todos: todos,
                          user: req.session.user.name,
@@ -86,14 +90,18 @@ app.post('/api/todos', function(req, res) {
         text : req.body.text,
         user: user 
     }, function(err, todo) {
-        if (err)
+        if (err) {
             res.send(err);
+            return;
+        }
 
-        // get and return all the todos after you create another
-        Todo.find( { user: user }, function(err, todos) {
-            if (err)
-                res.send(err)
-            res.json(todos);
+        // get and return all the todos of the user
+        Todo.find( { user: user }, '', { sort: 'priority' }, function(err, todos) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.json(todos);
+            }
         });
     });
 
@@ -110,7 +118,7 @@ app.post('/api/updateTodo', function(req, res) {
             return;
         }
 
-        // get and return all the todos after you create another
+        // get and return the updated todo
         Todo.find( { _id: req.body.id }, function(err, todo) {
             if (err)
                 res.send(err)
@@ -127,14 +135,18 @@ app.post('/api/deleteTodo', function(req, res) {
         _id : req.body.id,
         user: user
     }, function(err, todo) {
-        if (err)
+        if (err) {
             res.send(err);
+            return;
+        }
 
-        // get and return all the todos after you create another
-        Todo.find( { user: user}, function(err, todos) {
-            if (err)
-                res.send(err)
-            res.json(todos);
+        // get and return all the todo of the user
+        Todo.find( { user: user}, '', { sort: '-priority' },  function(err, todos) {
+            if (err) {
+                res.send(err);
+            } else {
+                res.json(todos);
+            }
         });
     });
 });
@@ -146,10 +158,12 @@ app.post('/api/updateTodoList', function(req, res) {
     if (req.body.name) 
         query = { user: req.body.name };
 
-    Todo.find( query, function(err, todo) {
-        if (err)
+    Todo.find( query, '', { sort: '-priority' }, function(err, todo) {
+        if (err) {
             res.send(err)
-        res.json(todo);
+        } else {
+            res.json(todo);
+        }
     });
 });
 
@@ -158,14 +172,18 @@ app.post('/api/postComment', function(req, res) {
     var user = req.session.user.name;
     // find the todo and push a comment to it
     Todo.update({ _id: req.body.id }, { $push: { comments: { user: user, text: req.body.text } } }, {}, function(err, todo) {
-        if (err)
+        if (err) {
             res.send(err);
+            return;
+        }
 
-        // get and return all the todos after you create another
+        // get and return the updated todo
         Todo.find( { _id: req.body.id }, function(err, todo) {
-            if (err)
+            if (err) {
                 res.send(err)
-            res.json(todo);
+            } else {
+                res.json(todo);
+            }
         });
     });
 
