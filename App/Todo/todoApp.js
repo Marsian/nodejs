@@ -3,6 +3,7 @@ var fs = require('fs');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');    // pull information from HTML POST (express4)
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
+var extend = require('util')._extend;
 var User = require('../../Modules/userModel');
 
 var app = module.exports = express();
@@ -23,6 +24,18 @@ var Todo = mongoose.model('Todo', {
     text : String,
     user: String,
     date : { type: Date, default: Date.now },
+    priority: { type: Number, min: 0, max: 2, default: 0 },
+    progress: { type: Number, min: 0, max: 10, default: 0 },
+    comments: [ { text: String, 
+                  user: String, 
+                  date: { type: Date, default: Date.now } } ]
+});
+
+var TodoArchive = mongoose.model('TodoArchive', {
+    text : String,
+    user: String,
+    createDate: { type: Date, default: Date.now },
+    finishDate: { type: Date, default: Date.now },
     priority: { type: Number, min: 0, max: 2, default: 0 },
     comments: [ { text: String, 
                   user: String, 
@@ -68,7 +81,7 @@ app.get('/api/todos', function(req, res) {
                 userList.push( { user: users[index].name, name: users[index].name } );
         }
 
-        Todo.find( {}, { sort: 'priority' }, function(err, todos) {
+        Todo.find( {}, '', { sort: 'priority' }, function(err, todos) {
             if (err) {
                 res.send(err);
                 return;
@@ -110,9 +123,10 @@ app.post('/api/todos', function(req, res) {
 // update todo and send back the todo after creation
 app.post('/api/updateTodo', function(req, res) {
     var user = req.session.user.name; 
+    var params = req.body;
     // update a todo, information comes from AJAX request from Angular
     Todo.update({ _id: req.body.id, user: user }, 
-                { text: req.body.text, priority: req.body.priority }, {}, function(err, todo) {
+                { text: params.text, priority: params.priority, progress: params.progress }, {}, function(err, todo) {
         if (err) {
             res.send(err);
             return;
@@ -120,33 +134,65 @@ app.post('/api/updateTodo', function(req, res) {
 
         // get and return the updated todo
         Todo.find( { _id: req.body.id }, function(err, todo) {
-            if (err)
+            if (err) {
                 res.send(err)
-            res.json(todo);
+            } else if (todo && todo.length > 0) {
+                res.json(todo[0]);
+            } else {
+                res.status(500).send("Todo not found!");
+            }
         });
     });
 
 });
 
+// Archive the todo
+var _archiveTodo = function(todo) {
+    TodoArchive.create({ 
+        text: todo.text,
+        user: todo.user,
+        createDate: todo.date,
+        finishDate: Date.now(),
+        priority: todo.priority,
+        comments: todo.comments
+    }, function(err) {
+        if (err) {
+            console.log(err);
+        }
+    });
+
+};
+
 // delete a todo
 app.post('/api/deleteTodo', function(req, res) {
     var user = req.session.user.name; 
-    Todo.remove({
-        _id : req.body.id,
-        user: user
-    }, function(err, todo) {
+    Todo.find({ _id: req.body.id, user: user }, function(err, todo) { 
         if (err) {
             res.send(err);
             return;
         }
-
-        // get and return all the todo of the user
-        Todo.find( { user: user}, '', { sort: '-priority' },  function(err, todos) {
+        
+        if (todo && todo.length > 0)
+            _archiveTodo(todo[0]);
+        
+        // Delete the todo
+        Todo.remove({
+            _id : req.body.id,
+            user: user
+        }, function(err, data) {
             if (err) {
                 res.send(err);
-            } else {
-                res.json(todos);
+                return;
             }
+
+            // get and return all the todo of the user
+            Todo.find( { user: user}, '', { sort: '-priority' },  function(err, todos) {
+                if (err) {
+                    res.send(err);
+                } else {
+                    res.json(todos);
+                }
+            });
         });
     });
 });

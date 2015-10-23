@@ -69,7 +69,9 @@
                     <div ng-show="!todo.edit">
                         <div class="todo-content" style="width: 100%;" ng-click="toggleSelect(todo._id)">
                             <div class="todo-text">{{ todo.text }}</div>
-                            <div ng-show="todo.date" class="todo-date">{{ getDate(todo.date) }}</div>
+                            <div ng-show="todo.date" class="todo-date">{{ getDate(todo.date) }}
+                            <span ng-show="todo.comments.length > 0" class="badge">{{todo.comments.length}}</span>
+                            </div>
                         </div>
                         <span ng-show="todo.user == user && !todo.selected" class="pull-right button-group">
                             <button class="btn btn-default" ng-click="edit(todo._id)">
@@ -91,9 +93,12 @@
                                 <input type="radio"/> {{priority.name}}
                             </label> 
                         </div>
+                        <div class="todo-progress">
+                            <input type="range" min="0" max="10"  ng-model="todo.newProgress" />
+                        </div>
                         <span class="pull-right button-group">
                             <button class="btn btn-default" 
-                                    ng-click="confirmEdit(todo._id, todo.newText, todo.newPriority)">
+                                    ng-click="confirmEdit(todo._id, todo.newText, todo.newPriority, todo.newProgress)">
                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                             </button>
                             <button class="btn btn-default" ng-click="cancelEdit(todo._id)">

@@ -17,7 +17,7 @@
 .list-group-item:hover {
     background-color: rgba(229, 243, 247, 0.5);
 }
-.list-group-item:after {
+.list-group-item:before {
     content: "";
     display: block;
     position: absolute;
@@ -25,16 +25,30 @@
     left: 0;
     height: 100%;
     width: 10px;
+    z-index: 5;
 }
-.low-priority:after {
+.low-priority:before {
     background-color: #78cd51;
 }
-.medium-priority:after {
+.medium-priority:before {
     background-color: #fabb3d;
 }
-.high-priority:after {
+.high-priority:before {
     background-color: #ff4136;
 }
+/*
+.list-group-item:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 5px;
+    width: 100%;
+    background: blue;
+    opacity: 0.4;
+}
+*/
 .todo-selected {
     background-color:#e2f3f7 !important;
 }
@@ -42,6 +56,9 @@
 .todo-content {
     line-height: 26px;
     cursor: pointer;
+}
+.todo-content .badge {
+    margin-left: 8px;
 }
 .todo-text {
     font-size: 14pt;
@@ -52,6 +69,10 @@
     color: lightgray;
 }
 .todo-btn-group {
+    margin-top: 8px;
+}
+.todo-progress {
+    display: inline-block;
     margin-top: 8px;
 }
 .button-post {

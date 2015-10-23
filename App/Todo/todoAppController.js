@@ -20,7 +20,6 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
             $scope.user = data.user;
             $scope.userList = data.userList;
             $scope.userList.push( { user: "All", name: "" } );
-            console.log(data);
         })
         .error(function(data) {
             console.log('Error: ' + data);
@@ -33,7 +32,6 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
                 $scope.formData = {}; // clear the form so our user is ready to enter another
                 $scope.displayUser = $scope.user;
                 $scope.todos = data;
-                console.log(data);
             })
             .error(function(data) {
                 console.log('Error: ' + data);
@@ -46,7 +44,6 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
             .success(function(data) {
                 $scope.displayUser = $scope.user;
                 $scope.todos = data;
-                console.log(data);
             })
             .error(function(data) {
                 console.log('Error: ' + data);
@@ -58,19 +55,21 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
             if (todo._id == id) 
                 todo.edit = true;
                 todo.newText = todo.text;
-                todo.newPriority = todo.priority
+                todo.newPriority = todo.priority;
+                todo.newProgress = todo.progress;
         });
     };
 
-    $scope.confirmEdit = function(id, newText, newPriority) {
-        var request = { id: id, text: newText, priority: newPriority };
+    $scope.confirmEdit = function(id, newText, newPriority, newProgress) {
+        var request = { id: id, text: newText, priority: newPriority, progress: newProgress };
         $http.post('api/updateTodo', request)
             .success( function(data) {
-                if (data.length > 0) {
+                if (data && data.text) {
                     angular.forEach($scope.todos, function (todo) {
                         if (todo._id == id) {
-                            todo.text = data[0].text;
-                            todo.priority = data[0].priority;
+                            todo.text = data.text;
+                            todo.priority = data.priority;
+                            todo.progress = data.progress;
                             todo.edit = false;
                         }
                     });
@@ -129,7 +128,6 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
             .success(function(data) {
                 $scope.formData = {}; // clear the form so our user is ready to enter another
                 $scope.todos = data;
-                console.log(data);
             })
             .error(function(data) {
                 console.log('Error: ' + data);
