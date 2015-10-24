@@ -118,16 +118,22 @@ app.post('/api/photo', upload.single('file'), function (req, res, next) {
                         preview: image
                     }, function(err, photo) {
                         if (err) {
-                            err.id = photo._id;
+                            err._id = photo._id;
                             res.status(500).send(err);
                         } else {
                             // Upload the original photo to S3
                             _uploadPhoto(photo._id, req.file.buffer, function(err) {
                                 if (err) {
-                                    err.id = photo._id;
+                                    err._id = photo._id;
                                     res.status(500).send(err);
                                 } else {
-                                    res.json( { id: photo._id } );
+                                    var photoInfo = { _id: photo._id, 
+                                                      name: photo.name,
+                                                      user: photo.user,
+                                                      date: photo.date,
+                                                      posted: photo.posted,
+                                                      comments: photo.comments };
+                                    res.json( photoInfo );
                                 }
                             });
                            

@@ -54,7 +54,7 @@
 }
 .ng-modal-dialog-content {
     padding: 24px;
-    max-height: calc(100% - 146px);
+    max-height: calc(100% - 142px);
     overflow: auto;
 }
 

@@ -31,7 +31,7 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
             .success(function(data) {
                 $scope.formData = {}; // clear the form so our user is ready to enter another
                 $scope.displayUser = $scope.user;
-                $scope.todos = data;
+                //$scope.todos = data;
             })
             .error(function(data) {
                 console.log('Error: ' + data);

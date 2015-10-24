@@ -1,4 +1,4 @@
-<div class='ng-modal'>
+<div class='ng-modal' nv-file-drop uploader="uploader">
     <div class='ng-modal-overlay' ng-click='cancel()'></div>
     <div class='ng-modal-dialog' ng-style='dialogStyle'>
         <div class="ng-modal-dialog-header">
@@ -7,7 +7,7 @@
                 <span class="glyphicon glyphicon-remove" ></span>
             </div>
         </div>
-        <div class='ng-modal-dialog-content upload-content'>
+        <div class='ng-modal-dialog-content upload-content' nv-file-over uploader="uploader" over-class="upload-file-over">
             <div class="input-group">
                 <span class="input-group-btn">
                     <span class="btn btn-primary btn-file">

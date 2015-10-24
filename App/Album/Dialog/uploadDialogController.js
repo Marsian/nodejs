@@ -65,10 +65,10 @@ app.controller('uploadDialogController', [ '$scope', '$http', 'dialog', 'FileUpl
         console.log(response);
         if (uploader.getNotUploadedItems().length == 0)
             $scope.uploading = false;
-        fileItem.uploadId = response.id;
+        fileItem.uploadId = response._id;
     };
     uploader.onErrorItem = function(fileItem, response, status, headers) {
-        fileItem.uploadId = response.id;
+        fileItem.uploadId = response._id;
         if (uploader.getNotUploadedItems().length == 0)
             $scope.uploading = false;
         console.info('onErrorItem', fileItem, response, status, headers);

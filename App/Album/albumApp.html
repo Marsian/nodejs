@@ -18,7 +18,8 @@
 
     </style>
 </head>
-<body ng-controller="albumAppController"  ng-class="{ 'container-hide': dialogOpened() }">
+<body ng-controller="albumAppController"  ng-class="{ 'container-hide': dialogOpened() }" 
+      nv-file-drop uploader="mainUploader">
     <!-- Header bar -->
     <nav class="navbar navbar-default album-header">
         <div class="container-fluid">
@@ -67,7 +68,11 @@
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container" nv-file-over uploader="mainUploader">
+        <div ng-repeat="item in mainUploader.queue" ng-show="!item.isSuccess" 
+             class="panel panel-default photo-upload-canvas pull-left">
+            <div ng-upload-preview item="item"></div>
+        </div>
         <div ng-repeat="photo in photoData" class="panel panel-default photo-canvas pull-left" 
              ng-context-menu="{{photo._id}}" >
             <div ng-preview="{ id: photo._id, height: 200 }" ng-click="showDetailDialog(photo)" 
