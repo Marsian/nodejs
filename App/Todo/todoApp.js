@@ -109,7 +109,7 @@ app.post('/api/todos', function(req, res) {
         }
 
         // get and return all the todos of the user
-        Todo.find( { user: user }, '', { sort: 'priority' }, function(err, todos) {
+        Todo.find( { user: user }, '', { sort: '-priority' }, function(err, todos) {
             if (err) {
                 res.send(err);
             } else {

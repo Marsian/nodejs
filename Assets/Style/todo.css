@@ -36,19 +36,6 @@
 .high-priority:before {
     background-color: #ff4136;
 }
-/*
-.list-group-item:after {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    height: 5px;
-    width: 100%;
-    background: blue;
-    opacity: 0.4;
-}
-*/
 .todo-selected {
     background-color:#e2f3f7 !important;
 }
@@ -64,16 +51,57 @@
     font-size: 14pt;
 }
 .todo-date {
+    position: relative;
     font-size: 10pt;
     font-weight: 400;
     color: lightgray;
 }
+.todo-progress-bar {
+    content: "";
+    display: block;
+    position: absolute;
+    border: 1px solid;
+}
+.todo-advanced-option {
+    display: inline-block;
+    width: 100%;
+}
 .todo-btn-group {
+    /*display: block !important;*/
     margin-top: 8px;
 }
-.todo-progress {
+.todo-btn-group .btn {
+    width: 80px;
+    height: 24px;
+    font-weight: 300;
+    padding: 1px 12px;
+}
+.todo-btn-group .btn:active {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+.todo-btn-group .btn-primary.active {
+    background-color: #337ab7;
+    border-color: #2e6da4;
+}
+.todo-btn-group .btn-default {
+    color: #337ab7;
+    border-color: #2e6da4;
+}
+.todo-btn-group .btn-default:active:hover,
+.todo-btn-group .btn-default:hover,
+.todo-btn-group .btn-default:focus {
+    color: #337ab7;
+    border-color: #2e6da4;
+    background-color: #5bc0de;
+}
+.todo-progress-slider {
     display: inline-block;
+    float: right;
     margin-top: 8px;
+}
+.todo-progress-slider input[type=range] {
+    width: 240px;
 }
 .button-post {
     position: absolute;
@@ -92,17 +120,18 @@
 }
 
 .select-dropdown {
-    width: 300px !important;
+    width: 120px !important;
     position: relative;
     display: block;
     margin-right: 8px;
     margin-left: 8px;
 }
-
+.todo-comment-list {
+    margin-top: 8px;
+}
 .todo-comment {
     padding-left: 16px;
     padding-bottom: 8px;
-    border-top: 1px solid #e7e7e7;
 }
 .comment-user {
     padding-top: 4px;
@@ -120,4 +149,95 @@
 
 .button-add {
     margin-bottom: 20px !important;
+}
+
+input[type=range] {
+    /*removes default webkit styles*/
+    -webkit-appearance: none;
+    
+    /*fix for FF unable to apply focus style bug */
+    border: 1px solid white;
+    
+    /*required for proper track sizing in FF*/
+    width: 300px;
+}
+input[type=range]::-webkit-slider-runnable-track {
+    width: 300px;
+    height: 18px;
+    background: #fff;
+    border: 1px solid #337ab7;
+    border-radius: 4px;
+    margin-top: 4px;
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 16px;
+    width: 24px;
+    border-radius: 4px;
+    background: #337ab7;
+}
+input[type=range]:focus {
+    outline: none;
+}
+/*
+input[type=range]:focus::-webkit-slider-runnable-track {
+    background: #ccc;
+}
+*/
+input[type=range]::-moz-range-track {
+    width: 300px;
+    height: 18px;
+    background: #fff;
+    border: none;
+    border-radius: 8px;
+}
+input[type=range]::-moz-range-thumb {
+    border: none;
+    height: 16px;
+    width: 24px;
+    border-radius: 4px;
+    background: #337ab7;
+}
+
+/*hide the outline behind the border*/
+input[type=range]:-moz-focusring {
+    outline: 1px solid white;
+    outline-offset: -1px;
+}
+
+input[type=range]::-ms-track {
+    width: 300px;
+    height: 18px;
+    
+    /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
+    background: transparent;
+    
+    /*leave room for the larger thumb to overflow with a transparent border */
+    border-color: transparent;
+    border-width: 6px 0;
+
+    /*remove default tick marks*/
+    color: transparent;
+}
+input[type=range]::-ms-fill-lower {
+    background: #777;
+    border-radius: 10px;
+}
+input[type=range]::-ms-fill-upper {
+    background: #ddd;
+    border-radius: 10px;
+}
+input[type=range]::-ms-thumb {
+    border: none;
+    height: 16px;
+    width: 24px;
+    border-radius: 4px;
+    background: goldenrod;
+}
+input[type=range]:focus::-ms-fill-lower {
+    background: #888;
+}
+input[type=range]:focus::-ms-fill-upper {
+    background: #ccc;
 }
