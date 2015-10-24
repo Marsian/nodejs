@@ -81,7 +81,7 @@ app.get('/api/todos', function(req, res) {
                 userList.push( { user: users[index].name, name: users[index].name } );
         }
 
-        Todo.find( {}, '', { sort: 'priority' }, function(err, todos) {
+        Todo.find( {}, '', { sort: '-priority' }, function(err, todos) {
             if (err) {
                 res.send(err);
                 return;
