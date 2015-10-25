@@ -19,7 +19,7 @@
     </style>
 </head>
 <body ng-controller="albumAppController"  ng-class="{ 'container-hide': dialogOpened() }" 
-      nv-file-drop uploader="mainUploader">
+      nv-file-drop uploader="mainUploader" style="height: 100%; overflow: hidden;">
     <!-- Header bar -->
     <nav class="navbar navbar-default album-header">
         <div class="container-fluid">
@@ -44,16 +44,6 @@
                     </li>
 
                     <!-- After login-->
-                    <li ng-show="loggedIn && selectMode" class="action-button" ng-cloak>
-                        <a href="#" ng-click="downloadPhotos()" data-toggle="tooltip" data-placement="bottom" title="Download"><span class="glyphicon glyphicon-download"></span></a>
-                    </li>
-                    <li ng-show="loggedIn && selectMode" class="action-button" ng-cloak>
-                        <a href="#" ng-click="showDeleteDialog()" data-toggle="tooltip" data-placement="bottom" title="Delete"><span class="glyphicon glyphicon-trash"></span></a>
-                    </li>
-                    <li ng-show="loggedIn" class="action-button" ng-cloak>
-                        <a href="#" ng-show="!editMode" ng-click="toggleEditMode()" data-toggle="tooltip" data-placement="bottom" title="Edit" ><span class="glyphicon glyphicon-edit"></span></a>
-                        <a href="#" ng-show="editMode" ng-click="toggleEditMode()" data-toggle="tooltip" data-placement="bottom" title="Ok"><span class="glyphicon glyphicon-check"></span></a>
-                    </li>
                     <li ng-show="loggedIn && !editMode" class="action-button" ng-cloak>
                         <a href="#" ng-click="showUploadDialog()" data-toggle="tooltip" data-placement="bottom" title="Upload"><span class="glyphicon glyphicon-upload"></span></a></li>
                     <li ng-show="loggedIn" class="dropdown" ng-cloak>
@@ -68,29 +58,57 @@
         </div>
     </nav>
 
-    <div class="container" nv-file-over uploader="mainUploader">
-        <div ng-repeat="item in mainUploader.queue" ng-show="!item.isSuccess" 
-             class="panel panel-default photo-upload-canvas pull-left">
-            <div ng-upload-preview item="item"></div>
-        </div>
-        <div ng-repeat="photo in photoData" class="panel panel-default photo-canvas pull-left" 
-             ng-context-menu="{{photo._id}}" >
-            <div ng-preview="{ id: photo._id, height: 200 }" ng-click="showDetailDialog(photo)" 
-                 ng-mouseenter="dateToggle(photo)" ng-mouseleave="dateToggle(photo)"
-                 class="photo-canvas-image"></div>
-            <div ng-show="photo.showDate" class="photo-date-container" ng-cloak
-                 ng-mouseenter="photo.showDate = true" ng-mouseleave="photo.showDate = false">
-                
-                <div class='photo-date-backlay'>
-                    {{getPreviewDate(photo.date)}} 
-                </div>
+    <nav ng-show="selectMode" class="navbar navbar-default album-header select-header" ng-cloak> 
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" >
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#" ng-click="deselectAll()"><span class="glyphicon glyphicon-remove" ></span></a>
             </div>
-            <div ng-show="editMode" class="input-checkbox" ng-cloak>
-                <label>
-                    <span ng-if="photo.selected" class="glyphicon glyphicon-check"></span>
-                    <span ng-if="!photo.selected" class="glyphicon glyphicon-unchecked"></span>
+            <div class="collapse navbar-collapse" ng-model="smallWindow" id="bs-navbar-collapse" ng-cloak>
+                <ul class="nav navbar-nav navbar-right"> 
+                    <li class="select-button" ng-cloak>
+                        <a href="#" ng-click="downloadPhotos()" data-toggle="tooltip" data-placement="bottom" title="Download"><span class="glyphicon glyphicon-save"></span></a>
+                    </li>
+                    <li class="select-button" ng-cloak>
+                        <a href="#" ng-click="showDeleteDialog()" data-toggle="tooltip" data-placement="bottom" title="Delete"><span class="glyphicon glyphicon-trash"></span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+     
+    <div class="main-container" nv-file-over uploader="mainUploader">
+        <div class="container">
+            <div ng-repeat="item in mainUploader.queue" ng-show="!item.isSuccess" 
+                 class="panel panel-default photo-upload-canvas pull-left">
+                <div ng-upload-preview item="item"></div>
+            </div>
+            <div ng-repeat="photo in photoData" class="panel panel-default photo-canvas pull-left" 
+                 ng-context-menu="{{photo._id}}" >
+                <div ng-preview="{ id: photo._id, height: 200 }" ng-click="showDetailDialog(photo)" 
+                     ng-mouseenter="hoverToggle(photo)" ng-mouseleave="hoverToggle(photo)"
+                     class="photo-canvas-image"></div>
+                <!--Hover display stuff-->
+                <div ng-show="loggedIn && (photo.showSelector || photo.selected)" 
+                     class="photo-selector-container" ng-cloak
+                     ng-mouseenter="photo.showSelector = true" ng-mouseleave="photo.showSelector = false"
+                     ng-class="{ 'selected': photo.selected }">
+                    
+                    <span class="glyphicon glyphicon-ok"></span>    
                     <input type="checkbox" name="select" ng-model="photo.selected" ng-change="selectCheck(photo)">
-                </label>
+                </div>
+                <div ng-show="photo.showDate" class="photo-date-container" ng-cloak
+                     ng-mouseenter="photo.showDate = true" ng-mouseleave="photo.showDate = false">
+                    <div class='photo-date-backlay'>
+                        {{getPreviewDate(photo.date)}} 
+                    </div>
+                </div>
             </div>
         </div>
     </div>

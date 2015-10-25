@@ -3,6 +3,7 @@ var app = angular.module('albumApp', ['util', 'angularFileUpload']);
 app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout', '$interval', 'dateService', 'dialogService', 'FileUploader',  function($scope, $http, $window, $timeout, $interval, dateService, dialogService, FileUploader) {
     // Variable initialize
     $scope.photoData = [];
+    $scope.photoIdSet = new Set();
     $scope.loadCount = 0;
 
     $scope.selectCount = 0;
@@ -17,27 +18,30 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
     $scope.getPreviewDate = function(date) {
         return dateService.getDate(date, "yyyy mmm dd");
     };
-    
-    $scope.dateToggle = function(photo) {
+
+    // View ###################################################
+    $scope.hoverToggle = function(photo) {
         if (photo.showDate) {
             photo.showDate = false;
         } else {
             photo.showDate = true;
         }
+        
+        if (photo.showSelector) {
+            photo.showSelector = false;
+        } else {
+            photo.showSelector = true;
+        }
     };
 
-    // View
-    $scope.editMode = false;
-    $scope.toggleEditMode = function () {
-        $scope.editMode = !$scope.editMode;
-        if (!$scope.editMode) {
-            $scope.selectCount = 0;
-            $scope.selectMode = false;
-            $scope.deleteIds = [];
-            angular.forEach($scope.photoData, function(photo) {
-                photo.selected = false;
-            });
-        }
+
+    $scope.deselectAll = function () {
+        $scope.selectCount = 0;
+        $scope.selectMode = false;
+        $scope.deleteIds = [];
+        angular.forEach($scope.photoData, function(photo) {
+            photo.selected = false;
+        });
     };
 
     $scope.showUploadDialog = function() {
@@ -85,7 +89,7 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         } 
     }
 
-    // Control  
+    // Control ###############################################
     $scope.getPhoto = function(photo) {
         $http.post('/api/getPhotoImage', { id: photo._id })
             .success(function(data) {
@@ -94,6 +98,25 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
             .error(function(data) {
                 console.log('Error: ' + data);
             });
+    };
+
+    $scope.deletePhoto = function (photoId) {
+        $http.post('/api/deletePhotoByIds', { ids: [ photoId ] })
+            .success(function(data) {
+                var length = $scope.photoData.length;
+                for (var i = 0; i < length; ) {
+                    if ($scope.photoData[i]._id == photoId) {
+                        $scope.photoData.splice(i,1);
+                        length --;
+                        continue;
+                    }
+                    i ++;
+                }  
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+
     };
 
     $scope.deletePhotoByIds = function() {
@@ -136,7 +159,7 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
                 downloadIds.push(photo._id);
             }
         });
-        $scope.toggleEditMode(); 
+        $scope.deselectAll(); 
         
         var params = { downloadIds: downloadIds };
         dialogService.openDialog('./App/Album/Dialog/downloadDialog.html', params, 'downloadDialogController');
@@ -154,7 +177,12 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         $http.post('/api/getPhotoData', { begin: begin, end: end })
             .success(function(data) {
                 if (data && data.photoData && data.photoData.length > 0) {
-                    $scope.photoData = $scope.photoData.concat( data.photoData );
+                    angular.forEach(data.photoData, function(photo) {
+                        if (!$scope.photoIdSet.has(photo._id)) {
+                            $scope.photoData.push( photo );
+                            $scope.photoIdSet.add(photo._id);
+                        }
+                    });
                 }
             })
             .error(function(data) {
@@ -162,17 +190,25 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
             });
     };
 
-    // Event
+    // Event #########################################
     // after loading all exsiting preview,
     // check if we want more to fill the window
     $scope.$on("previewLoaded", function() {
         $scope.loadCount ++;
         if ($scope.loadCount == $scope.photoData.length) {
-            if ( window.innerHeight + window.scrollY > document.body.offsetHeight) {
+            element = document.getElementsByClassName("main-container")[0];
+            if ( element.clientHeight >= element.scrollHeight) {
                 $scope.getMorePhotos();
             }
         }
     });
+
+    // Get more photos when reach the end of the window
+    $('.main-container').bind('scroll', function() {
+        if($(this).scrollTop() + $(this).innerHeight()>=$(this)[0].scrollHeight) {
+            $scope.getMorePhotos();
+        }
+    })
 
     $scope.$on("uploadComplete", function() {
         _initialize();
@@ -182,35 +218,7 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         $scope.deletePhotoByIds();
     });
 
-    window.onscroll = function(ev) {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-            $scope.getMorePhotos();
-        }
-    };
-
-    var _initialize = function() {
-        // load context
-        $http.get('/api/album')
-            .success(function(data) {
-                $scope.user = data.user;
-                $scope.loggedIn = data.loggedIn;
-                $scope.photoData = data.photoData;
-                $scope.loadCount = 0;
-            })
-            .error(function(data) {
-                console.log(data);
-            });
-
-    };
-    
-    $scope.test = function(id) {
-        console.log(id);
-    };
-
-    _initialize();
-
-
-    // Uploading
+    // Uploading ##########################################
     var mainUploader = $scope.mainUploader = new FileUploader({
         url: '/api/photo'
     });
@@ -244,10 +252,32 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         fileItem.uploadId = response._id;
         console.info('onErrorItem', fileItem, response, status, headers);
     };
-    mainUploader.onCompleteItem = function(fileItem, response, status, headers) {
-        console.info('onCompleteItem', fileItem, response, status, headers);
-    };
 
+    // Initialization ########################################
+    var _initialize = function() {
+        // load context
+        $http.get('/api/album')
+            .success(function(data) {
+                $scope.user = data.user;
+                $scope.loggedIn = data.loggedIn;
+                $scope.photoData = data.photoData;
+                $scope.loadCount = 0;
+                // Prevent uploading when not logged in
+                if (!$scope.loggedIn) {
+                    $scope.mainUploader.filters.push({ fn: function(item, options) { return false; } });
+                }
+
+                angular.forEach($scope.photoData, function(photo) {
+                    $scope.photoIdSet.add(photo._id);
+                });
+            })
+            .error(function(data) {
+                console.log(data);
+            });
+
+    };
+    
+    _initialize();
 }]);
 
 //######## Utility #################
@@ -392,7 +422,19 @@ app.directive('ngThumb', ['$window', function($window) {
 app.directive('ngContextMenu', function($compile) {
     return  {
         link: function(scope, element, attrs) {
+
+            var _closeContextMenu = function () {
+                var oldContextMenu = element[0].getElementsByClassName('context-menu')
+                if (oldContextMenu && oldContextMenu.length > 0) {
+                    angular.forEach(oldContextMenu, function(elem) {
+                        elem.remove();
+                    });
+                }
+            };
+
             element.bind('contextmenu', function(event) {
+                if (!scope.loggedIn)
+                    return;
                 // Prevent default context menu
                 event.preventDefault();
                 
@@ -400,18 +442,16 @@ app.directive('ngContextMenu', function($compile) {
                 scope.contextId = attrs.ngContextMenu;
 
                 // Remove old context menu
-                var oldContextMenu = element[0].getElementsByClassName('context-menu')
-                if (oldContextMenu && oldContextMenu.length > 0) {
-                    angular.forEach(oldContextMenu, function(elem) {
-                        elem.remove();
-                    });
-                }
+                _closeContextMenu();
 
                 // Create a new context menu
                 var template = '<div class="context-menu dropdown open">' +
                                     '<ul class="dropdown-menu" role="menu" >' +
                                        '<li><a tabindex="-1" href="#" ng-click="editPhoto(contextId)">Edit</a></li>' +
                                        '<li><a tabindex="-1" href="#" ng-click="downloadPhoto(contextId)">Download</a></li>' +
+                                       '<li role="separator" class="divider"></li>' +
+                                       
+                                       '<li><a tabindex="-1" href="#" ng-click="deletePhoto(contextId)">Delete</a></li>' +
                                     '</ul>' +
                                 '</div>';
                 var content = angular.element(template);
@@ -429,12 +469,11 @@ app.directive('ngContextMenu', function($compile) {
 
             element.bind('mouseleave', function(){
                 // Remove existing context menu when leave
-                var oldContextMenu = element[0].getElementsByClassName('context-menu')
-                if (oldContextMenu && oldContextMenu.length > 0) {
-                    angular.forEach(oldContextMenu, function(elem) {
-                        elem.remove();
-                    });
-                }
+                _closeContextMenu();
+            });
+
+            element.bind('click', function() {
+                _closeContextMenu();
             });
         }
     }
