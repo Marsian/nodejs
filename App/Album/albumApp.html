@@ -13,6 +13,7 @@
     <link rel="stylesheet" type="text/css" href="Assets/Style/index.css"></link>
     <link rel="stylesheet" type="text/css" href="Assets/Style/loader.css"></link>
     <link rel="stylesheet" type="text/css" href="Assets/Script/bootstrap/css/bootstrap.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="Assets/Script/ionicons/css/ionicons.min.css"></link>
 
     <style>
 
@@ -31,7 +32,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/" data-toggle="tooltip" data-placement="bottom" title="Home"><span class="glyphicon glyphicon-home" ></span></a>
+                <a class="navbar-brand" href="/" data-toggle="tooltip" data-placement="bottom" title="Home"><i class="icon ion-home icon22" ></i></a>
             </div>
             <div class="collapse navbar-collapse" ng-model="smallWindow" id="bs-navbar-collapse" ng-cloak>
                 <ul class="nav navbar-nav"> 
@@ -40,12 +41,12 @@
                 <ul class="nav navbar-nav navbar-right"> 
                     <!-- Before login -->
                     <li ng-show="!loggedIn" class="action-button" ng-cloak>
-                        <a href="/Album-Admin" data-toggle="tooltip" data-placement="bottom" title="Login"><span class="glyphicon glyphicon-log-in"></span></a>
+                        <a href="/Album-Admin" data-toggle="tooltip" data-placement="bottom" title="Login"><i class="icon ion-log-in icon24"></i></a>
                     </li>
 
                     <!-- After login-->
                     <li ng-show="loggedIn && !editMode" class="action-button" ng-cloak>
-                        <a href="#" ng-click="showUploadDialog()" data-toggle="tooltip" data-placement="bottom" title="Upload"><span class="glyphicon glyphicon-upload"></span></a></li>
+                        <a href="#" ng-click="showUploadDialog()" data-toggle="tooltip" data-placement="bottom" title="Upload"><i class="icon ion-upload icon24"></i></a></li>
                     <li ng-show="loggedIn" class="dropdown" ng-cloak>
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" ng-cloak >{{user}} <span class="caret"></span></a>
                         <ul class="dropdown-menu">
@@ -62,21 +63,24 @@
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" >
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#select-navbar-collapse" >
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#" ng-click="deselectAll()"><span class="glyphicon glyphicon-remove" ></span></a>
+                <a class="navbar-brand deselect-button" href="#" ng-click="deselectAll()"><i class="icon ion-close icon22"></i></a>
+                <div class="select-count">
+                    {{selectCount}} selected
+                </div>
             </div>
-            <div class="collapse navbar-collapse" ng-model="smallWindow" id="bs-navbar-collapse" ng-cloak>
+            <div class="collapse navbar-collapse" ng-model="smallWindow" id="select-navbar-collapse" ng-cloak>
                 <ul class="nav navbar-nav navbar-right"> 
                     <li class="select-button" ng-cloak>
-                        <a href="#" ng-click="downloadPhotos()" data-toggle="tooltip" data-placement="bottom" title="Download"><span class="glyphicon glyphicon-save"></span></a>
+                        <a href="#" ng-click="downloadPhotos()" data-toggle="tooltip" data-placement="bottom" title="Download"><i class="icon ion-archive icon22"></i></a>
                     </li>
                     <li class="select-button" ng-cloak>
-                        <a href="#" ng-click="showDeleteDialog()" data-toggle="tooltip" data-placement="bottom" title="Delete"><span class="glyphicon glyphicon-trash"></span></a>
+                        <a href="#" ng-click="showDeleteDialog()" data-toggle="tooltip" data-placement="bottom" title="Delete"><i class="icon ion-trash-b icon22"></i></a>
                     </li>
                 </ul>
             </div>
@@ -99,8 +103,7 @@
                      class="photo-selector-container" ng-cloak
                      ng-mouseenter="photo.showSelector = true" ng-mouseleave="photo.showSelector = false"
                      ng-class="{ 'selected': photo.selected }">
-                    
-                    <span class="glyphicon glyphicon-ok"></span>    
+                    <i class="icon ion-checkmark"></i>    
                     <input type="checkbox" name="select" ng-model="photo.selected" ng-change="selectCheck(photo)">
                 </div>
                 <div ng-show="photo.showDate" class="photo-date-container" ng-cloak

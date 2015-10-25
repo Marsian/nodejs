@@ -129,7 +129,7 @@
 }
 .pure-close {
     -webkit-transform: translateZ(0);
-    padding-top: 8px;
+    padding-top: 4px;
     position: fixed;
     top: 0;
     right: 32px;
