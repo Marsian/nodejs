@@ -9,8 +9,11 @@
 
 
     <link rel="shortcut icon" type="image/x-icon" href="Assets/Image/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="Assets/Style/index.css"></link>
+    <link rel="stylesheet" type="text/css" href="Assets/Style/loader.css"></link>
     <link rel="stylesheet" type="text/css" href="Assets/Style/login.css"></link>
     <link rel="stylesheet" type="text/css" href="Assets/Script/bootstrap/css/bootstrap.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="Assets/Script/ionicons/css/ionicons.min.css"></link>
 
     <style>
 
@@ -34,11 +37,11 @@
                 {{err}}
             </div>
             <label class="text">Username</label>
-            <input type="text" name="username" ng-model="username">
+            <input type="text" class="form-control" name="username" ng-model="username">
             <label class="text">Password</label>
-            <input type="password" name="password" ng-model="password">
+            <input type="password" class="form-control" name="password" ng-model="password">
             <label ng-show="changeMode" class="text">New Password</label>
-            <input ng-show="changeMode" type="password" name="newPassword" ng-model="newPassword">
+            <input ng-show="changeMode" type="password" class="form-control" name="newPassword" ng-model="newPassword">
             <div class="login-button" >
                 <button ng-show="!changeMode" class="btn btn-primary" id="login-button" ng-click="login()">Login</button>
                 <button ng-show="!changeMode" class="btn btn-default pull-right" id="change-button" ng-click="changeMode = true">Change</button>
@@ -53,26 +56,6 @@
                 <a class="btn-link" href="#" ng-click="showCreateDialog()">Create new user</a>
             </div>
         </div>
-
-        <div ng-show="createMode" class="panel panel-default login-block">
-            <div ng-show="err" class="alert alert-danger fade in" >
-                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                {{err}}
-            </div>
-            <label class="text">Username</label>
-            <input type="text" name="username" ng-model="username">
-            <label class="text">Password</label>
-            <input type="password" name="password" ng-model="password">
-            <label class="text">Re-Password</label>
-            <input type="password" name="re-password" ng-model="rePassword">
-            <label class="text">Admin Password</label>
-            <input type="password" name="admin-password" ng-model="adminPassword">
-            <div class="login-button" >
-                <button class="btn btn-primary" id="login-button" ng-click="create()">Create</button>
-            </div>
-        </div>
-
-        
     </div>
 
     <!--Placed at the end of the document so the pages load faster-->
@@ -82,6 +65,7 @@
     <script src="Assets/Script/bootstrap/js/bootstrap.min.js"></script>
     <script src="js-src/util.js"></script>
     <script src="App/Login/loginController.js"></script>
+    <script src="App/Login/Dialog/createDialogController.js"></script>
 
     <!--Bootstrap angular module at last-->
     <script>

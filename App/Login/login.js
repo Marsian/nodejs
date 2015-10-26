@@ -67,32 +67,73 @@ app.post('/api/login', function(req, res){
 });
 
 app.post('/api/newPassword', function(req, res){
-  authenticate(req.body.username, req.body.password, function(err, user){
-    if (user) {
-        hashUser(user.name, req.body.newPassword, function(err, name, salt, hash){
-            if (err) 
-                throw err;
-            // create a user in the db
-            User.update({ name: user.name }, { $set: {
-                salt: salt,
-                hash: hash
-            } }, function( err, user ) {
-                if (err) {
-                    res.json(err)
-                    return;
-                }
+    authenticate(req.body.username, req.body.password, function(err, user){
+        if (user) {
+            hashUser(user.name, req.body.newPassword, function(err, name, salt, hash){
+                if (err) 
+                    throw err;
+                // update a user in the db
+                User.update({ name: user.name }, { $set: {
+                    salt: salt,
+                    hash: hash
+                } }, function( err, user ) {
+                    if (err) {
+                        res.json(err)
+                        return;
+                    }
 
-                var msg = { success: true };
-                res.json(msg);
+                    var msg = { success: true };
+                    res.json(msg);
+                });
             });
-        });
 
-    } else if (err) {
-        res.json(err);
-    } else {
-        var errorMsg = { err: 'Unknown error'};
-        res.json(errorMsg);
-    }
-  });
+        } else if (err) {
+            res.json(err);
+        } else {
+            var errorMsg = { err: 'Unknown error'};
+            res.json(errorMsg);
+        }
+    });
+});
+
+app.post('/api/createUser', function(req, res) {
+    authenticate('admin', req.body.adminPassword, function(err, user){
+        if (user) {
+            User.find({ name: req.body.username }, function(err, data) {
+                if (err) {
+                    res.status(500).json({ err: err });
+                } else if (data && data.length > 0) {
+                    res.json({ err: "Username already exists"});
+                } else {
+                     hashUser(req.body.username, req.body.password, function(err, name, salt, hash){
+                        if (err) { 
+                            res.status(500).json({ err: err });
+                            return;
+                        }
+                        // create a user in the db
+                        User.create({ 
+                            name: name, 
+                            salt: salt,
+                            hash: hash
+                        }, function( err, user ) {
+                            if (err) {
+                                res.json({ err: err });
+                                return;
+                            }
+
+                            var msg = { success: true };
+                            res.json(msg);
+                        });
+                    });
+                }
+            })
+        } else if (err) {
+            res.json(err);
+        } else {
+            var errorMsg = { err: 'Unknown error'};
+            res.json(errorMsg);
+        }
+    });
+
 });
 

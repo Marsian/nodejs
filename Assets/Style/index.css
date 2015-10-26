@@ -88,6 +88,33 @@
     cursor: zoom-out;
     z-index: 680;
 }
+.ng-modal-pure-container-tiny {
+    z-index: auto;
+    margin: 0 auto;
+    width: 520px;
+    margin-top: 28px;
+    margin-bottom: 28px;
+    cursor: auto;
+}
+.ng-modal-pure-container-tiny:after {
+    content: "";
+    display: table;
+    clear: both
+}
+
+.ng-modal-pure-container-small {
+    z-index: auto;
+    margin: 0 auto;
+    width: 640px;
+    margin-top: 28px;
+    margin-bottom: 28px;
+    cursor: auto;
+}
+.ng-modal-pure-container-small:after {
+    content: "";
+    display: table;
+    clear: both
+}
 .ng-modal-pure-container-medium {
     z-index: auto;
     margin: 0 auto;
@@ -133,6 +160,13 @@
     visibility: visible;
     cursor: auto;
 }
+.ng-modal-pure-content-tiny {
+    width: 520px;
+    float: left;
+    visibility: visible;
+    cursor: auto;
+}
+
 .pure-close {
     -webkit-transform: translateZ(0);
     padding-top: 4px;

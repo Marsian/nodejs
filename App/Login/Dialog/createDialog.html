@@ -1,0 +1,33 @@
+<div class='ng-modal'>
+    <div class='ng-modal-pure' ng-click="close()"> 
+        <button class="pure-close">
+            <i class="icon ion-close"></i>
+        </button>
+        <div class='ng-modal-pure-container-tiny' ng-click="fakeClick($event)">
+            <div class="ng-modal-pure-content-tiny create-content">
+                <div class="create-pane">
+                    <div ng-show="err" class="alert alert-danger fade in" >
+                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                        {{err}}
+                    </div>
+                    <label class="text">Username</label>
+                    <input type="text" class="form-control" name="username" ng-model="username">
+                    <label class="text">Password</label>
+                    <input type="password" class="form-control" name="password" ng-model="password">
+                    <label class="text">Re-Password</label>
+                    <input type="password" class="form-control" name="re-password" ng-model="rePassword">
+                    <label class="text">Admin Password</label>
+                    <input type="password" class="form-control" name="admin-password" ng-model="adminPassword">
+                    <div class="login-button" >
+                        <button class="btn btn-primary" id="login-button" ng-click="create()">Create</button>
+                        <span ng-show="creating" class="create-spinner">
+                            <div class="spinner-loader">
+                              Loading…
+                            </div>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

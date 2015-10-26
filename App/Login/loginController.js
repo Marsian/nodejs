@@ -48,7 +48,7 @@ app.controller('loginController', [ '$scope', '$http', 'contextService', 'dialog
     };
 
     $scope.showCreateDialog = function(photo) {
-        dialogService.openDialog('./App/Album/Dialog/createDialog.html', {}, 'createDialogController');
+        dialogService.openDialog('./App/Login/Dialog/createDialog.html', {}, 'createDialogController');
     };  
 
     $scope.$watch('changeMode', function(val) {

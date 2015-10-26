@@ -55,3 +55,29 @@
     background-color: #fff;
     font-size: 14px;
 }
+
+/* Create Dialog*/
+.create-pane {
+    background: #fff;
+    padding: 20px 40px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+.create-pane input {
+    width: 100%;
+}
+
+.create-pane .text {
+    padding-top: 8px;
+    white-space: nowrap;
+}
+
+.create-pane .login-button {
+    margin-top: 24px;
+}
+.create-spinner {
+    vertical-align: bottom;
+    display: inline-block;
+    margin-left: 8px;
+}
+
