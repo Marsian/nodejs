@@ -1,6 +1,6 @@
-var app = angular.module('loginApp', []);
+var app = angular.module('loginApp', ['util']);
 
-app.controller('loginController', [ '$scope', '$http', 'contextService', function($scope, $http, contextService) {
+app.controller('loginController', [ '$scope', '$http', 'contextService', 'dialogService', function($scope, $http, contextService, dialogService) {
     $scope.changeMode = false;
     $scope.createMode = false;
     $scope.username = "";
@@ -46,6 +46,10 @@ app.controller('loginController', [ '$scope', '$http', 'contextService', functio
                 $scope.err = data.err;
             });
     };
+
+    $scope.showCreateDialog = function(photo) {
+        dialogService.openDialog('./App/Album/Dialog/createDialog.html', {}, 'createDialogController');
+    };  
 
     $scope.$watch('changeMode', function(val) {
         if (val) {

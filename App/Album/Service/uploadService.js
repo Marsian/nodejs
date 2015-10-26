@@ -99,8 +99,9 @@ app.post('/api/photo', upload.single('file'), function (req, res, next) {
                 res.status(500).send("Empty file!");
                 return;
             } 
-            // use one percent of originam image for preview
-            image.scale(0.1, function(err, image) {
+            var scale = 200 / image.height();
+            // scale the image to have 200 in height for preview
+            image.scale(scale, function(err, image) {
                 if (err) {
                     res.status(500).send("Empty file!");
                     return;

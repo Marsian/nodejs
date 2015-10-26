@@ -1,3 +1,9 @@
+.icon22 {
+    font-size: 22px;
+}
+.icon24 {
+    font-size: 24px;
+}
 .modal-dialog {
     position: static !important;
 }

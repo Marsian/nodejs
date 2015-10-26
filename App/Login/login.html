@@ -28,8 +28,8 @@
     </nav>
 
     <div class="login-container" >
-        <div ng-show="!createMode" class="panel panel-default login-block">
-            <div ng-show="err" class="alert alert-danger fade in" >
+        <div class="panel panel-default login-block" ng-cloak>
+            <div ng-show="err != ''" class="alert alert-danger fade in" ng-cloak>
                 <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
                 {{err}}
             </div>
@@ -44,6 +44,13 @@
                 <button ng-show="!changeMode" class="btn btn-default pull-right" id="change-button" ng-click="changeMode = true">Change</button>
                 <button ng-show="changeMode" class="btn btn-primary" id="commit-button" ng-click="commit()">Commit</button>
                 <button ng-show="changeMode" class="btn btn-default pull-right" id="back-button" ng-click="changeMode = false">Back</button>
+            </div>
+            <div class="link-pane">
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-text">OR</div>
+                </div>
+                <a class="btn-link" href="#" ng-click="showCreateDialog()">Create new user</a>
             </div>
         </div>
 
@@ -65,6 +72,7 @@
             </div>
         </div>
 
+        
     </div>
 
     <!--Placed at the end of the document so the pages load faster-->
@@ -72,6 +80,7 @@
     <script src="Assets/Script/jquery-2.1.4.min.js"></script>
     <script src="Assets/Script/angular-file-upload.min.js"></script>
     <script src="Assets/Script/bootstrap/js/bootstrap.min.js"></script>
+    <script src="js-src/util.js"></script>
     <script src="App/Login/loginController.js"></script>
 
     <!--Bootstrap angular module at last-->

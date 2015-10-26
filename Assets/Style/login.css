@@ -7,9 +7,9 @@
 .login-block {
     position: absolute;    
     transition: all 1s;    
-    width: 450px;    
-    left: -225px;
-    padding: 30px 50px 20px 50px;
+    width: 400px;    
+    left: -200px;
+    padding: 30px 30px 20px 30px;
 }
 
 @media (max-width: 700px) {
@@ -30,4 +30,28 @@
 
 .login-block .login-button {
     margin-top: 24px;
+}
+
+.link-pane {
+    position: relative;
+    text-align: center;
+    font-size: 16px;
+}
+.divider {
+    width: 100%;
+    height: 30px;
+    margin-top: 16px;
+}
+.divider-line {
+    position: absolute;
+    top: 12px;
+    width: 100%;
+    border-top: 1px solid #ddd;
+}
+.divider-text {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    background-color: #fff;
+    font-size: 14px;
 }

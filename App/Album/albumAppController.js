@@ -203,8 +203,15 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         }
     });
 
-    // Get more photos when reach the end of the window
     $('.main-container').bind('scroll', function() {
+        
+        // After scrolling show the shadow
+        var previousMode = $scope.scrollMode;
+        $scope.scrollMode = $(this).scrollTop() > 0;
+        if (previousMode != $scope.scollMode)
+            $scope.$apply();
+        
+        // Get more photos when reach the end of the window
         if($(this).scrollTop() + $(this).innerHeight()>=$(this)[0].scrollHeight) {
             $scope.getMorePhotos();
         }

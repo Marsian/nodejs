@@ -1,20 +1,44 @@
 .album-header {
-    position: fixed !important;
     width: 100%;
     z-index: 10;
 }
-.icon22 {
-    font-size: 22px;
+.album-header.navbar-default {
+    background-color: #fff;
 }
-.icon24 {
-    font-size: 24px;
+.album-header.navbar {
+    border: none;
+    position: fixed;
 }
+.more-indicator {
+    -webkit-box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14),0 1px 10px 0 rgba(0,0,0,0.12),0 2px 4px -1px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14),0 1px 10px 0 rgba(0,0,0,0.12),0 2px 4px -1px rgba(0,0,0,0.2);
+    -webkit-transition: -webkit-transform linear 240ms;
+    transition: -webkit-transform linear 240ms;
+    -webkit-transition: transform linear 240ms;
+    transition: transform linear 240ms;
+    -webkit-tap-highlight-color;
+}
+
 .select-header {
-    background-color: #4285f4 !important;
-    border-color: #4285f4 !important;
-    border-radius: inherit !important;
     z-index: 100;
+    transition: 0.2s ease-out all; 
+    opacity: 1; 
+    overflow: hidden; 
 }
+.select-header.navbar-default {
+    background-color: #4285f4;
+    border-color: #4285f4;
+}
+.select-header.navbar {
+    border-radius: inherit;
+}
+.select-header.animate-hide { 
+    opacity: 0; 
+    height: 0;
+    min-height: 0 !important;
+    overflow: hidden; 
+}
+
 .select-header i {
     color: white;
 }
@@ -52,7 +76,7 @@
 .main-container {
     position: absolute;
     overflow-y: auto;
-    top: 52px;
+    top: 50px;
     padding-top: 30px;
     padding-bottom: 20px;
     width: 100%;

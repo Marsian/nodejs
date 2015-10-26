@@ -22,7 +22,7 @@
 <body ng-controller="albumAppController"  ng-class="{ 'container-hide': dialogOpened() }" 
       nv-file-drop uploader="mainUploader" style="height: 100%; overflow: hidden;">
     <!-- Header bar -->
-    <nav class="navbar navbar-default album-header">
+    <nav ng-class="{ 'more-indicator': scrollMode }" class="navbar navbar-default album-header">
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -37,6 +37,7 @@
             <div class="collapse navbar-collapse" ng-model="smallWindow" id="bs-navbar-collapse" ng-cloak>
                 <ul class="nav navbar-nav"> 
                     <li><a href="/Todo">Todo</a></li>
+                    <li><a href="/Album" style="font-weight: 600; color: #337ab7;">Album</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right"> 
                     <!-- Before login -->
@@ -59,7 +60,8 @@
         </div>
     </nav>
 
-    <nav ng-show="selectMode" class="navbar navbar-default album-header select-header" ng-cloak> 
+    <nav ng-class="{ 'animate-hide': !selectMode, 'more-indicator': scrollMode }" 
+         class="navbar navbar-default album-header select-header" ng-cloak> 
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -70,7 +72,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand deselect-button" href="#" ng-click="deselectAll()"><i class="icon ion-close icon22"></i></a>
-                <div class="select-count">
+                <div ng-show="selectCount > 0" class="select-count">
                     {{selectCount}} selected
                 </div>
             </div>
@@ -86,7 +88,6 @@
             </div>
         </div>
     </nav>
-     
     <div class="main-container" nv-file-over uploader="mainUploader">
         <div class="container">
             <div ng-repeat="item in mainUploader.queue" ng-show="!item.isSuccess" 

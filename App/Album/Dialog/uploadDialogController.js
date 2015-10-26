@@ -56,6 +56,7 @@ app.controller('uploadDialogController', [ '$scope', '$http', 'dialog', 'FileUpl
     uploader.onAfterAddingFile = function(fileItem) {
         $scope.currentFile = fileItem.file.name;
         $scope.uploading = true;
+        console.log(fileItem);
         fileItem.formData.push( { lastModified: fileItem.file.lastModifiedDate } );
         console.info('onAfterAddingFile', fileItem);
         fileItem.upload();
