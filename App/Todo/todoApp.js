@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');    // pull information from HTML POST (
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
 var extend = require('util')._extend;
 var User = require('../../Modules/userModel');
+var Group = require('../../Modules/groupModel');
 
 var app = module.exports = express();
 
@@ -24,6 +25,7 @@ var Todo = mongoose.model('Todo', {
     text : String,
     user: String,
     date : { type: Date, default: Date.now },
+    group : { groupId: String, name: String }, 
     priority: { type: Number, min: 0, max: 2, default: 0 },
     progress: { type: Number, min: 0, max: 10, default: 0 },
     comments: [ { text: String, 
@@ -36,11 +38,17 @@ var TodoArchive = mongoose.model('TodoArchive', {
     user: String,
     createDate: { type: Date, default: Date.now },
     finishDate: { type: Date, default: Date.now },
+    group: { groupId: String, name: String }, 
     priority: { type: Number, min: 0, max: 2, default: 0 },
     comments: [ { text: String, 
                   user: String, 
                   date: { type: Date, default: Date.now } } ]
 });
+
+var GroupStatus = {
+    pending: 0,
+    accepted: 1
+};
 
 function restrict(req, res, next) {
   if (req.session.user) {
@@ -66,56 +74,38 @@ app.get('/Todo-Logout', function(req, res){
 });
 
 app.get('/api/todos', function(req, res) {
-    var user = req.session.user.name; 
+    var username = req.session.user.name; 
     // use mongoose to get all todos in the database
-    User.find( {}, function(err, users) {
+    User.find( { name: username }, function(err, user) {
         if (err) {
             res.send(err);
-            return;
-        }
-
-        var userList = [];
-        for (var index in users ) {
-            var name = users[index].name;
-            if (name != 'admin')
-                userList.push( { user: users[index].name, name: users[index].name } );
-        }
-
-        Todo.find( {}, '', { sort: '-priority' }, function(err, todos) {
-            if (err) {
-                res.send(err);
-                return;
-            }
-
-            var data = { todos: todos,
-                         user: req.session.user.name,
-                         userList: userList };
+        } else if (user && user.length > 0) {
+            var data = { user: username,
+                         groupList: user[0].groups };
             res.json(data);
-        });
+        } else {
+            res.json({ err: "User not found" });
+        }
     });
 });
 
 // create todo and send back all todos after creation
 app.post('/api/todos', function(req, res) {
     var user = req.session.user.name; 
+    var text = req.body.text;
+    var list = req.body.list;
+    var group = list.groupId == '0' ? undefined : { groupId: list.groupId, name: list.name };
     // create a todo, information comes from AJAX request from Angular
     Todo.create({
         text : req.body.text,
-        user: user 
-    }, function(err, todo) {
+        user: user,
+        group: group
+        }, function(err, todo) {
         if (err) {
             res.send(err);
             return;
         }
-
-        // get and return all the todos of the user
-        Todo.find( { user: user }, '', { sort: '-priority' }, function(err, todos) {
-            if (err) {
-                res.send(err);
-            } else {
-                res.json(todos);
-            }
-        });
+        res.send("Success");
     });
 
 });
@@ -199,18 +189,30 @@ app.post('/api/deleteTodo', function(req, res) {
 
 // update todos by selected user
 app.post('/api/updateTodoList', function(req, res) {
-    // get and return all the todos for the selected user 
-    var query = {};
-    if (req.body.name) 
-        query = { user: req.body.name };
+    // get and return all the todos for the selected user or group
+    var groupId = req.body.groupId;
+    var name = req.session.user.name; 
+    
+    // Get user list
+    if (groupId == "0") {
+        Todo.find( { user: name, group: undefined }, '', { sort: '-priority' }, function(err, todo) {
+            if (err) {
+                res.send({ err: err });
+            } else {
+                res.json(todo);
+            }
+        });
 
-    Todo.find( query, '', { sort: '-priority' }, function(err, todo) {
-        if (err) {
-            res.send(err)
-        } else {
-            res.json(todo);
-        }
-    });
+    } else { // Get group list
+        Todo.find( { "group.groupId": groupId }, '', { sort: '-priority' }, function(err, todo) {
+            if (err) {
+                res.send({ err: err });
+            } else {
+                res.json(todo);
+            }
+        });
+    }
+
 });
 
 // post a comment to the todo
@@ -233,4 +235,152 @@ app.post('/api/postComment', function(req, res) {
         });
     });
 
+});
+
+// search for users
+app.post('/api/searchUser', function(req, res) {
+    var search = req.body.search;
+
+    User.find({ name: { "$regex": search, "$options": "i" } }, 'name', function(err, users) {
+        if (err) {
+            res.status(500).json({ err: err });
+            return;
+        }
+
+        res.json({ results: users });
+    });
+});
+
+var _purgeGroup = function(groupId) {
+    // Remove all todos belong to the group
+    Todo.remove({ "group.groupId": groupId }, function(err) {
+        if (err) {
+            console.log(err);
+        }
+    });
+
+    // Remove the group
+    Group.remove({ _id: groupId }, function(err) {
+        if (err) {
+            console.log(err);
+        }
+    });
+};
+
+// create a new group
+app.post('/api/addGroup', function(req, res) {
+    var creator = req.session.user.name;
+    var users = req.body.users;
+    var name = req.body.name;
+    var callbackCount = 0;
+    var errMessage = "";
+
+    var _callback = function(err, data) {
+        callbackCount ++;
+        if (err)
+            errMessage += err.Message;
+
+        if (callbackCount == users.length) {
+            res.send({ err: errMessage });
+        }
+    };
+
+    for(var i in users) {
+        if (users[i].name == creator) {
+            users[i].status = GroupStatus.accepted;
+        } else {
+            users[i].status = GroupStatus.pending;
+        }
+    }
+    
+    Group.create({ name: name, users: users }, function(err, group) {
+        if (err) {
+            res.status(500).json({ err: err });
+            return;
+        }
+
+        for (var i in users) {
+            user = users[i];
+            if (user.name == creator) {
+                var params = { groupId: group._id, name: group.name, status: GroupStatus.accepted };
+            } else {
+                var params = { groupId: group._id, name: group.name, status: GroupStatus.pending };
+            }
+            User.update({ name: user.name }, 
+                        { $push: { groups : params } }, {},
+                        _callback);
+        }
+    });
+});
+
+// refuse group invitation
+app.post('/api/quitGroup', function(req, res) {
+    var user = req.body.user;
+    var group = req.body.group;
+
+    User.find({ name: user }, function(err, user) {
+        if (err) {
+            res.status(500).json({ err: err });
+            return;
+        }
+        if (!user || user.length == 0) {
+            res.status(500).json({ err: "User not found" });
+            return;
+        }
+
+        user = user[0];
+        User.update({ name: user.name }, { $pull: { groups: { groupId: group.groupId } } }, {}, function(err) {
+            if (err) {
+                res.status(500).json({ err: err });
+            } else {
+                res.send('Success');
+
+                Group.update({ _id: group.groupId }, { $pull: { users: { name: user.name } } }, {}, function(err, result) {
+                    if (err)
+                        console.log(err);
+                    Group.find({ _id: group.groupId }, function(err, result) {
+                        if (err)
+                            console.log(err);
+                        if (result && result.length > 0) {
+                            if (result[0].users.length == 0)
+                                _purgeGroup(result[0]._id);
+                        }
+                    });
+                });
+            }
+        });
+    });
+});
+
+// accept group invitation
+app.post('/api/acceptGroupInvitation', function(req, res) {
+    var username= req.body.user;
+    var group = req.body.group;
+
+    User.find({ name: username }, function(err, user) {
+        if (err) {
+            res.status(500).json({ err: err });
+            return;
+        }
+         if (!user || user.length == 0) {
+            res.status(500).json({ err: "User not found" });
+            return;
+        }
+
+        user = user[0];
+        User.update({ name: user.name, 'groups.groupId': group.groupId }, 
+                    { $set: { 'groups.$.status': GroupStatus.accepted } }, {}, function(err, user) {
+            if (err) {
+                res.status(500).json({ err: err });
+            } else {
+                res.send('Success');
+
+                Group.update({ _id: group.groupId, 'users.name': user.name  }, 
+                             { $set: { 'users.$.status': GroupStatus.accepted } }, {}, function(err) {
+                    if (err)
+                        console.log(err);
+                });
+            }
+        });
+    });
 });

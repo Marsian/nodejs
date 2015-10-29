@@ -1,0 +1,51 @@
+<div class='ng-modal'>
+    <div class='ng-modal-overlay' ng-click='cancel()'></div>
+    <div class='ng-modal-dialog'> 
+        <div class="ng-modal-dialog-header">
+            <div class="ng-modal-dialog-header-text">Manage Groups</div> 
+            <div class='ng-modal-close' ng-click='cancel()'>
+                <span class="icon ion-close icon22" ></span>
+            </div>
+        </div>
+        <div class='ng-modal-dialog-content add-group-content'>
+            <div>
+                <label>Pending invitation</label>
+                <ul class="list-group">
+                    <li ng-repeat="group in groupList" ng-if="group.status==0" 
+                        ng-mouseenter="group.showOption=true" ng-mouseleave="group.showOption=false"
+                        class="list-group-item">
+                        {{group.name}}
+                        <span ng-show="group.showOption" class="pull-right manage-button-group">
+                            <button class="btn btn-default" ng-click="quitGroup(group)">
+                                <i class="icon ion-close"></i>
+                            </button>
+                            <button class="btn btn-default" ng-click="acceptInvitation(group)">
+                                <i class="icon ion-checkmark"></i>
+                            </button>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <label>Groups</label>
+                <ul class="list-group">
+                    <li ng-repeat="group in groupList" ng-if="group.status==1" 
+                        ng-mouseenter="group.showOption=true" ng-mouseleave="group.showOption=false"
+                        class="list-group-item">
+                        {{group.name}}
+                        <span ng-show="group.showOption" class="pull-right manage-button-group">
+                            <button class="btn btn-default" ng-click="quitGroup(group)">
+                                <i class="icon ion-log-out"></i>
+                            </button>
+                        </span>
+
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="ng-modal-dialog-footer">
+            <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+        </div>
+    </div>
+</div>

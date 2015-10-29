@@ -17,6 +17,11 @@
     right: 8px;
     top: 10px;
 }
+.manage-button-group {
+    position: absolute;
+    right: 8px;
+    top: 4px;
+}
 
 .list-group-item {
     height: 100%;

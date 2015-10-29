@@ -1,0 +1,46 @@
+<div class='ng-modal'>
+    <div class='ng-modal-overlay' ng-click='cancel()'></div>
+    <div class='ng-modal-dialog'> 
+        <div class="ng-modal-dialog-header">
+            <div class="ng-modal-dialog-header-text">Add Group</div> 
+            <div class='ng-modal-close' ng-click='cancel()'>
+                <span class="icon ion-close icon22" ></span>
+            </div>
+        </div>
+        <div class='ng-modal-dialog-content add-group-content'>
+            <div>
+                <label>Name
+                    <input type="text" class="form-control" ng-model="groupName" required>
+                </label>
+            </div>
+            <div>
+                <label>User</label>
+                <ul class="list-group">
+                    <li ng-repeat="user in userList" class="list-group-item">
+                        {{user.name}}
+                    </li>
+                </ul>
+            </div>
+            <div class="input-group">
+                <input type="text" class="form-control" ng-model="searchString">
+                <div class="input-group-btn">
+                    <button class="btn btn-default" ng-click="searchUser(searchString)">Search</button>
+                </div>
+            </div>
+            <div>
+                <ul class="list-group">
+                    <li ng-repeat="user in searchResults" class="list-group-item">
+                        <div ng-click="selectUser(user)">
+                            {{user.name}}
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="ng-modal-dialog-footer">
+            <button class="btn btn-primary" ng-click="ok()">OK</button>
+            <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+        </div>
+    </div>
+</div>

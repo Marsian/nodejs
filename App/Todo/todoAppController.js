@@ -1,37 +1,48 @@
 var app = angular.module('todoApp', ['util']);
 
-app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService', function($scope, $http, $window, dateService) {
+app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService', 'dialogService', function($scope, $http, $window, dateService, dialogService) {
 
     $scope.formData = {};
-    $scope.userList = [];
-    $scope.displayUser = 'All';
+    $scope.groupList = [];
     $scope.priorities = [ { name: 'Low', value: 0 },
                           { name: 'Medium', value: 1 },
                           { name: 'High', value: 2 } ];
+    $scope.list = { groupId: "0", name: "User list"};
 
     $scope.getDate = function(date) {
         return dateService.getDate(date, "ddd mmm ddS hh:MM tt");
     };
 
-    // when landing on the page, get all todos and show them
-    $http.get('/api/todos')
-        .success(function(data) {
-            $scope.todos = data.todos;
-            $scope.user = data.user;
-            $scope.userList = data.userList;
-            $scope.userList.push( { user: "All", name: "" } );
-        })
-        .error(function(data) {
-            console.log('Error: ' + data);
-        });
+    var _updateTodoList = function(list) {
+        $http.post('api/updateTodoList', list )
+            .success(function(data) {
+                $scope.formData = {}; // clear the form so our user is ready to enter another
+                $scope.todos = data;
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+    };
+
+    var _initialize = function() {
+        $http.get('/api/todos')
+            .success(function(data) {
+                $scope.user = data.user;
+                $scope.groupList = data.groupList;
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+    }
 
     // when submitting the add form, send the text to the node API
     $scope.createTodo = function() {
+        $scope.formData.list = $scope.list;
         $http.post('/api/todos', $scope.formData)
             .success(function(data) {
                 $scope.formData = {}; // clear the form so our user is ready to enter another
-                $scope.displayUser = $scope.user;
-                //$scope.todos = data;
+                // Update current todo list
+                _updateTodoList($scope.list);
             })
             .error(function(data) {
                 console.log('Error: ' + data);
@@ -42,7 +53,6 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
     $scope.deleteTodo = function(id) {
         $http.post('/api/deleteTodo/', { id: id } )
             .success(function(data) {
-                $scope.displayUser = $scope.user;
                 $scope.todos = data;
             })
             .error(function(data) {
@@ -118,21 +128,40 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
 
     };
 
-    $scope.$watch('displayUser', function(user) {
-        var name = "";
-        for ( var i in $scope.userList ) {
-            if ($scope.userList[i].user == user)
-                name = $scope.userList[i].name;
-        }
-        $http.post('api/updateTodoList', { name: name } )
-            .success(function(data) {
-                $scope.formData = {}; // clear the form so our user is ready to enter another
-                $scope.todos = data;
-            })
-            .error(function(data) {
-                console.log('Error: ' + data);
+    $scope.addGroup = function() {
+        var params = { user: $scope.user };
+        dialogService.openDialog('./App/Todo/Dialog/addGroupDialog.html', params, 'addGroupDialogController')
+            .then(function(result) {
+                if (result) {
+                   _initialize(); 
+                }
             });
+    };
 
+    $scope.manageGroup = function() {
+        var params = { user: $scope.user, groupList: $scope.groupList };
+        dialogService.openDialog('./App/Todo/Dialog/manageGroupDialog.html', params, 'manageGroupDialogController')
+            .then(function(result) {
+                if (result) {
+                   _initialize(); 
+                }
+            });
+    };
+
+    $scope.getUserList = function() {
+        $scope.list = { groupId: "0", name: "User list" };
+        _updateTodoList($scope.list);
+    };
+
+    $scope.getGroupList = function(group) {
+        $scope.list = group;
+        _updateTodoList($scope.list);
+    };
+
+    $scope.$watch('user', function(user) {
+        _updateTodoList($scope.list);
     });
 
+    // when landing on the page, get the user and group list
+    _initialize();
 }]);

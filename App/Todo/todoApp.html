@@ -9,8 +9,10 @@
 
 
     <link rel="shortcut icon" type="image/x-icon" href="Assets/Image/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="Assets/Style/index.css"></link>
     <link rel="stylesheet" type="text/css" href="Assets/Style/todo.css"></link>
     <link rel="stylesheet" type="text/css" href="Assets/Script/bootstrap/css/bootstrap.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="Assets/Script/ionicons/css/ionicons.min.css"></link>
 
     <style>
 
@@ -33,10 +35,15 @@
                     <li><a href="/Album">Album</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right"> 
-                    <li>
-                        <select id="select" class="form-control select-dropdown" ng-model="displayUser">
-                            <option ng-repeat="user in userList" value="{{user.user}}">{{user.user}}</option>
-                        </select>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" >{{list.name}}<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" ng-click="getUserList()">User list</a></li>
+                            <li><a ng-repeat="group in groupList" ng-if="group.status==1" href="#" ng-click="getGroupList(group)">{{group.name}}</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#" ng-click="addGroup()"><i class="icon ion-plus" style="padding-right: 8px;"></i>Add group</a></li>
+                            <li><a href="#" ng-click="manageGroup()"><i class="icon ion-gear-b" style="padding-right: 8px;"></i>Manage groups</a></li>
+                        </ul>
                     </li>
 
                     <li class="dropdown">
@@ -46,9 +53,6 @@
                         </ul>
                     </li>
                 </ul>
-                <!--<ul ng-show="inSmallWindow()" class="nav navbar-nav"> 
-                    <li><a href="/logout">Logout</a></li>
-                </ul>-->
             </div>
         </div>
     </nav>
@@ -149,6 +153,8 @@
     <script src="Assets/Script/bootstrap/js/bootstrap.min.js"></script>
     <script src="js-src/util.js"></script>
     <script src="App/Todo/todoAppController.js"></script>
+    <script src="App/Todo/Dialog/addGroupDialogController.js"></script>
+    <script src="App/Todo/Dialog/manageGroupDialogController.js"></script>
 
     <!--Bootstrap angular module at last-->
     <script>

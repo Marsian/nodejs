@@ -245,7 +245,7 @@ app.post('/api/postPhotoComment', function(req, res) {
     });
 });
 
-// delete a comment to the photo
+// delete a comment from the photo
 app.post('/api/deletePhotoComment', function(req, res) {
     var user = "";
     if (req.session && req.session.user != null) {
@@ -254,7 +254,7 @@ app.post('/api/deletePhotoComment', function(req, res) {
         user = "Anonymous";
     }
     
-    // fint the photo and push a comment to it
+    // find the photo and delete a comment from it
     Photo.update({ _id: req.body.id }, { $pull: { comments: { _id: req.body.commentId } } }, {}, 
         function(err, photo){ 
             if (err) {
