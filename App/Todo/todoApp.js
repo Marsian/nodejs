@@ -251,6 +251,22 @@ app.post('/api/searchUser', function(req, res) {
     });
 });
 
+// get group member
+app.post('/api/getGroupMember', function(req, res) {
+    var groupId = req.body.groupId;
+
+    Group.find({ _id: groupId }, function(err, group) {
+        if (err) {
+            res.status(500).json({ err: err } );
+        } else if (group && group.length > 0) {
+            group = group[0];
+            res.json({ users: group.users });
+        } else {
+            res.status(500).json({ err: "Group not found" });
+        }
+    });
+});
+
 var _purgeGroup = function(groupId) {
     // Remove all todos belong to the group
     Todo.remove({ "group.groupId": groupId }, function(err) {

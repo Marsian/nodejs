@@ -8,6 +8,7 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
                           { name: 'Medium', value: 1 },
                           { name: 'High', value: 2 } ];
     $scope.list = { groupId: "0", name: "User list"};
+    $scope.groupMember = [];
 
     $scope.getDate = function(date) {
         return dateService.getDate(date, "ddd mmm ddS hh:MM tt");
@@ -150,11 +151,25 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
 
     $scope.getUserList = function() {
         $scope.list = { groupId: "0", name: "User list" };
+        $scope.groupMember = [];
         _updateTodoList($scope.list);
     };
 
     $scope.getGroupList = function(group) {
         $scope.list = group;
+        $http.post('api/getGroupMember', $scope.list) 
+            .success( function(data) {
+                if (data.err) {
+                    console.log(data.err);
+                } 
+                if (data.users) {
+                    $scope.groupMember = data.users;
+                }
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+
         _updateTodoList($scope.list);
     };
 
