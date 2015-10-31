@@ -8,6 +8,7 @@ app.controller('detailDialogController', [ '$scope', '$http', '$timeout', 'dialo
     $scope.showMap = false;
     $scope.mapLoaded = false;
     $scope.coordinate = null;
+    $scope.loading = false;
 
     $scope.close = function() {
         dialog.close($scope.currentPhoto.comments);
@@ -81,15 +82,6 @@ app.controller('detailDialogController', [ '$scope', '$http', '$timeout', 'dialo
             });
 
     };
-
-    $scope.$on("ImageLoading", function(){
-        $scope.loading = true;
-    });
-
-    $scope.$on("ImageLoaded", function(){
-        $scope.loading = false;
-        $scope.$apply();
-    });
 
     $timeout(function() {
         $http.post('/api/getLocation', { id: $scope.currentPhoto._id })

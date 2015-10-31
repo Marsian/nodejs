@@ -401,7 +401,7 @@ app.directive('ngThumb', ['$window', function($window) {
             photoId: "=",
             photoWidth: "@",
             photoHeight: "@",
-            angleInDegree: "="
+            photoLoading: "="
         },
         template: '<canvas/>',
         link: function(scope, element, attributes) {
@@ -413,14 +413,15 @@ app.directive('ngThumb', ['$window', function($window) {
             var image = new Image();
             image.onload = onLoadImage;
             image.src = "/api/getPhotoImage/" + scope.photoId;
-            $rootScope.$broadcast("ImageLoading");
+            scope.photoLoading = true;
 
             function onLoadImage() {
                 var width = scope.photoWidth || this.width / this.height * scope.photoHeight;
                 var height = scope.photoHeight || this.height / this.width * scope.photoWidth;
                 canvas.attr({ width: width, height: height });
                 canvas[0].getContext('2d').drawImage(this, 0, 0,  width, height);
-                $rootScope.$broadcast("ImageLoaded");
+                scope.photoLoading = false;
+                scope.$apply();
             }
         }
     };

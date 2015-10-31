@@ -38,8 +38,9 @@
                     <li class="dropdown" ng-cloak>
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" >{{list.name}}<span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#" ng-click="getUserList()">User list</a></li>
-                            <li><a ng-repeat="group in groupList" ng-if="group.status==1" href="#" ng-click="getGroupList(group)">{{group.name}}</a></li>
+                            <li><a href="#" ng-click="getUserList()"><i class="icon ion-person" style="padding-right: 8px;"></i>User list</a></li>
+                            <li><a ng-repeat="group in groupList" ng-if="group.status==1" href="#" 
+                                   ng-click="getGroupList(group)"><i class="icon ion-person-stalker" style="padding-right: 8px;"></i>{{group.name}}</a></li>
                             <li role="separator" class="divider"></li>
                             <li><a href="#" ng-click="addGroup()"><i class="icon ion-plus" style="padding-right: 8px;"></i>Add group</a></li>
                             <li><a href="#" ng-click="manageGroup()"><i class="icon ion-gear-b" style="padding-right: 8px;"></i>Manage groups</a></li>
