@@ -14,6 +14,10 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
         return dateService.getDate(date, "ddd mmm ddS hh:MM tt");
     };
 
+    $scope.groupView = function() {
+        return $scope.groupMember.length > 0;
+    }
+
     var _updateTodoList = function(list) {
         $http.post('api/updateTodoList', list )
             .success(function(data) {
@@ -100,6 +104,8 @@ app.controller('todoAppController', [ '$scope', '$http', '$window', 'dateService
     };
 
     $scope.toggleSelect = function(id) {
+        if (!$scope.groupView()) 
+            return;
         angular.forEach($scope.todos, function (todo) {
             if (todo._id == id) {
                 if (todo.selected) 

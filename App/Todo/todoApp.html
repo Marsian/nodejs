@@ -61,10 +61,10 @@
         <div class="container" >
             <!-- Header, Todo count and group info -->
             <div class="panel panel-info todo-header-panel" ng-cloak>
-                <div class="panel-heading">{{list.name}}<span class="label label-info">{{ todos.length }}</span></div>
-                <div ng-show="groupMember.length > 0" class="panel-body">
-                    <div ng-repeat="member in groupMember">
-                        {{member.name}}
+                <div class="panel-heading">{{list.name}}<span class="label label-info header-label">{{ todos.length }}</span></div>
+                <div ng-show="groupView()" class="panel-body">
+                    <div ng-repeat="member in groupMember" class="member-block">
+                        <span class="label label-info member-label">{{member.name}}</span>
                     </div>
                 </div>
             </div>
