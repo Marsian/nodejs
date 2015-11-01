@@ -74,7 +74,11 @@ app.get('/Todo-Logout', function(req, res){
 });
 
 app.get('/api/todos', function(req, res) {
+    if (!req.session.user) {
+        res.json({ err: "Not logged in" });
+    }
     var username = req.session.user.name; 
+
     // use mongoose to get all todos in the database
     User.find( { name: username }, function(err, user) {
         if (err) {
