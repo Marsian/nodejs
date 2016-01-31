@@ -6,6 +6,9 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
     $scope.photoIdSet = new Set();
     $scope.loadCount = 0;
 
+    $scope.showFooter = false;
+    var _hideFooterTimer = null;
+
     $scope.selectCount = 0;
     $scope.selectMode = false;
     $scope.deleteIds = [];
@@ -176,6 +179,19 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
 
         $http.post('/api/getPhotoData', { begin: begin, end: end })
             .success(function(data) {
+                if (data && data.info && data.info == "End") {
+                    $scope.showFooter = true;
+
+                    if (_hideFooterTimer) {
+                        $timeout.cancel(_hideFooterTimer);
+                        _hideFooterTimer = null;
+                    }
+                    
+                    _hideFooterTimer = $timeout(function() {
+                        $scope.showFooter = false;
+                    }, 4000);
+                }
+
                 if (data && data.photoData && data.photoData.length > 0) {
                     angular.forEach(data.photoData, function(photo) {
                         if (!$scope.photoIdSet.has(photo._id)) {
@@ -203,6 +219,7 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         }
     });
 
+    var lastScrollTop = 0;
     $('.main-container').bind('scroll', function() {
         
         // After scrolling show the shadow
@@ -215,6 +232,13 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         if($(this).scrollTop() + $(this).innerHeight()>=$(this)[0].scrollHeight) {
             $scope.getMorePhotos();
         }
+
+        // Hide footer when scrolling up
+        var st = $(this).scrollTop();
+        if (st < lastScrollTop){
+           $scope.showFooter = false; 
+        }
+        lastScrollTop = st;
     })
 
     $scope.$on("uploadComplete", function() {

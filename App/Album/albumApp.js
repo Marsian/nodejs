@@ -112,10 +112,10 @@ app.post('/api/getPhotoData', function(req, res) {
         if (err)
             res.status(500).send(err);
         
-        // returnt the photo data in the range
+        // return the photo data in the range
         if (ret.length > 0) { 
             if (begin > ret.length) {
-                res.send("Reach end");
+                res.json({ info: "End" });
                 return;
             }
             begin --; // index position in the array
