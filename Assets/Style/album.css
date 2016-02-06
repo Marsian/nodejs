@@ -132,6 +132,17 @@
     border-radius: 4px;
 }
 
+.timeline-section {
+    display: inline-block;
+}
+.timeline-title {
+    padding: 8px;
+    font-size: 16px;
+}
+.timeline-content {
+    display: table;
+}
+
 .footer {
     position: fixed;
     bottom: -200px;
