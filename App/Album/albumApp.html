@@ -40,13 +40,22 @@
                     <li><a href="/Album" style="font-weight: 600; color: #337ab7;">Album</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right"> 
+                    <!-- View toggle -->
+                    <li ng-show="showView == 'default'" class="action-button" ng-cloak>
+                        <a href="#" ng-click="toggleView()" data-toggle="tooltip" data-placement="bottom" title="Timeline View"><i class="icon ion-navicon icon24"></i></a>
+                    </li>
+                    <li ng-show="showView == 'timeline'" class="action-button" ng-cloak>
+                        <a href="#" ng-click="toggleView()" data-toggle="tooltip" data-placement="bottom" title="Grid View"><i class="icon ion-grid icon24"></i></a>
+                    </li>
+
+
                     <!-- Before login -->
                     <li ng-show="!loggedIn" class="action-button" ng-cloak>
                         <a href="/Album-Admin" data-toggle="tooltip" data-placement="bottom" title="Login"><i class="icon ion-log-in icon24"></i></a>
                     </li>
 
                     <!-- After login-->
-                    <li ng-show="loggedIn && !editMode" class="action-button" ng-cloak>
+                    <li ng-show="loggedIn && !editMode && showView != 'timeline'" class="action-button" ng-cloak>
                         <a href="#" ng-click="showUploadDialog()" data-toggle="tooltip" data-placement="bottom" title="Upload"><i class="icon ion-upload icon24"></i></a></li>
                     <li ng-show="loggedIn" class="dropdown" ng-cloak>
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" ng-cloak >{{user}} <span class="caret"></span></a>
@@ -90,27 +99,61 @@
     </nav>
     <div class="main-container" nv-file-over uploader="mainUploader">
         <div class="container">
-            <div ng-repeat="item in mainUploader.queue" ng-show="!item.isSuccess" 
-                 class="panel panel-default photo-upload-canvas pull-left">
-                <div ng-upload-preview item="item"></div>
-            </div>
-            <div ng-repeat="photo in photoData" class="panel panel-default photo-canvas pull-left" 
-                 ng-context-menu="{{photo._id}}" >
-                <div ng-preview="{ id: photo._id, height: 200 }" ng-click="showDetailDialog(photo)" 
-                     ng-mouseenter="hoverToggle(photo)" ng-mouseleave="hoverToggle(photo)"
-                     class="photo-canvas-image"></div>
-                <!--Hover display stuff-->
-                <div ng-show="loggedIn && (photo.showSelector || photo.selected)" 
-                     class="photo-selector-container" ng-cloak
-                     ng-mouseenter="photo.showSelector = true" ng-mouseleave="photo.showSelector = false"
-                     ng-class="{ 'selected': photo.selected }">
-                    <i class="icon ion-checkmark"></i>    
-                    <input type="checkbox" name="select" ng-model="photo.selected" ng-change="selectCheck(photo)">
+            <div class="default-pane" ng-if="showView == 'default'">
+                <div ng-repeat="item in mainUploader.queue" ng-show="!item.isSuccess" 
+                     class="panel panel-default photo-upload-canvas pull-left">
+                    <div ng-upload-preview item="item"></div>
                 </div>
-                <div ng-show="photo.showDate" class="photo-date-container" ng-cloak
-                     ng-mouseenter="photo.showDate = true" ng-mouseleave="photo.showDate = false">
-                    <div class='photo-date-backlay'>
-                        {{getPreviewDate(photo.date)}} 
+                <div ng-repeat="photo in photoData" class="panel panel-default photo-canvas pull-left" 
+                     ng-context-menu="{{photo._id}}" >
+                    <div ng-preview="{ id: photo._id, height: 200 }" ng-click="showDetailDialog(photo)" 
+                         ng-mouseenter="hoverToggle(photo)" ng-mouseleave="hoverToggle(photo)"
+                         class="photo-canvas-image"></div>
+                    <!--Hover display stuff-->
+                    <div ng-show="loggedIn && (photo.showSelector || photo.selected)" 
+                         class="photo-selector-container" ng-cloak
+                         ng-mouseenter="photo.showSelector = true" ng-mouseleave="photo.showSelector = false"
+                         ng-class="{ 'selected': photo.selected }">
+                        <i class="icon ion-checkmark"></i>    
+                        <input type="checkbox" name="select" ng-model="photo.selected" ng-change="selectCheck(photo)">
+                    </div>
+                    <div ng-show="photo.showDate" class="photo-date-container" ng-cloak
+                         ng-mouseenter="photo.showDate = true" ng-mouseleave="photo.showDate = false">
+                        <div class='photo-date-backlay'>
+                            {{getPreviewDate(photo.date)}} 
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timeline-pane" ng-if="showView == 'timeline'">
+                <div ng-repeat="time in photoTimeline" ng-if="time.photoIds.length > 0"
+                    class="timeline-section">
+                    <div class="timeline-title">
+                        {{time.title}}
+                    </div>
+                    <div class="timeline-content">
+                        <div ng-repeat="photo in photoData | filter:timelineFilter(time)" class="panel panel-default photo-canvas pull-left" 
+                             ng-context-menu="{{photo._id}}" >
+                            <div ng-preview="{ id: photo._id, height: 200 }" ng-click="showDetailDialog(photo)" 
+                                 ng-mouseenter="hoverToggle(photo)" ng-mouseleave="hoverToggle(photo)"
+                                 class="photo-canvas-image"></div>
+                            <!--Hover display stuff-->
+                            <div ng-show="loggedIn && (photo.showSelector || photo.selected)" 
+                                 class="photo-selector-container" ng-cloak
+                                 ng-mouseenter="photo.showSelector = true" ng-mouseleave="photo.showSelector = false"
+                                 ng-class="{ 'selected': photo.selected }">
+                                <i class="icon ion-checkmark"></i>    
+                                <input type="checkbox" name="select" ng-model="photo.selected" ng-change="selectCheck(photo)">
+                            </div>
+
+                            <div ng-show="photo.showDate" class="photo-date-container" ng-cloak
+                                 ng-mouseenter="photo.showDate = true" ng-mouseleave="photo.showDate = false">
+                                <div class='photo-date-backlay'>
+                                    {{getPreviewDate(photo.date)}} 
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -134,6 +177,7 @@
     <script src="Assets/Script/bootstrap/js/bootstrap.min.js"></script>
     <script src="js-src/util.js"></script>
     <script src="App/Album/albumAppController.js"></script>
+    <script src="App/Album/js-src/timelineService.js"></script>
     <script src="App/Album/Dialog/uploadDialogController.js"></script>
     <script src="App/Album/Dialog/deleteDialogController.js"></script>
     <script src="App/Album/Dialog/detailDialogController.js"></script>

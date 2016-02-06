@@ -1,10 +1,12 @@
 var app = angular.module('albumApp', ['util', 'angularFileUpload']);
 
-app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout', '$interval', 'dateService', 'dialogService', 'FileUploader',  function($scope, $http, $window, $timeout, $interval, dateService, dialogService, FileUploader) {
+app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout', '$interval', 'dateService', 'dialogService', 'timelineService', 'FileUploader',  function($scope, $http, $window, $timeout, $interval, dateService, dialogService, timelineService, FileUploader) {
     // Variable initialize
     $scope.photoData = [];
+    $scope.photoTimeline = [];
     $scope.photoIdSet = new Set();
     $scope.loadCount = 0;
+    $scope.showView = "default";
 
     $scope.showFooter = false;
     var _hideFooterTimer = null;
@@ -22,7 +24,29 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
         return dateService.getDate(date, "yyyy mmm dd");
     };
 
+    $scope.timelineFilter = function(time) {
+        var photoIds = time.photoIds;
+        return function(photo) {
+            return $.grep(photoIds, function(id){ return id == photo._id }).length > 0;
+        };
+    };
+
     // View ###################################################
+    $scope.toggleView = function() {
+        $scope.photoData = [];
+        $scope.loadCount = 0;
+        $scope.photoIdSet = new Set();
+        timelineService.clearTimeline();
+
+        if ($scope.showView == "default") {
+            $scope.showView = "timeline";
+        } else {
+            $scope.showView = "default";
+        }
+
+        $scope.getMorePhotos();
+    };
+
     $scope.hoverToggle = function(photo) {
         if (photo.showDate) {
             photo.showDate = false;
@@ -108,7 +132,13 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
             .success(function(data) {
                 var length = $scope.photoData.length;
                 for (var i = 0; i < length; ) {
-                    if ($scope.photoData[i]._id == photoId) {
+                    var photo = angular.copy($scope.photoData[i]);
+                    if (photo._id == photoId) {
+                        if ($scope.showView == 'timeline') {
+                            timelineService.deleteFromTimeline(photo);
+                            $scope.photoTimeline = timelineService.getTimeline();
+                        }
+
                         $scope.photoData.splice(i,1);
                         length --;
                         continue;
@@ -133,7 +163,13 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
             .success(function(data) {
                 var length = $scope.photoData.length;
                 for (var i = 0; i < length; ) {
-                    if ($scope.deleteSet.has($scope.photoData[i]._id)) {
+                    var photo = angular.copy($scope.photoData[i]);
+                    if ($scope.deleteSet.has(photo._id)) {
+                        if ($scope.showView == 'timeline') {
+                            timelineService.deleteFromTimeline(photo);
+                            $scope.photoTimeline = timelineService.getTimeline();
+                        }
+
                         $scope.photoData.splice(i,1);
                         length --;
                         continue;
@@ -176,8 +212,9 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
     $scope.getMorePhotos = function() {
         var begin = $scope.photoData.length + 1;
         var end = begin + 9;
+        var mode = $scope.showView;
 
-        $http.post('/api/getPhotoData', { begin: begin, end: end })
+        $http.post('/api/getPhotoData', { begin: begin, end: end, mode: mode })
             .success(function(data) {
                 if (data && data.info && data.info == "End") {
                     $scope.showFooter = true;
@@ -197,6 +234,11 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
                         if (!$scope.photoIdSet.has(photo._id)) {
                             $scope.photoData.push( photo );
                             $scope.photoIdSet.add(photo._id);
+
+                            if ($scope.showView == "timeline") {
+                                timelineService.addToTimeline(photo);
+                                $scope.photoTimeline = timelineService.getTimeline();
+                            }
                         }
                     });
                 }
@@ -291,16 +333,14 @@ app.controller('albumAppController', [ '$scope', '$http', '$window', '$timeout',
             .success(function(data) {
                 $scope.user = data.user;
                 $scope.loggedIn = data.loggedIn;
-                $scope.photoData = data.photoData;
                 $scope.loadCount = 0;
                 // Prevent uploading when not logged in
                 if (!$scope.loggedIn) {
-                    $scope.mainUploader.filters.push({ fn: function(item, options) { return false; } });
+                    $scope.mainUploader.filters.push({ name: 'login', fn: function(item, options) { return false; } });
                 }
-
-                angular.forEach($scope.photoData, function(photo) {
-                    $scope.photoIdSet.add(photo._id);
-                });
+                
+                // Start getting photos
+                $scope.getMorePhotos();
             })
             .error(function(data) {
                 console.log(data);

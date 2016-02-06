@@ -83,32 +83,27 @@ app.get('/api/album', function(req, res) {
 
     data.loggedIn = false; 
     data.user = "";
-    data.photoData = [];
-    Photo.find({}, '_id name user date posted comments', { sort: '-posted' }, function(err, ret) {
-        if (err)
-            res.status(500).send(err);
 
-        if (ret.length > 0) { 
-            // returnt the first 10 results
-            var end = ret.length > 9 ? 10 : ret.length;
-            data.photoData = ret.slice(0, end);
-        }
-        if (req.session.user) { 
-            data.loggedIn = true;
-            data.user = req.session.user.name;
-        }
-        res.json(data);
-    });
+    if (req.session.user) { 
+        data.loggedIn = true;
+        data.user = req.session.user.name;
+    }
 
+    res.json(data);
 });
 
 // get photo data in a range (for lazy loading)
 app.post('/api/getPhotoData', function(req, res) {
-   var data = { photoData: [] };
-   var begin = req.body.begin;
-   var end = req.body.end;
+    var data = { photoData: [] };
+    var begin = req.body.begin;
+    var end = req.body.end;
+    var mode = req.body.mode;
+    var sortOrder = "-posted";
+    if (mode && mode == "timeline") {
+        sortOrder = "-date";
+    }
 
-   Photo.find({}, '_id name user date posted comments', { sort: '-posted' }, function(err, ret) {
+    Photo.find({}, '_id name user date posted comments', { sort: sortOrder }, function(err, ret) {
         if (err)
             res.status(500).send(err);
         
@@ -123,7 +118,7 @@ app.post('/api/getPhotoData', function(req, res) {
             data.photoData = ret.slice(begin, end);
         }
         res.json(data);
-   });
+    });
 });
 
 // get image of a photo
