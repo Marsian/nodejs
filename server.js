@@ -8,6 +8,7 @@ var MongoStore = require('connect-mongo')(session);
 var hashUser = require('./Modules/pass').hashUser;
 var todo = require('./App/Todo/todoApp.js');
 var album = require('./App/Album/albumApp.js');
+var day = require('./App/Day/dayApp.js');
 var login = require('./App/Login/login.js');
 var User = require('./Modules/userModel');
 
@@ -203,11 +204,13 @@ var MainApp = function() {
         self.app.use("/Assets", express.static(__dirname + "/Assets"));
         self.app.use("/Template", express.static(__dirname + "/Template"));
         self.app.use("/js-src", express.static(__dirname + "/js-src"));
+        self.app.use("/node_modules", express.static(__dirname + "/node_modules"));
         self.app.use("/App", express.static(__dirname + "/App"));
 
         // Applications
         self.app.use(todo);
         self.app.use(album);
+        self.app.use(day);
         self.app.use(login);
     };
 

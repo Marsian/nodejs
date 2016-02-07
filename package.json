@@ -9,11 +9,11 @@
     "openshift"
   ],
   "author": {
-    "name": "OpenShift",
-    "email": "ramr@example.org",
-    "url": "http://www.openshift.com/"
+    "name": "Yanxi Wang",
+    "email": "mars910209@gmail.com",
+    "url": "http://marswang.com/"
   },
-  "homepage": "http://www.openshift.com/",
+  "homepage": "http://marswang.com/",
   "repository": {
     "type": "git",
     "url": "https://github.com/openshift/origin-server"
@@ -22,6 +22,11 @@
   "engines": {
     "node": ">= 0.6.0",
     "npm": ">= 1.0.0"
+  },
+
+  "scripts": {
+    "start": "npm run lite",
+    "lite": "lite-server"
   },
 
   "dependencies": {
@@ -37,9 +42,19 @@
     "node-uuid": "~1.4.3",
     "archiver": "~0.15.1",
     "exif": "~0.4.0",
-    "request": "~2.65.0" 
+    "request": "~2.65.0",
+
+    "angular2": "2.0.0-beta.3",
+    "es6-promise": "^3.0.2",
+    "es6-shim": "^0.33.3",
+    "reflect-metadata": "0.1.2",
+    "rxjs": "5.0.0-beta.0",
+    "zone.js": "0.5.11"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "concurrently": "^1.0.0",
+    "lite-server": "^2.0.1"
+  },
   "bundleDependencies": [],
 
   "private": true,
