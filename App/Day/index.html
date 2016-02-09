@@ -13,6 +13,17 @@
     <link rel="stylesheet" type="text/css" href="Assets/Style/day.css"></link>
     <link rel="stylesheet" type="text/css" href="Assets/Script/bootstrap/css/bootstrap.min.css"></link>
     <link rel="stylesheet" type="text/css" href="Assets/Script/ionicons/css/ionicons.min.css"></link>
+    
+    <!-- IE required polyfill -->
+    <script src="node_modules/es6-shim/es6-shim.min.js"></script>
+    <script src="node_modules/angular2/bundles/angular2-polyfills.js"></script>
+    <script src="node_modules/rxjs/bundles/Rx.umd.js"></script>
+    <script src="node_modules/angular2/bundles/angular2-all.umd.js"></script>
+
+    <script src="Assets/Script/jquery-2.1.4.min.js"></script>
+    <script src="Assets/Script/bootstrap/js/bootstrap.min.js"></script>
+    <script src="App/Day/js-src/weather.component.js"></script>
+    <script src="App/Day/js-src/main.js"></script>
 
     <style>
 
@@ -22,25 +33,6 @@
 
     <day-app></day-app>
 
-    <!--Placed at the end of the document so the pages load faster-->
-    <!-- IE required polyfill -->
-    <script src="node_modules/es6-shim/es6-shim.min.js"></script>
-    <script src="node_modules/angular2/bundles/angular2-polyfills.js"></script>
-    <script src="node_modules/rxjs/bundles/Rx.umd.js"></script>
-    <script src="node_modules/angular2/bundles/angular2-all.umd.js"></script>
-
-    <script src="Assets/Script/jquery-2.1.4.min.js"></script>
-    <script src="Assets/Script/bootstrap/js/bootstrap.min.js"></script>
-    <script src="App/Day/js-src/main.js"></script>
-    
-    <!--Bootstrap angular app-->
-    <script>
-        (function(app) {
-            document.addEventListener('DOMContentLoaded', function() {
-                ng.platform.browser.bootstrap(app.DayAppComponent);
-            });
-        })(window.app || (window.app = {}));
-    </script>
 </body>
 </html>
 
