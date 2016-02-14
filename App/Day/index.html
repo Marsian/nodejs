@@ -14,17 +14,29 @@
     <link rel="stylesheet" type="text/css" href="Assets/Script/bootstrap/css/bootstrap.min.css"></link>
     <link rel="stylesheet" type="text/css" href="Assets/Script/ionicons/css/ionicons.min.css"></link>
     
-    <!-- IE required polyfill -->
+    <!-- 1. Load libraries -->
+    <!-- IE required polyfills, in this exact order -->
     <script src="node_modules/es6-shim/es6-shim.min.js"></script>
+    <script src="node_modules/systemjs/dist/system-polyfills.js"></script>
+
     <script src="node_modules/angular2/bundles/angular2-polyfills.js"></script>
-    <script src="node_modules/rxjs/bundles/Rx.umd.js"></script>
-    <script src="node_modules/angular2/bundles/angular2-all.umd.js"></script>
+    <script src="node_modules/systemjs/dist/system.src.js"></script>
+    <script src="node_modules/rxjs/bundles/Rx.js"></script>
+    <script src="node_modules/angular2/bundles/angular2.dev.js"></script>
 
-    <script src="Assets/Script/jquery-2.1.4.min.js"></script>
-    <script src="Assets/Script/bootstrap/js/bootstrap.min.js"></script>
-    <script src="App/Day/js-src/weather.component.js"></script>
-    <script src="App/Day/js-src/main.js"></script>
-
+    <!-- 2. Configure SystemJS -->
+    <script>
+        System.config({
+            packages: {        
+                'App/Day/js-src': {
+                    format: 'register',
+                    defaultExtension: 'js'
+                }
+            }
+        });
+        System.import('App/Day/js-src/main').then(null, console.error.bind(console));
+    </script>
+ 
     <style>
 
     </style>
