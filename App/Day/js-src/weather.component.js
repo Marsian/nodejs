@@ -18,27 +18,25 @@ System.register(['angular2/core'], function(exports_1) {
         execute: function() {
             WeatherComponent = (function () {
                 function WeatherComponent() {
+                    var _this = this;
                     this.geo = "Not started";
-                }
-                WeatherComponent.prototype.newWeatherCompoment = function () {
                     if (!navigator.geolocation) {
                         this.geo = "Geolocation is not supported by your browser";
                     }
                     else {
                         this.geo = "Loading...";
-                        function success(position) {
+                        navigator.geolocation.getCurrentPosition(function (position) {
                             console.log(position);
                             var latitude = position.coords.latitude;
                             var longitude = position.coords.longitude;
-                            this.geo = "Got it!";
-                        }
-                        ;
-                        function error() {
+                            _this.geo = "Got it!";
+                        }, function () {
                             console.log("Unable to retrieve your location");
-                        }
-                        ;
-                        navigator.geolocation.getCurrentPosition(success, error);
+                        });
                     }
+                }
+                WeatherComponent.prototype.execute = function () {
+                    this.geo = "Working...";
                 };
                 WeatherComponent = __decorate([
                     core_1.Component({
