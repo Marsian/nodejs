@@ -205,6 +205,7 @@ var MainApp = function() {
         self.app.use("/Template", express.static(__dirname + "/Template"));
         self.app.use("/js-src", express.static(__dirname + "/js-src"));
         self.app.use("/node_modules", express.static(__dirname + "/node_modules"));
+        self.app.use("/bower_components", express.static(__dirname + "/bower_components"));
         self.app.use("/App", express.static(__dirname + "/App"));
 
         // Applications

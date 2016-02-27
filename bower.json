@@ -1,0 +1,27 @@
+{
+  "name": "Mars' Personal Website",
+  "description": "Mars' Personal Website",
+  "main": "server.js",
+  "authors": [
+    "Yanxi Wang"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "OpenShift",
+    "Node.js",
+    "application",
+    "openshift"
+  ],
+  "moduleType": [],
+  "homepage": "marswang.com",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.2.0"
+  }
+}
