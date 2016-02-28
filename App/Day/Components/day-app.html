@@ -1,0 +1,32 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="day-app">
+    <template>
+        <!-- Header bar -->
+        <nav class="navbar navbar-default" style="z-index: 10;">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home" ></span></a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="main-container">
+            <div class="container" >
+                <h1>{{message}}</h1>
+                <weather-pane></weather-pane>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        // register a new element called proto-element
+        Polymer({
+            is: "day-app",
+            // add a callback to the element's prototype
+            ready: function() {
+                this.message = "My first Polymer App!"
+            }
+        });
+    </script>
+</dom-module>

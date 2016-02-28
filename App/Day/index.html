@@ -16,7 +16,13 @@
 
     <!-- Polymer -->
     <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
-    <link rel="import" href="App/Day/Components/day-element.html">
+    <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+    <link rel="import" href="bower_components/paper-card/paper-card.html">
+    <link rel="import" href="bower_components/paper-spinner/paper-spinner.html">
+
+    <!-- Components -->
+    <link rel="import" href="App/Day/Components/day-app.html">
+    <link rel="import" href="App/Day/Components/weather-pane.html">
 
     <style>
 
@@ -24,7 +30,7 @@
 </head>
 <body style="height: 100%; overflow: hidden;" >
 
-    <day-element></day-element>
+    <day-app></day-app>
 
 </body>
 </html>

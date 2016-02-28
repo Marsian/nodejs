@@ -1,12 +1,14 @@
 {
-  "name": "OpenShift-Sample-App",
+  "name": "Mars' Personal Website",
   "version": "1.0.0",
-  "description": "OpenShift Sample Application",
+  "description": "Mars' Personal Website",
   "keywords": [
     "OpenShift",
     "Node.js",
     "application",
-    "openshift"
+    "openshift",
+    "Angular",
+    "Polymer"
   ],
   "author": {
     "name": "Yanxi Wang",

@@ -1,0 +1,107 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<dom-module id="weather-pane">
+    <template>
+        <div>
+            <paper-card heading="Weather">
+                <div class="card-content">
+                    <div hidden$="[[weatherReady]]">
+                        <paper-spinner active></paper-spinner>
+                        {{status}}
+                    </div>
+                    <div hidden$="[[!weatherReady]]">
+                        <ul>
+                            <li>Temp: {{condition.temp}}</li>
+                            <li>Description: {{condition.text}}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-actions">
+
+                    <a href="https://www.yahoo.com/?ilc=401" target="_blank"> <img src="https://poweredby.yahoo.com/purple.png" width="134" height="29"/></a>
+                </div>
+            </paper-card>
+        </div>
+
+        <iron-ajax
+            id="getLocation"
+            url="/api/getCurrentLocation"
+            method="POST"
+            content-type="application/json"
+            handle-as="json"
+            on-response="locationResponse"
+            debounce-duration="300"></iron-ajax>
+        <iron-ajax
+            id="getWeather"
+            method="GET"
+            handle-as="json"
+            on-response="weatherResponse"
+            debounce-duration="300"></iron-ajax>
+
+    </template>
+
+    <script>
+        Polymer({
+            is: "weather-pane",
+
+            ready: function() {
+                var _this = this;
+                _this.status = "";
+                _this.weatherReady = false;
+
+
+                var _initialize = function() {
+                    if (!navigator.geolocation){
+                        _this.status = "Geolocation is not supported by your browser";
+                    } else {
+                        _this.status = "Loading...";
+
+                        navigator.geolocation.getCurrentPosition((position) => {
+                            var latitude  = position.coords.latitude;
+                            var longitude = position.coords.longitude;
+                            
+                            _this.status = "Got coordinates...";
+                            _getWeather(latitude, longitude);
+                        }, () => {
+                            console.log("Unable to retrieve your location");
+                        });
+                    }
+                }
+                _initialize();
+
+                var _getWeather = function (latitude, longitude) {
+                    var requestBody = {
+                        latitude: latitude,
+                        longitude: longitude
+                    };
+
+                    _this.status = "Got location..."
+                    _this.$.getLocation.body = requestBody;
+                    _this.$.getLocation.generateRequest();
+                }
+            },
+
+            locationResponse: function(e, data) {
+                var location = data.response.results.formatted_address;
+                var url = "https://query.yahooapis.com/v1/public/yql?q=select * from weather.forecast where woeid in (select woeid from geo.places(0) where text='" + location + "')&format=json";
+
+                this.$.getWeather.url = url;
+                this.$.getWeather.generateRequest();
+            },
+
+            weatherResponse: function(e, data) {
+                var query = data.response.query;
+                if (query.count > 0) {
+                    var weather = query.results.channel;
+                    console.log(weather);
+                    this.status = weather.description;
+                    this.weatherReady = true;
+                    this.condition = weather.item.condition;
+                } else {
+                    this.status = "No weather info"
+                }
+            }
+
+        });
+    </script>
+</dom-module>
