@@ -21,7 +21,7 @@
     "url": "https://github.com/openshift/origin-server"
   },
   "scripts": {
-    "install": "bower install"
+    "postinstall": "bower install"
   },
 
   "engines": {
@@ -43,6 +43,10 @@
     "archiver": "~0.15.1",
     "exif": "~0.4.0",
     "request": "~2.65.0"
+  },
+
+  "devDependencies": {
+    "bower":"^1.7.7"
   },
 
   "bundleDependencies": [],
