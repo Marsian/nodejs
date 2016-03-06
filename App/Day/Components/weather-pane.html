@@ -1,24 +1,140 @@
-<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/polymer/polymer.html">
 
 <dom-module id="weather-pane">
     <template>
+        <style>
+            paper-card {
+                width: 450px;
+            }
+            .weather-header { 
+                @apply(--paper-font-headline); 
+            }
+            .weather-image {
+                position: absolute;
+                top: 8px;
+                right: 8px;
+            }
+            .card-content {
+                min-height: 180px;
+            }
+            .weather-loading {
+                margin-top: 32px;
+            }
+            .weather-loading span {
+                margin-left: 8px;
+            }
+            .weather-content {
+                font-size: 16px;
+                margin-top: 16px;
+            }
+            .weather-summary {
+                text-align: center;
+            }
+            .weather-summary .weather-description {
+                font-size: 14px;
+            }
+            .weather-summary .weather-temp {
+                font-size: 24px;
+                padding-left: 6px;
+            }
+            .show-forecast {
+                margin: 0;
+                text-transform: none;
+            }
+            .collapse-content {
+                padding: 16px 0px 4px 16px;
+            }
+            .forecast-entry {
+                position: relative;
+                line-height: 36px;
+            }
+            .forecast-day {
+                display: inline-block;
+            }
+            .forecast-image {
+                position: absolute;
+                vertical-align: middle;
+                width: 32px;
+                height: 32px;
+                left: 184px
+            }
+            .forecast-temp {
+                position: absolute;
+                top: 0;
+                right: 8px;
+            }
+            .forecast-temp div {
+                width: 32px;
+                display: inline-block;
+                text-align: right;
+            }
+            .card-actions {
+                height: 50px;
+            }
+            .temp-unit {
+                margin: 0;
+            }
+            paper-button.temp-unit .celsius{
+                font-weight: 400;
+            }
+            paper-button.temp-unit[active] .celsius{
+                font-weight: 600;
+            }
+            paper-button.temp-unit .fahrenheit{
+                font-weight: 600;
+            }
+            paper-button.temp-unit[active] .fahrenheit{
+                font-weight: 400;
+            }
+            .yahoo-icon {
+                float: right;
+                margin-top: 6px;
+            }
+        </style>
+
         <div>
-            <paper-card heading="Weather">
+            <paper-card>
                 <div class="card-content">
-                    <div hidden$="[[weatherReady]]">
+                    <div class="weather-header">Weather</div>
+                    <iron-image class="weather-image" src="[[imageUrl]]"></iron-image>
+
+                    <div class="weather-loading" hidden$="[[weatherReady]]">
                         <paper-spinner active></paper-spinner>
-                        {{status}}
+                        <span>[[status]]</span>
                     </div>
-                    <div hidden$="[[!weatherReady]]">
-                        <ul>
-                            <li>Temp: {{condition.temp}}</li>
-                            <li>Description: {{condition.text}}</li>
-                        </ul>
+
+                    <div class="weather-content" hidden$="[[!weatherReady]]">
+                        <div class="weather-summary">
+                            <div>[[location]]</div>
+                            <div class="weather-description">[[condition.text]]</div>
+                            <div class="weather-temp">[[temp]]&deg;</div>
+                        </div>
+                        
+                        <paper-button toggles noink raised on-click="forecastToggle" class="show-forecast">Forecast</paper-button>
+                        <iron-collapse id="forecastContent">
+                            <div class="collapse-content">
+                                <template is="dom-repeat" items="{{forecast}}">
+                                    <div class="forecast-entry">
+                                        <div class=forecast-day>[[item.day]]</div>
+                                        <iron-image id="image_{{index}}" class="forecast-image" sizing="contain" src="[[item.image]]"></iron-image>
+                                        <div class="forecast-temp">
+                                            <div>[[item.low]]</div>
+                                            <div>[[item.high]]</div>
+                                        </div>
+                                        <paper-tooltip id="image_{{index}}" position="top">[[item.text]]</paper-tooltip>
+                                    </div>
+                                </template>
+                            </div>
+                        </iron-collapse>
                     </div>
                 </div>
                 <div class="card-actions">
-
-                    <a href="https://www.yahoo.com/?ilc=401" target="_blank"> <img src="https://poweredby.yahoo.com/purple.png" width="134" height="29"/></a>
+                    <paper-button toggles on-change="CFToggle" class="temp-unit" hidden$="[[!weatherReady]]">
+                        <span class="celsius">&#x2103;</span> / <span class="fahrenheit">&#x2109;</span>
+                    </paper-button>
+                    <div class="yahoo-icon">
+                        <a href="https://www.yahoo.com/?ilc=401" target="_blank"> <img src="https://poweredby.yahoo.com/purple.png" width="134" height="29"/></a>
+                    </div>
                 </div>
             </paper-card>
         </div>
@@ -48,7 +164,9 @@
                 var _this = this;
                 _this.status = "";
                 _this.weatherReady = false;
-
+                _this.imageUrl = "";
+                _this.temp = "";
+                _this.tempUnit = "F";
 
                 var _initialize = function() {
                     if (!navigator.geolocation){
@@ -56,13 +174,13 @@
                     } else {
                         _this.status = "Loading...";
 
-                        navigator.geolocation.getCurrentPosition((position) => {
+                        navigator.geolocation.getCurrentPosition(function (position) {
                             var latitude  = position.coords.latitude;
                             var longitude = position.coords.longitude;
                             
                             _this.status = "Got coordinates...";
                             _getWeather(latitude, longitude);
-                        }, () => {
+                        }, function () {
                             console.log("Unable to retrieve your location");
                         });
                     }
@@ -83,6 +201,7 @@
 
             locationResponse: function(e, data) {
                 var location = data.response.results.formatted_address;
+                this.location = location;
                 var url = "https://query.yahooapis.com/v1/public/yql?q=select * from weather.forecast where woeid in (select woeid from geo.places(0) where text='" + location + "')&format=json";
 
                 this.$.getWeather.url = url;
@@ -93,13 +212,63 @@
                 var query = data.response.query;
                 if (query.count > 0) {
                     var weather = query.results.channel;
-                    console.log(weather);
+
                     this.status = weather.description;
                     this.weatherReady = true;
                     this.condition = weather.item.condition;
+                    this.temp = this.condition.temp;
+                    this.originTemp = this.condition.temp;
+                    this.forecast = weather.item.forecast;
+                    this.forecast.forEach(function(item) {
+                        item.originHigh = item.high;
+                        item.originLow = item.low;
+                        item.image = "http://l.yimg.com/a/i/us/we/52/" + item.code + ".gif";
+                    });
+                    console.log(this.forecast);
+                    this.imageUrl = "http://l.yimg.com/a/i/us/we/52/" + this.condition.code + ".gif";
                 } else {
                     this.status = "No weather info"
                 }
+            },
+
+            CFToggle: function(e, value) {
+                var _this = this;
+                if (!this.condition)
+                    return;
+                
+                function _toCelsius(data) {
+                    var temp = parseFloat(data);
+                    return (Math.floor((temp - 32) / 1.8)).toString();
+                };
+
+                function _toFahrenheit(data) {
+                    var temp = parseFloat(data);
+                    return (Math.floor(temp * 1.8 + 32 )).toString();
+                };
+
+                if (this.tempUnit == "F") {
+                    this.tempUnit = "C";
+                    this.temp = _toCelsius(this.originTemp);
+                    this.forecast.forEach(function(item) {
+                        item.high = _toCelsius(item.originHigh);
+                        item.low = _toCelsius(item.originLow);
+                    });
+                    var newForecast = $.extend(true, [], this.forecast);
+                    this.notifyPath('forecast', newForecast);
+                } else {
+                    this.tempUnit = "F";
+                    this.temp = this.originTemp;
+                    this.forecast.forEach(function(item) {
+                        item.high = item.originHigh;
+                        item.low = item.originLow;
+                    });
+                    var newForecast = $.extend(true, [], this.forecast);
+                    this.notifyPath('forecast', newForecast);
+                }
+            },
+
+            forecastToggle: function() {
+                this.$.forecastContent.toggle();
             }
 
         });

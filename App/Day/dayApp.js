@@ -35,7 +35,8 @@ app.post('/api/getCurrentLocation', function(req, res) {
     } else {
         var query = "https://maps.google.com/maps/api/geocode/json";
         query += "?latlng=" + latitude + ',' + longitude;
-        //query += "&key=" + apiKey;
+        query += "&result_type=locality";
+        query += "&key=" + apiKey;
         request.get(query, function(err, data) {
             if (err) {
                 res.status(500).send({ err: err });
