@@ -64,7 +64,7 @@
                 right: 8px;
             }
             .forecast-temp div {
-                width: 32px;
+                width: 45px;
                 display: inline-block;
                 text-align: right;
             }
@@ -172,16 +172,16 @@
                     if (!navigator.geolocation){
                         _this.status = "Geolocation is not supported by your browser";
                     } else {
-                        _this.status = "Loading...";
+                        _this.status = "Getting location...";
 
                         navigator.geolocation.getCurrentPosition(function (position) {
                             var latitude  = position.coords.latitude;
                             var longitude = position.coords.longitude;
                             
-                            _this.status = "Got coordinates...";
+                            _this.status = "Getting weather...";
                             _getWeather(latitude, longitude);
                         }, function () {
-                            console.log("Unable to retrieve your location");
+                            _this.status = "Unable to retrieve your location";
                         });
                     }
                 }
@@ -193,7 +193,6 @@
                         longitude: longitude
                     };
 
-                    _this.status = "Got location..."
                     _this.$.getLocation.body = requestBody;
                     _this.$.getLocation.generateRequest();
                 }
@@ -224,7 +223,6 @@
                         item.originLow = item.low;
                         item.image = "http://l.yimg.com/a/i/us/we/52/" + item.code + ".gif";
                     });
-                    console.log(this.forecast);
                     this.imageUrl = "http://l.yimg.com/a/i/us/we/52/" + this.condition.code + ".gif";
                 } else {
                     this.status = "No weather info"

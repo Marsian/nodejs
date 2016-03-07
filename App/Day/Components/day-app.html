@@ -1,21 +1,51 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 
 <dom-module id="day-app">
-    <template>
-        <!-- Header bar -->
-        <nav class="navbar navbar-default" style="z-index: 10;">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home" ></span></a>
-                </div>
-            </div>
-        </nav>
+    <style>
+        .paneContainer {
+            margin-top: 32px;
+            padding-right: 15px;
+            padding-left: 15px;
+            margin-right: auto;
+            margin-left: auto
+        }
 
-        <div class="main-container">
-            <div class="container" >
+        @media (min-width: 768px) {
+            .paneContainer {
+                width:750px
+            }
+        }
+
+        @media (min-width: 992px) {
+            .paneContainer {
+                width:970px
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .paneContainer {
+                width:1170px
+            }
+        }
+        weather-pane {
+            float: left;
+            padding-right: 24px;
+        }
+        calendar-pane {
+            float: left;
+        }
+    </style>
+
+    <template>
+        <paper-header-panel mode="standard">
+            <paper-toolbar>
+                <paper-icon-button icon="home" on-click="goHome"></paper-icon-button>
+            </paper-toolbar>
+            <div class="paneContainer">
                 <weather-pane></weather-pane>
+                <calendar-pane></calendar-pane>
             </div>
-        </div>
+        </paper-header-panel>
     </template>
 
     <script>
@@ -24,6 +54,10 @@
 
             ready: function() {
                 this.message = "My first Polymer App!"
+            },
+
+            goHome: function() {
+                window.location = "/";
             }
         });
     </script>
