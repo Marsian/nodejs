@@ -21,6 +21,7 @@
     "url": "https://github.com/openshift/origin-server"
   },
   "scripts": {
+    "preinstall": "npm prune",
     "postinstall": "HOME=$OPENSHIFT_REPO_DIR bower install || bower install"
   },
 
