@@ -9,7 +9,7 @@
             }
             paper-card {
                 width: 450px;
-                height: 550px;
+                height: 520px;
                 border: 3px solid;
                 font-family: 'SimSun';
             }
@@ -20,21 +20,24 @@
             }
             .card-content {
                 padding: 0px;
+                height: 100%;
             }
             .ganzhi-section {
+                line-height: 22px;
                 width: 48px;
-                height: 308px;
+                height: 324px;
                 padding: 16px 16px 16px 18px;
                 font-size: 18px;
                 font-weight: 600;
                 border-bottom: 1px solid;
             }
             .lunar-section {
+                line-height: 22px;
                 position: absolute;
                 top: 0px;
                 left: 48px;
                 width: 44px;
-                height: 308px;
+                height: 324px;
                 padding: 16px 16px 16px 8px;
                 font-size: 18px;
                 font-weight: 600;
@@ -62,6 +65,19 @@
                 font-size: 210px;
                 border-left: 1px solid;
             }
+            .huangli-section {
+                position: absolute;
+                height: 114px;
+                padding: 16px;
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                text-align: left;
+                font-size: 20px;
+                font-weight: 600;
+                border-top: 1px solid;
+            }
+
         </style>
 
         <div>
@@ -70,9 +86,11 @@
                 <div class="card-content">
                     <div class="ganzhi-section">
                         [[lunar.GanZhiYear]]年
-                        [[lunar.zodiac]]年
+                        ︻
+                        <p style="margin-top: -4px; margin-bottom: -4px;">[[lunar.zodiac]]年</p>
+                        ︼
                         [[lunar.GanZhiMonth]]月
-                        [[lunar.GanZhiDay]]日
+                        <p style="margin-top: 8px">[[lunar.GanZhiDay]]日</p>
                     </div> 
                     <div class="lunar-section">
                         农历[[lunar.lunarMonthName]][[lunar.lunarDayName]]
@@ -82,6 +100,14 @@
                     </div>
                     <div class="day-section">
                         [[lunar.lunarDay]] 
+                    </div>
+                    <div class="huangli-section">
+                        <div style="line-height: 40px;">
+                            宜：[[lunar.yi]]
+                        </div>
+                        <div style="line-height: 40px;">
+                            忌：[[lunar.ji]]
+                        </div>
                     </div>
                 </div>
             </paper-card>
@@ -113,6 +139,7 @@
 
             calendarResponse: function(e, data) {
                 this.lunar = data.response;
+                console.log(this.lunar);
 
                 var week = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
                 var date = new Date(this.lunar.date)
