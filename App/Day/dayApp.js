@@ -58,10 +58,10 @@ app.post('/api/getCurrentLocation', function(req, res) {
 });
 
 // get lunar calendar
-app.get('/api/getLunarCalendar', function(req, res) {
+app.post('/api/getLunarCalendar', function(req, res) {
     var date = new Date();
-    if (req.params.date) {
-        var date = new Date(req.params.date);
+    if (req.body.date) {
+        var date = new Date(req.body.date);
     }
 
     var year = date.getFullYear();
@@ -70,6 +70,7 @@ app.get('/api/getLunarCalendar', function(req, res) {
 
     result = lunarCalendar.solarToLunar(year, month, day);
     result.date = date;
+    result.lunarDay = Math.round(result.lunarDay);
 
     var month_pad = ("0" + month).slice(-2);
     var day_pad = ("0" + day).slice(-2);

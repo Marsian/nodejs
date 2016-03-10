@@ -1,5 +1,11 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 
+<style is="custom-style">
+    :root .paper-date-picker-dialog > paper-date-picker #heading {
+        margin-bottom: -56px;
+    }
+</style>
+
 <dom-module id="calendar-pane">
     <template>
         <style>
@@ -55,6 +61,9 @@
                 font-size: 24px;
                 font-weight: 600;
             }
+            .date-section paper-button {
+                padding: 4px;
+            }
             .day-section {
                 position: absolute;
                 height: 352px;
@@ -77,7 +86,6 @@
                 font-weight: 600;
                 border-top: 1px solid;
             }
-
         </style>
 
         <div>
@@ -96,10 +104,10 @@
                         农历[[lunar.lunarMonthName]][[lunar.lunarDayName]]
                     </div>    
                     <div class="date-section">
-                        [[date]]
+                        <paper-button noink on-click="openDatePicker">[[date]]</paper-button> 
                     </div>
                     <div class="day-section">
-                        [[lunar.lunarDay]] 
+                        [[lunar.lunarDay]]
                     </div>
                     <div class="huangli-section">
                         <div style="line-height: 40px;">
@@ -113,10 +121,18 @@
             </paper-card>
         </div>
 
+        <paper-dialog id="dialog" class="paper-date-picker-dialog" modal on-iron-overlay-closed="dismissDialog">
+            <paper-date-picker id="picker" date="{{datePicker}}" local="cn" min-date="Jan 1, 2010" max-date="Dec 31, 2019"></paper-date-picker>
+            <div class="buttons">
+                <paper-button dialog-dismiss>Cancel</paper-button>
+                <paper-button dialog-confirm>OK</paper-button>
+            </div>
+        </paper-dialog>
+
         <iron-ajax
             id="getCalendar"
             url="/api/getLunarCalendar"
-            method="GET"
+            method="POST"
             content-type="application/json"
             handle-as="json"
             on-response="calendarResponse"
@@ -132,6 +148,7 @@
                 var _this = this;
 
                 var _initialize = function() {
+                    _this.$.getCalendar.body = {};
                     _this.$.getCalendar.generateRequest();
                 }
                 _initialize();
@@ -139,6 +156,7 @@
 
             calendarResponse: function(e, data) {
                 this.lunar = data.response;
+                this.datePicker = new Date(this.lunar.date);
                 console.log(this.lunar);
 
                 var week = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
@@ -151,6 +169,16 @@
                 var month_pad = ("0" + month).slice(-2);
                 var day_pad = ("0" + day).slice(-2);
                 this.date = year + '.' + month_pad + '.' + day_pad + ' ' + week[date.getDay()];
+            },
+
+            openDatePicker: function() {
+                this.$.dialog.withBackDrop = true;
+                this.$.dialog.open();
+            },
+
+            dismissDialog: function(e) {
+                this.$.getCalendar.body = { date: this.datePicker.toString() };
+                this.$.getCalendar.generateRequest();
             }
         });
     </script>
