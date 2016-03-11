@@ -121,11 +121,11 @@
             </paper-card>
         </div>
 
-        <paper-dialog id="dialog" class="paper-date-picker-dialog" modal on-iron-overlay-closed="dismissDialog">
+        <paper-dialog id="dialog" class="paper-date-picker-dialog" modal>
             <paper-date-picker id="picker" date="{{datePicker}}" local="cn" min-date="Jan 1, 2010" max-date="Dec 31, 2019"></paper-date-picker>
             <div class="buttons">
-                <paper-button dialog-dismiss>Cancel</paper-button>
-                <paper-button dialog-confirm>OK</paper-button>
+                <paper-button dialog-dismiss on-click="dismissDialog">Cancel</paper-button>
+                <paper-button dialog-confirm on-click="confirmDialog">OK</paper-button>
             </div>
         </paper-dialog>
 
@@ -148,7 +148,7 @@
                 var _this = this;
 
                 var _initialize = function() {
-                    _this.$.getCalendar.body = {};
+                    _this.$.getCalendar.body = { date: new Date() };
                     _this.$.getCalendar.generateRequest();
                 }
                 _initialize();
@@ -157,7 +157,6 @@
             calendarResponse: function(e, data) {
                 this.lunar = data.response;
                 this.datePicker = new Date(this.lunar.date);
-                console.log(this.lunar);
 
                 var week = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
                 var date = new Date(this.lunar.date)
@@ -176,9 +175,13 @@
                 this.$.dialog.open();
             },
 
-            dismissDialog: function(e) {
+            confirmDialog: function(e) {
                 this.$.getCalendar.body = { date: this.datePicker.toString() };
                 this.$.getCalendar.generateRequest();
+            },
+
+            dismissDialog: function() {
+                this.datePicker = new Date(this.lunar.date);
             }
         });
     </script>
