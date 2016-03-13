@@ -45,7 +45,8 @@
     "exif": "~0.4.0",
     "request": "~2.65.0",
     "bower":"^1.7.7",
-    "lunar-calendar": "latest"
+    "lunar-calendar": "latest",
+    "oauth": "^0.9.14"
   },
 
   "bundleDependencies": [],

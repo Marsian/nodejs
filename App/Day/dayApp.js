@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');    // pull information from HTML POST (
 var methodOverride = require('method-override'); // simulate DELETE and PUT (express4)
 var request = require('request');
 var lunarCalendar = require('lunar-calendar');
+var OAuth = require('oauth');
 
 var app = module.exports = express();
 
@@ -55,6 +56,38 @@ app.post('/api/getCurrentLocation', function(req, res) {
         });            
     }
 
+});
+
+// get weather from Yahoo
+app.post('/api/getWeather', function(req, res) {
+    var location = req.body.location;
+
+    var consumerKey = 'dj0yJmk9V1ZaWkxiSXF0SEZBJmQ9WVdrOU5EUkRNRzFuTXpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD04Ng--';
+    var consumerSecret = 'b3aa686cc0b36b7c1fcbcd2de71fcad1b8976254';
+
+    var consumerSecret = process.env.YAHOO_CONSUMER_SECRET;
+    if (typeof consumerSecret === "undefined") {
+        res.send({ err: "No Yahoo consumer secret found." });
+    } else {
+        var baseQuery = "https://query.yahooapis.com/v1/yql";
+        authQuery = baseQuery + "?q=select * from weather.forecast where woeid in (select woeid from geo.places(0) where text='" + location + "') and u='c'&format=json";
+        var oa = new OAuth.OAuth(baseQuery, authQuery, consumerKey, consumerSecret, "1.0", null, "HMAC-SHA1");
+
+        oa.get(
+            authQuery,
+            '', // user token
+            '', // user secret            
+            function (err, data){
+                if (err) {
+                    res.status(500).send({ err: err });
+                    return;
+                }
+
+                data = JSON.parse(data);
+                res.json( data ); 
+            }
+        );
+    }
 });
 
 // get lunar calendar

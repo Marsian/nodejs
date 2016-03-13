@@ -75,16 +75,16 @@
                 margin: 0;
             }
             paper-button.temp-unit .celsius{
-                font-weight: 400;
+                font-weight: 600;
             }
             paper-button.temp-unit[active] .celsius{
-                font-weight: 600;
+                font-weight: 400;
             }
             paper-button.temp-unit .fahrenheit{
-                font-weight: 600;
+                font-weight: 400;
             }
             paper-button.temp-unit[active] .fahrenheit{
-                font-weight: 400;
+                font-weight: 600;
             }
             .yahoo-icon {
                 float: right;
@@ -99,7 +99,7 @@
                     <iron-image class="weather-image" src="[[imageUrl]]"></iron-image>
 
                     <div class="weather-loading" hidden$="[[weatherReady]]">
-                        <paper-spinner active></paper-spinner>
+                        <paper-spinner active hidden$=[[weatherNotFound]]></paper-spinner>
                         <span>[[status]]</span>
                     </div>
 
@@ -148,6 +148,15 @@
             on-response="locationResponse"
             debounce-duration="300"></iron-ajax>
         <iron-ajax
+            id="getWeatherAuth"
+            url="/api/getWeather"
+            method="POST"
+            content-type="application/json"
+            handle-as="json"
+            on-response="weatherResponse"
+            debounce-duration="300"></iron-ajax>
+
+        <iron-ajax
             id="getWeather"
             method="GET"
             handle-as="json"
@@ -164,9 +173,10 @@
                 var _this = this;
                 _this.status = "";
                 _this.weatherReady = false;
+                _this.weatherNotFound = false;
                 _this.imageUrl = "";
                 _this.temp = "";
-                _this.tempUnit = "F";
+                _this.tempUnit = "C";
 
                 var _initialize = function() {
                     if (!navigator.geolocation){
@@ -201,19 +211,24 @@
             locationResponse: function(e, data) {
                 var location = data.response.results.formatted_address;
                 this.location = location;
-                var url = "https://query.yahooapis.com/v1/public/yql?q=select * from weather.forecast where woeid in (select woeid from geo.places(0) where text='" + location + "')&format=json";
+                var url = "https://query.yahooapis.com/v1/public/yql?q=select * from weather.forecast where woeid in (select woeid from geo.places(0) where text='" + location + "') and u='c'&format=json";
 
-                this.$.getWeather.url = url;
-                this.$.getWeather.generateRequest();
+                //this.$.getWeather.url = url;
+                //this.$.getWeather.generateRequest();
+                this.$.getWeatherAuth.body = { location: this.location };
+                this.$.getWeatherAuth.generateRequest();
             },
 
             weatherResponse: function(e, data) {
                 var query = data.response.query;
                 if (query.count > 0) {
-                    var weather = query.results.channel;
+                    var weather = null;
+                    if (query.count == 1)
+                        weather = query.results.channel;
+                    else 
+                        weather = query.results.channel[0];
 
                     this.status = weather.description;
-                    this.weatherReady = true;
                     this.condition = weather.item.condition;
                     this.temp = this.condition.temp;
                     this.originTemp = this.condition.temp;
@@ -224,8 +239,10 @@
                         item.image = "http://l.yimg.com/a/i/us/we/52/" + item.code + ".gif";
                     });
                     this.imageUrl = "http://l.yimg.com/a/i/us/we/52/" + this.condition.code + ".gif";
+                    this.weatherReady = true;
                 } else {
-                    this.status = "No weather info"
+                    this.status = "No weather info";
+                    this.weatherNotFound = true;
                 }
             },
 
@@ -246,19 +263,19 @@
 
                 if (this.tempUnit == "F") {
                     this.tempUnit = "C";
-                    this.temp = _toCelsius(this.originTemp);
+                    this.temp = this.originTemp;
                     this.forecast.forEach(function(item) {
-                        item.high = _toCelsius(item.originHigh);
-                        item.low = _toCelsius(item.originLow);
+                        item.high = item.originHigh;
+                        item.low = item.originLow;
                     });
                     var newForecast = $.extend(true, [], this.forecast);
                     this.notifyPath('forecast', newForecast);
                 } else {
                     this.tempUnit = "F";
-                    this.temp = this.originTemp;
+                    this.temp = _toFahrenheit(this.originTemp);
                     this.forecast.forEach(function(item) {
-                        item.high = item.originHigh;
-                        item.low = item.originLow;
+                        item.high = _toFahrenheit(item.originHigh);
+                        item.low = _toFahrenheit(item.originLow);
                     });
                     var newForecast = $.extend(true, [], this.forecast);
                     this.notifyPath('forecast', newForecast);
