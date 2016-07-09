@@ -20,7 +20,7 @@
                 font-family: 'SimSun';
             }
             .top-divider {
-                width: 100%; 
+                width: 100%;
                 padding-top: 4px;
                 border-bottom: 1px solid;
             }
@@ -63,6 +63,7 @@
             }
             .date-section paper-button {
                 padding: 4px 16px 4px 16px;
+                font-family: 'SimSun';
             }
             .day-section {
                 position: absolute;
@@ -99,12 +100,12 @@
                         ︼
                         [[lunar.GanZhiMonth]]月
                         <p style="margin-top: 8px">[[lunar.GanZhiDay]]日</p>
-                    </div> 
+                    </div>
                     <div class="lunar-section">
                         农历[[lunar.lunarMonthName]][[lunar.lunarDayName]]
-                    </div>    
+                    </div>
                     <div class="date-section">
-                        <paper-button noink raised on-click="openDatePicker">[[date]]</paper-button> 
+                        <paper-button noink raised on-click="openDatePicker">[[date]]</paper-button>
                     </div>
                     <div class="day-section">
                         [[lunar.lunarDay]]
