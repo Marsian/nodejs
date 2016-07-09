@@ -16,7 +16,7 @@ app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse applica
 app.use(methodOverride());
 
 // page cache
-var cache = { 
+var cache = {
     'index.html': fs.readFileSync('App/Day/index.html'),
     'huangli': JSON.parse(fs.readFileSync('Assets/Data/huangli.json'))
 };
@@ -31,7 +31,7 @@ app.get('/Day', function( req, res ) {
 app.post('/api/getCurrentLocation', function(req, res) {
     var latitude = req.body.latitude;
     var longitude = req.body.longitude;
-            
+
     var apiKey = process.env.GOOGLE_API_KEY;
     if (typeof apiKey === "undefined") {
         res.send({ err: "No Google Api key." });
@@ -51,11 +51,10 @@ app.post('/api/getCurrentLocation', function(req, res) {
                 res.status(500).send({ err: data.error_message });
                 return;
             }
-            
-            res.json({ results: data.results[0] }); 
-        });            
-    }
 
+            res.json({ results: data.results[0] });
+        });
+    }
 });
 
 // get weather from Yahoo
@@ -63,9 +62,8 @@ app.post('/api/getWeather', function(req, res) {
     var location = req.body.location;
 
     var consumerKey = 'dj0yJmk9V1ZaWkxiSXF0SEZBJmQ9WVdrOU5EUkRNRzFuTXpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD04Ng--';
-    var consumerSecret = 'b3aa686cc0b36b7c1fcbcd2de71fcad1b8976254';
-
     var consumerSecret = process.env.YAHOO_CONSUMER_SECRET;
+
     if (typeof consumerSecret === "undefined") {
         res.send({ err: "No Yahoo consumer secret found." });
     } else {
@@ -76,7 +74,7 @@ app.post('/api/getWeather', function(req, res) {
         oa.get(
             authQuery,
             '', // user token
-            '', // user secret            
+            '', // user secret
             function (err, data){
                 if (err) {
                     res.status(500).send({ err: err });
@@ -84,7 +82,7 @@ app.post('/api/getWeather', function(req, res) {
                 }
 
                 data = JSON.parse(data);
-                res.json( data ); 
+                res.json( data );
             }
         );
     }
@@ -112,5 +110,5 @@ app.post('/api/getLunarCalendar', function(req, res) {
     result.yi = huangli.yi;
     result.ji = huangli.ji;
 
-    res.json(result); 
+    res.json(result);
 });

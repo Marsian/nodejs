@@ -62,7 +62,7 @@
                 font-weight: 600;
             }
             .date-section paper-button {
-                padding: 4px;
+                padding: 4px 16px 4px 16px;
             }
             .day-section {
                 position: absolute;
@@ -104,7 +104,7 @@
                         农历[[lunar.lunarMonthName]][[lunar.lunarDayName]]
                     </div>    
                     <div class="date-section">
-                        <paper-button noink on-click="openDatePicker">[[date]]</paper-button> 
+                        <paper-button noink raised on-click="openDatePicker">[[date]]</paper-button> 
                     </div>
                     <div class="day-section">
                         [[lunar.lunarDay]]
