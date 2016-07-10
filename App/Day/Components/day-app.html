@@ -7,7 +7,10 @@
             padding-right: 15px;
             padding-left: 15px;
             margin-right: auto;
-            margin-left: auto
+            margin-left: auto;
+
+            display: flex;
+            flex-wrap: wrap;
         }
 
         @media (min-width: 768px) {
@@ -27,14 +30,19 @@
                 width:1170px
             }
         }
-        weather-pane {
-            float: left;
+        .pane {
             padding-right: 24px;
-            padding-bottom: 24px;
+            padding-bottom: 32px;
+        }
+        weather-pane {
+            flex-grow: 1;
+            align-self: center;
         }
         calendar-pane {
-            float: left;
-            padding-bottom: 24px;
+            flex-grow: 1;
+        }
+        news-pane {
+            flex-grow: 2;
         }
     </style>
 
@@ -44,8 +52,9 @@
                 <paper-icon-button icon="home" on-click="goHome"></paper-icon-button>
             </paper-toolbar>
             <div class="paneContainer">
-                <weather-pane></weather-pane>
-                <calendar-pane></calendar-pane>
+                <weather-pane class="pane"></weather-pane>
+                <calendar-pane class="pane"></calendar-pane>
+                <news-pane class="pane"></news-pane>
             </div>
         </paper-header-panel>
     </template>

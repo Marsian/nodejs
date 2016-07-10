@@ -28,7 +28,7 @@ app.get('/Day', function( req, res ) {
 });
 
 // get location info
-app.post('/api/getCurrentLocation', function(req, res) {
+app.post('/Day/getCurrentLocation', function(req, res) {
     var latitude = req.body.latitude;
     var longitude = req.body.longitude;
 
@@ -58,7 +58,7 @@ app.post('/api/getCurrentLocation', function(req, res) {
 });
 
 // get weather from Yahoo
-app.post('/api/getWeather', function(req, res) {
+app.post('/Day/getWeather', function(req, res) {
     var location = req.body.location;
 
     var consumerKey = 'dj0yJmk9V1ZaWkxiSXF0SEZBJmQ9WVdrOU5EUkRNRzFuTXpRbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD04Ng--';
@@ -89,7 +89,7 @@ app.post('/api/getWeather', function(req, res) {
 });
 
 // get lunar calendar
-app.post('/api/getLunarCalendar', function(req, res) {
+app.post('/Day/getLunarCalendar', function(req, res) {
     var date = new Date();
     if (req.body.date) {
         var date = new Date(req.body.date);
@@ -111,4 +111,32 @@ app.post('/api/getLunarCalendar', function(req, res) {
     result.ji = huangli.ji;
 
     res.json(result);
+});
+
+// get News
+app.post('/Day/getNews', function(req, res) {
+
+    var nyTimesApiKey = process.env.NY_TIMES_API_KEY;
+    if (typeof nyTimesApiKey === "undefined") {
+        res.send({ err: "No NY-Times api key found." });
+        return;
+    }
+
+    var query = "https://api.nytimes.com/svc/topstories/v2/home.json?&api-key=" +
+                nyTimesApiKey;
+
+    request.get(query, function(err, data) {
+        if (err) {
+            res.status(500).send({ err: err });
+            return;
+        }
+
+        data = JSON.parse(data.body);
+        if (data.message) {
+            res.status(500).send({ err: data.message });
+            return;
+        }
+
+        res.json({ results: data.results });
+    });
 });

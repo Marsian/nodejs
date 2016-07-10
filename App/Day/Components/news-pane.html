@@ -1,0 +1,169 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="news-pane">
+    <template>
+        <style>
+            paper-card {
+                min-width: 450px;
+            }
+            .card-content {
+                min-height: 180px;
+            }
+            .news-header {
+                @apply(--paper-font-headline);
+                height: 50px;
+            }
+            .news-content {
+                column-count: 2;
+            }
+            @media (max-width: 768px) {
+                .news-content {
+                    column-count: 1;
+                }
+            }
+            .news-entry {
+                padding-bottom: 12px;
+                display: inline-block;
+            }
+            .news-title {
+                font-family: times new roman;
+                font-size: 18px;
+                cursor: pointer;
+            }
+            .news-title a {
+                color: #000;
+            }
+            .news-time {
+                color: #a81817;
+            }
+            .card-actions {
+                height: 50px;
+            }
+            .card-actions paper-button {
+                text-transform: none;
+            }
+            .ny-times-icon {
+                float: right;
+                margin-top: 6px;
+            }
+        </style>
+
+        <div style="display: flex;">
+            <paper-card>
+                <div class="card-content">
+                    <div class="news-header">News</div>
+
+                    <div class="news-loading" hidden$="[[newsReady]]">
+                        <paper-spinner active hidden$=[[newsNotFound]]></paper-spinner>
+                        <span>[[status]]</span>
+                    </div>
+
+                    <div class="news-content" hidden$="[[!newsReady]]">
+                        <div class="collapse-content">
+                            <template is="dom-repeat" items="{{news}}">
+                                <div class="news-entry">
+                                    <div class="news-title">
+                                        <a href="[[item.url]]" target="_blank">[[item.title]]</a>
+                                    </div>
+                                    <div class="news-time">
+                                        {{convertTime(item.created_date)}}
+                                    </div>
+                                    <div class="news-abstract">
+                                        <div>[[item.abstract]]</div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <paper-button raised on-click="showMoreNews" hidden$="[[!hasMoreNews]]">
+                        Show More
+                    </paper-button>
+                    <div class="ny-times-icon">
+                        <a href="http://developer.nytimes.com" target="_blank">
+                            <img src="http://static01.nytimes.com/packages/images/developer/logos/poweredby_nytimes_150a.png" width="150" height="30"/>
+                        </a>
+                    </div>
+                </div>
+            </paper-card>
+        </div>
+
+        <iron-ajax
+            id="getNews"
+            url="/Day/getNews"
+            method="POST"
+            content-type="application/json"
+            handle-as="json"
+            on-response="newsResponse"
+            debounce-duration="300"></iron-ajax>
+
+    </template>
+
+    <script>
+        Polymer({
+            is: "news-pane",
+
+            ready: function() {
+                var _this = this;
+                _this.status = "";
+                _this.newsReady = false;
+                _this.newsNotFound = false;
+                _this.hasMoreNews = false;
+
+                var _getNews = function () {
+                    this.hasMoreNews = false;
+
+                    var requestBody = {
+
+                    };
+
+                    _this.$.getNews.body = requestBody;
+                    _this.$.getNews.generateRequest();
+                }
+
+                var _initialize = function() {
+                    _this.status = "Getting news...";
+                    _getNews();
+                }
+                _initialize();
+            },
+
+            newsResponse: function(e, data) {
+                this.fullResults = data.response.results;
+                if (this.fullResults && this.fullResults.length >= 5) {
+                    this.news = this.fullResults.slice(0, 5);
+                    this.newsReady = true;
+
+                    if (this.fullResults.length > 5) {
+                        this.hasMoreNews = true;
+                    }
+                } else {
+                    this.newsNotFound = true;
+                }
+            },
+
+            showMoreNews: function () {
+                this.news = this.news.concat(this.fullResults.slice(5, 10));
+                this.hasMoreNews = false;
+            },
+
+            convertTime: function (originalDate) {
+                var date = new Date(originalDate);
+                var currentDate = new Date();
+
+                var dayDiff = Math.ceil((currentDate - date) / (1000 * 60 * 60 * 24));
+                if (dayDiff > 1) {
+                    return "";
+                } else {
+                    var minuteDiff = Math.ceil((currentDate - date) / (1000 * 60 * 60));
+                    if (minuteDiff >= 60) {
+                        return date.getHours() + ":" + date.getMinutes();
+                    } else {
+                        return minuteDiff + " minutes ago";
+                    }
+                }
+            }
+        });
+    </script>
+</dom-module>

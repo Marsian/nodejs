@@ -6,16 +6,16 @@
             paper-card {
                 width: 450px;
             }
-            .weather-header { 
-                @apply(--paper-font-headline); 
+            .card-content {
+                min-height: 180px;
+            }
+            .weather-header {
+                @apply(--paper-font-headline);
             }
             .weather-image {
                 position: absolute;
                 top: 8px;
                 right: 8px;
-            }
-            .card-content {
-                min-height: 180px;
             }
             .weather-loading {
                 margin-top: 32px;
@@ -109,7 +109,7 @@
                             <div class="weather-description">[[condition.text]]</div>
                             <div class="weather-temp">[[temp]]&deg;</div>
                         </div>
-                        
+
                         <paper-button toggles noink raised on-click="forecastToggle" class="show-forecast">Forecast</paper-button>
                         <iron-collapse id="forecastContent">
                             <div class="collapse-content">
@@ -141,7 +141,7 @@
 
         <iron-ajax
             id="getLocation"
-            url="/api/getCurrentLocation"
+            url="/Day/getCurrentLocation"
             method="POST"
             content-type="application/json"
             handle-as="json"
@@ -149,16 +149,9 @@
             debounce-duration="300"></iron-ajax>
         <iron-ajax
             id="getWeatherAuth"
-            url="/api/getWeather"
+            url="/Day/getWeather"
             method="POST"
             content-type="application/json"
-            handle-as="json"
-            on-response="weatherResponse"
-            debounce-duration="300"></iron-ajax>
-
-        <iron-ajax
-            id="getWeather"
-            method="GET"
             handle-as="json"
             on-response="weatherResponse"
             debounce-duration="300"></iron-ajax>
@@ -187,7 +180,7 @@
                         navigator.geolocation.getCurrentPosition(function (position) {
                             var latitude  = position.coords.latitude;
                             var longitude = position.coords.longitude;
-                            
+
                             _this.status = "Getting weather...";
                             _getWeather(latitude, longitude);
                         }, function () {
@@ -213,8 +206,6 @@
                 this.location = location;
                 var url = "https://query.yahooapis.com/v1/public/yql?q=select * from weather.forecast where woeid in (select woeid from geo.places(0) where text='" + location + "') and u='c'&format=json";
 
-                //this.$.getWeather.url = url;
-                //this.$.getWeather.generateRequest();
                 this.$.getWeatherAuth.body = { location: this.location };
                 this.$.getWeatherAuth.generateRequest();
             },
@@ -225,7 +216,7 @@
                     var weather = null;
                     if (query.count == 1)
                         weather = query.results.channel;
-                    else 
+                    else
                         weather = query.results.channel[0];
 
                     this.status = weather.description;
@@ -250,7 +241,7 @@
                 var _this = this;
                 if (!this.condition)
                     return;
-                
+
                 function _toCelsius(data) {
                     var temp = parseFloat(data);
                     return (Math.floor((temp - 32) / 1.8)).toString();
