@@ -1,7 +1,17 @@
 <link rel="import" href="/bower_components/polymer/polymer.html">
 
+<style is="custom-style">
+    :root #contentWrapper.iron-dropdown > .dropdown-content {
+        overflow: hidden;
+    }
+</style>
+
 <dom-module id="day-app">
     <style>
+        .display-option-menu paper-button {
+            text-transform: none;
+            color: #45ada8;
+        }
         .paneContainer {
             margin-top: 32px;
             padding-right: 15px;
@@ -50,11 +60,28 @@
         <paper-header-panel mode="standard">
             <paper-toolbar>
                 <paper-icon-button icon="home" on-click="goHome"></paper-icon-button>
+                <paper-menu-button>
+                    <paper-icon-button icon="dashboard" class="dropdown-trigger"></paper-icon-button>
+                    <paper-menu class="dropdown-content display-option-menu">
+                        <paper-item>
+                            <paper-radio-button checked="{{displayOptions.showWeather}}">Weather</paper-radio-button>
+                        </paper-item>
+                        <paper-item>
+                            <paper-radio-button checked="{{displayOptions.showCalendar}}">Calendar</paper-radio-button>
+                        </paper-item>
+                        <paper-item>
+                            <paper-radio-button checked="{{displayOptions.showNews}}">News</paper-radio-button>
+                        </paper-item>
+                        <paper-item>
+                            <paper-button on-click="resetDisplayOptions" class="error">Reset</paper-radio-button>
+                        </paper-item>
+                    </paper-menu>
+                </paper-menu-button>
             </paper-toolbar>
             <div class="paneContainer">
-                <weather-pane class="pane"></weather-pane>
-                <calendar-pane class="pane"></calendar-pane>
-                <news-pane class="pane"></news-pane>
+                <weather-pane class="pane" hidden="[[!displayOptions.showWeather]]"></weather-pane>
+                <calendar-pane class="pane" hidden="[[!displayOptions.showCalendar]]"></calendar-pane>
+                <news-pane class="pane" hidden="[[!displayOptions.showNews]]"></news-pane>
             </div>
         </paper-header-panel>
     </template>
@@ -62,9 +89,36 @@
     <script>
         Polymer({
             is: "day-app",
-
+            observers: [
+                'displayOptionsChanged(displayOptions.*)'
+            ],
             ready: function() {
-                this.message = "My first Polymer App!"
+                this.message = "My first Polymer App!";
+
+                var savedOptions = Cookies.get("DisplayOptions");
+                if (typeof savedOptions == "string" && savedOptions.length > 0) {
+                    this.displayOptions = JSON.parse(savedOptions);
+                } else {
+                    this.displayOptions = {
+                        showWeather: true,
+                        showCalendar: true,
+                        showNews: true
+                    };
+                }
+            },
+
+            displayOptionsChanged: function () {
+                Cookies.set("DisplayOptions", this.displayOptions, {
+                    expires: 30
+                });
+            },
+
+            resetDisplayOptions: function () {
+                this.displayOptions = {
+                    showWeather: true,
+                    showCalendar: true,
+                    showNews: true
+                };
             },
 
             goHome: function() {
