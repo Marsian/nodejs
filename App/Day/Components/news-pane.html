@@ -21,6 +21,11 @@
                     column-count: 1;
                 }
             }
+            .news-source {
+                position: absolute;
+                top: 4px;
+                right: 20px;
+            }
             .news-entry {
                 padding-bottom: 12px;
                 display: inline-block;
@@ -46,12 +51,26 @@
                 float: right;
                 margin-top: 6px;
             }
+            .guardians-icon {
+                float: right;
+            }
         </style>
+
+        <app-globals id="globals"></app-globals>
 
         <div style="display: flex;">
             <paper-card>
                 <div class="card-content">
                     <div class="news-header">News</div>
+
+                    <paper-dropdown-menu label="Source" class="news-source">
+                        <paper-listbox class="dropdown-content"
+                                       selected="{{source}}" attr-for-selected="value"
+                                       on-iron-select="newsSourceChanged" >
+                            <paper-item value="[[Sources.NYTimes]]">New York Times</paper-item>
+                            <paper-item value="[[Sources.Guardians]]">Guardians</paper-item>
+                        </paper-listbox>
+                    </paper-dropdown-menu>
 
                     <div class="news-loading" hidden$="[[newsReady]]">
                         <paper-spinner active hidden$=[[newsNotFound]]></paper-spinner>
@@ -80,9 +99,15 @@
                     <paper-button raised on-click="showMoreNews" hidden$="[[!hasMoreNews]]">
                         Show More
                     </paper-button>
-                    <div class="ny-times-icon">
+
+                    <div class="ny-times-icon" hidden$="[[hideSourceLogo(source, Sources.NYTimes)]]">
                         <a href="http://developer.nytimes.com" target="_blank">
                             <img src="http://static01.nytimes.com/packages/images/developer/logos/poweredby_nytimes_150a.png" width="150" height="30"/>
+                        </a>
+                    </div>
+                    <div class="guardians-icon" hidden$="[[hideSourceLogo(source, Sources.Guardians)]]">
+                        <a href="http://theguardian.com" target="_blank">
+                            <img src="https://static.guim.co.uk/sys-images/Guardian/Pix/pictures/2010/03/01/poweredbyguardianBLACK.png" />
                         </a>
                     </div>
                 </div>
@@ -103,30 +128,31 @@
     <script>
         Polymer({
             is: "news-pane",
+            observers: [
+                'newsSourceChanged(media)'
+            ],
 
             ready: function() {
-                var _this = this;
-                _this.status = "";
-                _this.newsReady = false;
-                _this.newsNotFound = false;
-                _this.hasMoreNews = false;
+                this.Sources = this.$.globals.Sources;
+                this.source = this.currentSource = this.Sources.NYTimes;
+                this.status = "";
+                this.newsReady = false;
+                this.newsNotFound = false;
+                this.hasMoreNews = false;
 
-                var _getNews = function () {
-                    this.hasMoreNews = false;
+                this.getNews();
+            },
 
-                    var requestBody = {
+            getNews: function () {
+                this.status = "Getting news...";
+                this.hasMoreNews = false;
 
-                    };
+                var requestBody = {
+                    source: this.currentSource
+                };
 
-                    _this.$.getNews.body = requestBody;
-                    _this.$.getNews.generateRequest();
-                }
-
-                var _initialize = function() {
-                    _this.status = "Getting news...";
-                    _getNews();
-                }
-                _initialize();
+                this.$.getNews.body = requestBody;
+                this.$.getNews.generateRequest();
             },
 
             newsResponse: function(e, data) {
@@ -140,6 +166,11 @@
                     }
                 } else {
                     this.newsNotFound = true;
+                    if (data.response.err) {
+                        this.status = data.response.err;
+                    } else {
+                        this.status = "News not found."
+                    }
                 }
             },
 
@@ -152,17 +183,39 @@
                 var date = new Date(originalDate);
                 var currentDate = new Date();
 
+                var _pad = function (val, len) {
+                    val = String(val);
+                    len = len || 2;
+                    while (val.length < len) val = "0" + val;
+                    return val;
+                };
+
                 var dayDiff = Math.ceil((currentDate - date) / (1000 * 60 * 60 * 24));
                 if (dayDiff > 1) {
                     return "";
                 } else {
-                    var minuteDiff = Math.ceil((currentDate - date) / (1000 * 60 * 60));
+                    var minuteDiff = Math.ceil((currentDate - date) / (1000 * 60 ));
                     if (minuteDiff >= 60) {
-                        return date.getHours() + ":" + date.getMinutes();
+                        return _pad(date.getHours()) + ":" + _pad(date.getMinutes());
                     } else {
                         return minuteDiff + " minutes ago";
                     }
                 }
+            },
+
+            newsSourceChanged: function() {
+                if (this.currentSource != this.source) {
+                    this.currentSource = this.source;
+                    this.newsReady = false;
+                    this.newsNotFound = false;
+                    this.hasMoreNews = false;
+
+                    this.getNews();
+                }
+            },
+
+            hideSourceLogo: function(source, target) {
+                return source != target;
             }
         });
     </script>

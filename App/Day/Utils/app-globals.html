@@ -1,0 +1,17 @@
+<polymer-element name="app-globals">
+    <script>
+        (function() {
+            var Sources = {
+                NYTimes: 0,
+                Guardians: 1
+            };
+
+            Polymer({
+                is: "app-globals",
+                ready: function() {
+                   this.Sources = Sources;
+                }
+            });
+        })();
+    </script>
+</polymer-element>

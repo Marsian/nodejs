@@ -6,6 +6,7 @@ var methodOverride = require('method-override'); // simulate DELETE and PUT (exp
 var request = require('request');
 var lunarCalendar = require('lunar-calendar');
 var OAuth = require('oauth');
+var news = require('./Services/news.js');
 
 var app = module.exports = express();
 
@@ -115,28 +116,17 @@ app.post('/Day/getLunarCalendar', function(req, res) {
 
 // get News
 app.post('/Day/getNews', function(req, res) {
-
-    var nyTimesApiKey = process.env.NY_TIMES_API_KEY;
-    if (typeof nyTimesApiKey === "undefined") {
-        res.send({ err: "No NY-Times api key found." });
-        return;
+    var source = news.Sources.NYTimes;
+    if (req.body.source) {
+        var source = req.body.source;
     }
 
-    var query = "https://api.nytimes.com/svc/topstories/v2/home.json?&api-key=" +
-                nyTimesApiKey;
-
-    request.get(query, function(err, data) {
-        if (err) {
-            res.status(500).send({ err: err });
-            return;
-        }
-
-        data = JSON.parse(data.body);
-        if (data.message) {
-            res.status(500).send({ err: data.message });
-            return;
-        }
-
-        res.json({ results: data.results });
-    });
+    try {
+        news.getNewsFromSource(source, function (result) {
+            res.json(result);
+        });
+    }
+    catch(e) {
+        res.status(500).send(e);
+    }
 });
