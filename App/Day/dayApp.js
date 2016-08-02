@@ -25,7 +25,14 @@ var cache = {
 // main route =================
 app.get('/Day', function( req, res ) {
     res.setHeader('Content-Type', 'text/html');
-    res.send(cache['index.html']);
+    var file = cache['index.html'].toString();
+
+    var mode = "release";
+    if (typeof process.env.OPENSHIFT_APP_NAME === "undefined") {
+        mode = "debug";
+    }
+    file = file.replace('<%mode%>', mode);
+    res.send(file);
 });
 
 // get location info
