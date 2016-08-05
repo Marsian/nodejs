@@ -14,8 +14,9 @@
             }
             .weather-image {
                 position: absolute;
-                top: 8px;
-                right: 8px;
+                top: 16px;
+                right: 16px;
+                font-size: 40px;
             }
             .weather-loading {
                 margin-top: 32px;
@@ -54,9 +55,9 @@
             .forecast-image {
                 position: absolute;
                 vertical-align: middle;
-                width: 32px;
-                height: 32px;
-                left: 184px
+                left: 184px;
+                font-size: 24px;
+                margin-top: 5px;
             }
             .forecast-temp {
                 position: absolute;
@@ -92,11 +93,13 @@
             }
         </style>
 
+        <app-globals id="globals"></app-globals>
+
         <div>
             <paper-card>
                 <div class="card-content">
                     <div class="weather-header">Weather</div>
-                    <iron-image class="weather-image" src="[[imageUrl]]"></iron-image>
+                    <i class="weather-image wi" class$="[[imageClass]]"></i>
 
                     <div class="weather-loading" hidden$="[[weatherReady]]">
                         <paper-spinner active hidden$=[[weatherNotFound]]></paper-spinner>
@@ -116,7 +119,7 @@
                                 <template is="dom-repeat" items="{{forecast}}">
                                     <div class="forecast-entry">
                                         <div class=forecast-day>[[item.day]]</div>
-                                        <iron-image id="image_{{index}}" class="forecast-image" sizing="contain" src="[[item.image]]"></iron-image>
+                                        <i id="image_{{index}}" class$="[[item.imageClass]]" ></i>
                                         <div class="forecast-temp">
                                             <div>[[item.low]]</div>
                                             <div>[[item.high]]</div>
@@ -164,10 +167,11 @@
 
             ready: function() {
                 var _this = this;
+                _this.WeatherCodes = this.$.globals.WeatherCodes;
                 _this.status = "";
                 _this.weatherReady = false;
                 _this.weatherNotFound = false;
-                _this.imageUrl = "";
+                _this.imageClass = "";
                 _this.temp = "";
                 _this.tempUnit = "C";
 
@@ -211,6 +215,7 @@
             },
 
             weatherResponse: function(e, data) {
+                var _this = this;
                 var query = data.response.query;
                 if (query.count > 0) {
                     var weather = null;
@@ -227,9 +232,9 @@
                     this.forecast.forEach(function(item) {
                         item.originHigh = item.high;
                         item.originLow = item.low;
-                        item.image = "http://l.yimg.com/a/i/us/we/52/" + item.code + ".gif";
+                        item.imageClass = "forecast-image wi " + "wi-" + _this.WeatherCodes["wi-yahoo-" + item.code];
                     });
-                    this.imageUrl = "http://l.yimg.com/a/i/us/we/52/" + this.condition.code + ".gif";
+                    this.imageClass = "weather-image wi " + "wi-" + this.WeatherCodes["wi-yahoo-" + this.condition.code];
                     this.weatherReady = true;
                 } else {
                     this.status = "No weather info";

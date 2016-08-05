@@ -16,9 +16,9 @@
     <link rel="stylesheet" type="text/css" href="Assets/Style/day.css"></link>
     <link rel="stylesheet" type="text/css" href="Assets/Script/bootstrap/css/bootstrap.min.css"></link>
     <link rel="stylesheet" type="text/css" href="Assets/Script/ionicons/css/ionicons.min.css"></link>
-    <link rel="import" href="Assets/Theme/everest.html">
-    <link rel="import" href="" id="Elements">
+    <link rel="stylesheet" type="text/css" href="Assets/Script/weather-icons/css/weather-icons.min.css"></link>
 
+    <link rel="import" href="" id="Elements">
     <script  type="text/javascript">
         // load element files dynamically according to app mode
         var appMode = "<%mode%>";
@@ -28,6 +28,9 @@
             document.getElementById('Elements').href = "App/Day/Elements/elements.html";
         }
     </script>
+
+    <!-- load the theme at last to take full effect -->
+    <link rel="import" href="Assets/Theme/everest.html">
 
     <style>
 
