@@ -24,6 +24,20 @@
                 line-height: 50px;
                 left: 50px;
                 right: 30px;
+                overflow: hidden;
+            }
+
+            #titleText {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                right: 0;
+                left: var(--title-offset, 0);
+                padding: 0px 8px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                transition: all var(--offset-duration, 1s) linear;
             }
 
             #left {
@@ -38,9 +52,11 @@
                 height: 50px;
                 width: 30px;
                 position: relative;
+                opacity: 0;
                 transition: opacity 0.2s linear;
             }
             #wrapper:hover #right {
+                opacity: 1;
             }
 
             #play,
@@ -62,19 +78,19 @@
                 opacity: 0.6;
                 cursor: pointer;
             }
-            #volume-0 {
+            #volume0 {
                 margin-right: 4px;
             }
-            #volume-1 {
+            #volume1 {
                 margin-right: 2px;
             }
 
-            #play-list {
+            #playList {
                 position: absolute;
                 bottom: 0px;
                 right: 2px;
             }
-            #play-list .music-item {
+            #playList .music-item {
                 cursor: pointer;
             }
             .play-list-icon {
@@ -137,39 +153,41 @@
             </div>
             <div id="middle" class="flex">
                 <!-- Title -->
-                <div id="title" title="" class="fit">{{ title }}</div>
+                <div id="title" title="" class="fit">
+                    <div id="titleText">{{ title }}</div>
+                </div>
                 <!-- Audio HTML5 element -->
                 <audio id="audio" src="{{ src }}"></audio>
             </div>
             <div id="right" class="self-end">
                 <!-- Volume -->
                 <div id="volume" title="">
-                    <iron-icon id="volume-0"
+                    <iron-icon id="volume0"
                                   class="volume-icon"
                                   icon="av:volume-mute"
                                   hidden$="[[hideVolumeIcon(volume, 0)]]"
                                   on-click="adjustVolume"></iron-icon>
 
-                    <iron-icon id="volume-1"
+                    <iron-icon id="volume1"
                                   class="volume-icon"
                                   icon="av:volume-down"
                                   hidden$="[[hideVolumeIcon(volume, 1)]]"
                                   on-click="adjustVolume"></iron-icon>
 
-                    <iron-icon id="volume-2"
+                    <iron-icon id="volume2"
                                   class="volume-icon"
                                   icon="av:volume-up"
                                   hidden$="[[hideVolumeIcon(volume, 2)]]"
                                   on-click="adjustVolume"></iron-icon>
                 </div>
-                <div id="play-list" title="" hidden$="[[!hasPlayList]]">
-                    <paper-menu-button horizontal-align="right" vertical-offset="28" style="padding: 0;">
+                <div id="playList" title="" hidden$="[[!hasPlayList]]">
+                    <paper-menu-button id="playListDropdown" horizontal-align="right" vertical-offset="28" style="padding: 0;">
                         <iron-icon icon="icons:view-list" class="dropdown-trigger play-list-icon"></iron-icon>
                         <paper-listbox class="dropdown-content"
                                        selected="{{title}}" attr-for-selected="value"
                                        on-iron-select="musicChange" >
                             <template is="dom-repeat" items="{{playList}}">
-                                <paper-item value="[[item.title]]" class="music-item" >[[item.title]]</paper-item>
+                                <paper-item value="[[item.title]]" class="music-item" on-tap="onClickMusic">[[item.title]]</paper-item>
                             </template>
                         </paper-listbox>
                     </paper-menu-button>
@@ -197,6 +215,10 @@
                 volume: {
                     type: Number,
                     value: 2
+                },
+                needScroll: {
+                    type: Boolean,
+                    value: false
                 }
             },
 
@@ -254,13 +276,59 @@
             musicChange: function (event) {
                 var player = this;
 
+                var _setMusic = function (music) {
+                    player.src = music.src;
+                    if (player.isPlaying)
+                        player.$.audio.play();
+
+
+                    function _offsetLoop(offset) {
+                        if (offset > 0 && player.needScroll) {
+                            var timeout = setTimeout(function() {
+                                if (!player.needScroll) return;
+
+                                player.customStyle['--offset-duration'] = "1s";
+                                player.customStyle['--title-offset'] = "-" + (offset + 8) + "px";
+                                player.updateStyles();
+                                setTimeout(function() {
+                                    player.customStyle['--title-offset'] = "0px";
+                                    player.updateStyles();
+                                    setTimeout(function() {
+                                        _offsetLoop(offset);
+                                    }, 1000);
+                                }, 3000);
+                            }, 3000);
+                        } else {
+                            player.customStyle['--title-offset'] = "0px";
+                            player.customStyle['--offset-duration'] = "0s";
+                            player.updateStyles();
+                        }
+                    }
+
+                    var titleWidth = player.$.titleText.offsetWidth;
+                    var titleTextWidth = player.$.titleText.scrollWidth;
+                    var offset = titleTextWidth - titleWidth;
+                    if (offset > 0) {
+                        player.needScroll = true;
+                        _offsetLoop(offset);
+                    } else {
+                        player.needScroll = false;
+                        _offsetLoop(0);
+                    }
+                };
+
                 for(var i in player.playList) {
                     if (player.playList[i].title == player.title) {
-                        player.src = player.playList[i].src;
-                        player.isPlaying = false;
+                        _setMusic(player.playList[i])
                         break;
                     }
                 }
+            },
+
+            onClickMusic: function (event) {
+                var player = this;
+
+                player.$.playListDropdown.close();
             }
         });
     </script>
