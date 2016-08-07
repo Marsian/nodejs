@@ -1,0 +1,267 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<dom-module id="music-player">
+    <template>
+        <style>
+
+            :host {
+                width: 100%;
+            }
+
+            #wrapper {
+                position: relative;
+                opacity: 0.8;
+                color: #333532;
+                border-radius: 3px;
+                background-color: #fff;
+                box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+            }
+
+            #title {
+                position: absolute;
+                font-size: 15px;
+                text-align: center;
+                line-height: 50px;
+                left: 50px;
+                right: 30px;
+            }
+
+            #left {
+                height: 50px;
+                width: 50px;
+                position: relative;
+                background-color: #9de0ad;
+                border-radius: 3px 0 0 3px;
+            }
+
+            #right {
+                height: 50px;
+                width: 30px;
+                position: relative;
+                transition: opacity 0.2s linear;
+            }
+            #wrapper:hover #right {
+            }
+
+            #play,
+            #pause {
+               width: 44px;
+               height: 44px;
+               opacity: 0.8;
+            }
+
+            #volume {
+                z-index: 2;
+                position: absolute;
+                top: 2px;
+                right: 2px;
+            }
+            .volume-icon {
+                width: 24px;
+                height: 24px;
+                opacity: 0.6;
+                cursor: pointer;
+            }
+            #volume-0 {
+                margin-right: 4px;
+            }
+            #volume-1 {
+                margin-right: 2px;
+            }
+
+            #play-list {
+                position: absolute;
+                bottom: 0px;
+                right: 2px;
+            }
+            #play-list .music-item {
+                cursor: pointer;
+            }
+            .play-list-icon {
+                width: 24px;
+                height: 24px;
+                opacity: 0.6;
+                cursor: pointer;
+            }
+
+            .fit {
+                position: absolute;
+                margin: auto;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+            }
+            /* Helpers */
+
+            .layout-horizontal {
+                display: flex;
+                -ms-flex-direction: row;
+                -webkit-flex-direction: row;
+                flex-direction: row;
+            }
+
+            .flex {
+                -ms-flex: 1;
+                -webkit-flex: 1;
+                flex: 1;
+            }
+
+            .self-start {
+                -ms-align-self: flex-start;
+                -webkit-align-self: flex-start;
+                align-self: flex-start;
+            }
+
+            .self-end {
+                -ms-align-self: flex-end;
+                -webkit-align-self: flex-end;
+                align-self: flex-end;
+            }
+        </style>
+
+        <div id="wrapper" class="layout-horizontal">
+            <div id="left" class="self-start">
+                <!-- Icons -->
+                <paper-icon-button id="play"
+                                      class="fit"
+                                      icon="av:play-circle-outline"
+                                      hidden$="{{ isPlaying }}"
+                                      on-click="playPause"></paper-icon-button>
+
+                <paper-icon-button id="pause"
+                                      class="fit"
+                                      icon="av:pause-circle-outline"
+                                      hidden$="{{ !isPlaying }}"
+                                      on-click="playPause"></paper-icon-button>
+            </div>
+            <div id="middle" class="flex">
+                <!-- Title -->
+                <div id="title" title="" class="fit">{{ title }}</div>
+                <!-- Audio HTML5 element -->
+                <audio id="audio" src="{{ src }}"></audio>
+            </div>
+            <div id="right" class="self-end">
+                <!-- Volume -->
+                <div id="volume" title="">
+                    <iron-icon id="volume-0"
+                                  class="volume-icon"
+                                  icon="av:volume-mute"
+                                  hidden$="[[hideVolumeIcon(volume, 0)]]"
+                                  on-click="adjustVolume"></iron-icon>
+
+                    <iron-icon id="volume-1"
+                                  class="volume-icon"
+                                  icon="av:volume-down"
+                                  hidden$="[[hideVolumeIcon(volume, 1)]]"
+                                  on-click="adjustVolume"></iron-icon>
+
+                    <iron-icon id="volume-2"
+                                  class="volume-icon"
+                                  icon="av:volume-up"
+                                  hidden$="[[hideVolumeIcon(volume, 2)]]"
+                                  on-click="adjustVolume"></iron-icon>
+                </div>
+                <div id="play-list" title="" hidden$="[[!hasPlayList]]">
+                    <paper-menu-button horizontal-align="right" vertical-offset="28" style="padding: 0;">
+                        <iron-icon icon="icons:view-list" class="dropdown-trigger play-list-icon"></iron-icon>
+                        <paper-listbox class="dropdown-content"
+                                       selected="{{title}}" attr-for-selected="value"
+                                       on-iron-select="musicChange" >
+                            <template is="dom-repeat" items="{{playList}}">
+                                <paper-item value="[[item.title]]" class="music-item" >[[item.title]]</paper-item>
+                            </template>
+                        </paper-listbox>
+                    </paper-menu-button>
+                </div>
+            </div>
+        </div>
+
+    </template>
+
+    <script>
+        Polymer({
+            is: "music-player",
+            properties: {
+                title: String,
+                src: String,
+                playList: Object,
+                hasPlayList: {
+                    trye: Boolean,
+                    value: false
+                },
+                isPlaying: {
+                   type: Boolean,
+                   value: false
+                },
+                volume: {
+                    type: Number,
+                    value: 2
+                }
+            },
+
+            ready: function() {
+                var player = this;
+
+                if (player.playList && player.playList.length > 0) {
+                    player.hasPlayList = true;
+                    player.title = player.playList[0].title;
+                    player.src = player.playList[0].src;
+                }
+            },
+
+            playPause: function(e) {
+                e.preventDefault();
+
+                var player = this;
+
+                if ( player.$.audio.paused ) {
+                    player.$.audio.play();
+                    player.isPlaying = true;
+                    if (player.volume == 0) {
+                        player.volume = 2;
+                        player.$.audio.volume = 1;
+                    }
+                } else {
+                    player.$.audio.pause();
+                    player.isPlaying = false;
+                }
+            },
+
+            adjustVolume: function () {
+                var player = this;
+
+                this.volume = (this.volume + 3 - 1) % 3;
+                switch(this.volume) {
+                    case 0:
+                        player.$.audio.volume = 0;
+                        break;
+                    case 1:
+                        player.$.audio.volume = 0.5;
+                        break;
+                    case 2:
+                        player.$.audio.volume = 1;
+                        break;
+                    default:
+                        player.$.audio.volume = 1;
+                }
+            },
+
+            hideVolumeIcon: function (volume, currentVolume) {
+                return volume != currentVolume;
+            },
+
+            musicChange: function (event) {
+                var player = this;
+
+                for(var i in player.playList) {
+                    if (player.playList[i].title == player.title) {
+                        player.src = player.playList[i].src;
+                        player.isPlaying = false;
+                        break;
+                    }
+                }
+            }
+        });
+    </script>
+</dom-module>

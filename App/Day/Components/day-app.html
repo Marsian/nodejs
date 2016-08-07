@@ -8,6 +8,9 @@
 
 <dom-module id="day-app">
     <style>
+        paper-toolbar {
+            z-index: 100;
+        }
         .display-option-menu paper-button {
             text-transform: none;
             color: #45ada8;
@@ -44,6 +47,9 @@
             padding-right: 24px;
             padding-bottom: 32px;
         }
+        music-player {
+            width: 250px;
+        }
         weather-pane {
             flex-grow: 1;
             align-self: center;
@@ -77,6 +83,8 @@
                         </paper-item>
                     </paper-menu>
                 </paper-menu-button>
+                <span class="title"></span>
+                <music-player title="Rain" src="/cache/rain.mp3" play-list="{{playList}}"></music-player>
             </paper-toolbar>
             <div class="paneContainer">
                 <weather-pane class="pane" hidden="[[!displayOptions.showWeather]]"></weather-pane>
@@ -89,6 +97,20 @@
     <script>
         Polymer({
             is: "day-app",
+            properties: {
+                playList: {
+                    type: Object,
+                    notify: true,
+                    value: function () {
+                        return [
+                            { title: "Original Rain Track", src: "/cache/rain.mp3" },
+                            { title: "Rain on Street", src: "/cache/rain-street.mp3" },
+                            { title: "Rain with Traffic", src: "/cache/rain-traffic.mp3" },
+                            { title: "Rain by Window", src: "/cache/rain-window.mp3" },
+                        ]
+                    }
+                }
+            },
             observers: [
                 'displayOptionsChanged(displayOptions.*)'
             ],

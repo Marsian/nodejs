@@ -125,13 +125,13 @@ var MainApp = function() {
             self.dbHost = "127.0.0.1";
             self.dbPort = "27017";
             self.dbUrl = 'mongodb://' + self.dbHost + ':' + self.dbPort + "/nodejs";
-        } else { 
+        } else {
             self.dbUrl += "nodejs";
         }
 
         mongoose.connect(self.dbUrl);
 
-        var initialUserList = [ 
+        var initialUserList = [
               { name: 'boy', pwd: 'a' },
               { name: 'girl', pwd: 'b' },
               { name: 'admin', pwd: 'admin' }
@@ -145,7 +145,7 @@ var MainApp = function() {
                 // Add user if it does not exist
                 if (!ret.length) {
                     hashUser(user.name, user.pwd, function(err, name, salt, hash){
-                        if (err) 
+                        if (err)
                             throw err;
                         // create a user in the db
                         User.create({
@@ -171,7 +171,7 @@ var MainApp = function() {
      */
      self.initializeSession = function() {
         self.secret = process.env.OPENSHIFT_SECRET_TOKEN;
-        if (typeof self.secret === "undefined") 
+        if (typeof self.secret === "undefined")
             self.secret = 'shhhh, very secret';
         self.app.use(session({
             resave: false, // don't save session if unmodified
@@ -207,6 +207,7 @@ var MainApp = function() {
         self.app.use("/node_modules", express.static(__dirname + "/node_modules"));
         self.app.use("/bower_components", express.static(__dirname + "/bower_components"));
         self.app.use("/App", express.static(__dirname + "/App"));
+        self.app.use("/cache", express.static(__dirname + "/cache"));
 
         // Applications
         self.app.use(todo);
@@ -250,4 +251,3 @@ var MainApp = function() {
 var zapp = new MainApp();
 zapp.initialize();
 zapp.start();
-

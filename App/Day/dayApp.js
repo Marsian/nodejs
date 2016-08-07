@@ -6,6 +6,7 @@ var methodOverride = require('method-override'); // simulate DELETE and PUT (exp
 var request = require('request');
 var lunarCalendar = require('lunar-calendar');
 var OAuth = require('oauth');
+var AWS = require('aws-sdk');
 var news = require('./Services/news.js');
 
 var app = module.exports = express();
@@ -21,6 +22,42 @@ var cache = {
     'index.html': fs.readFileSync('App/Day/index.html'),
     'huangli': JSON.parse(fs.readFileSync('Assets/Data/huangli.json'))
 };
+
+// media file cache
+try { // test file existence
+    fs.statSync("./cache");
+    console.log("Media file cache exists.");
+} catch(e) {
+    var bucket = "yanxi-media-files";
+    var s3bucket = new AWS.S3({params: { Bucket: bucket }});
+    var listParams = { Prefix: "rain/rain" };
+    s3bucket.listObjectsV2(listParams, function (err, data) {
+        if (data && data.Contents) {
+            var fileKeys = data.Contents.map(function(content) {
+                return content.Key;
+            });
+            fileKeys.forEach(function(key) {
+                var fileName = key.split('/')[1];
+                if(fileName) {
+                    var getParams = { Key: key };
+                    s3bucket.getObject(getParams, function(err, data) {
+                        if (data && data.Body) {
+                            fs.mkdir('./cache', function(err) {
+                                fs.appendFile("./cache/" + fileName, data.Body, function(err) {
+                                    if (err) {
+                                        console.log(err);
+                                        return;
+                                    }
+                                    console.log("Media file " + fileName + " cached.");
+                                });
+                            })
+                        }
+                    });
+                }
+            })
+        }
+    })
+}
 
 // main route =================
 app.get('/Day', function( req, res ) {

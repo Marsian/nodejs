@@ -39,7 +39,7 @@
     "method-override": "~2.1.2",
     "multer": "~1.0.5",
     "lwip": "~0.0.8",
-    "aws-sdk": "~2.2.8",
+    "aws-sdk": "~2.4.13",
     "node-uuid": "~1.4.3",
     "archiver": "~0.15.1",
     "exif": "~0.4.0",
