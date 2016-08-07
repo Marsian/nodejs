@@ -281,40 +281,7 @@
                     if (player.isPlaying)
                         player.$.audio.play();
 
-
-                    function _offsetLoop(offset) {
-                        if (offset > 0 && player.needScroll) {
-                            var timeout = setTimeout(function() {
-                                if (!player.needScroll) return;
-
-                                player.customStyle['--offset-duration'] = "1s";
-                                player.customStyle['--title-offset'] = "-" + (offset + 8) + "px";
-                                player.updateStyles();
-                                setTimeout(function() {
-                                    player.customStyle['--title-offset'] = "0px";
-                                    player.updateStyles();
-                                    setTimeout(function() {
-                                        _offsetLoop(offset);
-                                    }, 1000);
-                                }, 3000);
-                            }, 3000);
-                        } else {
-                            player.customStyle['--title-offset'] = "0px";
-                            player.customStyle['--offset-duration'] = "0s";
-                            player.updateStyles();
-                        }
-                    }
-
-                    var titleWidth = player.$.titleText.offsetWidth;
-                    var titleTextWidth = player.$.titleText.scrollWidth;
-                    var offset = titleTextWidth - titleWidth;
-                    if (offset > 0) {
-                        player.needScroll = true;
-                        _offsetLoop(offset);
-                    } else {
-                        player.needScroll = false;
-                        _offsetLoop(0);
-                    }
+                    player.scrollTitleHelper();
                 };
 
                 for(var i in player.playList) {
@@ -329,6 +296,44 @@
                 var player = this;
 
                 player.$.playListDropdown.close();
+            },
+
+            scrollTitleHelper: function() {
+                var player = this;
+
+                function _offsetLoop(offset) {
+                    if (offset > 0 && player.needScroll) {
+                        var timeout = setTimeout(function() {
+                            if (!player.needScroll) return;
+
+                            player.customStyle['--offset-duration'] = "1s";
+                            player.customStyle['--title-offset'] = "-" + (offset + 8) + "px";
+                            player.updateStyles();
+                            setTimeout(function() {
+                                player.customStyle['--title-offset'] = "0px";
+                                player.updateStyles();
+                                setTimeout(function() {
+                                    _offsetLoop(offset);
+                                }, 1000);
+                            }, 3000);
+                        }, 3000);
+                    } else {
+                        player.customStyle['--title-offset'] = "0px";
+                        player.customStyle['--offset-duration'] = "0s";
+                        player.updateStyles();
+                    }
+                }
+
+                var titleWidth = player.$.titleText.offsetWidth;
+                var titleTextWidth = player.$.titleText.scrollWidth;
+                var offset = titleTextWidth - titleWidth;
+                if (offset > 0) {
+                    player.needScroll = true;
+                    _offsetLoop(offset);
+                } else {
+                    player.needScroll = false;
+                    _offsetLoop(0);
+                }
             }
         });
     </script>

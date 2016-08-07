@@ -11,11 +11,11 @@
         paper-toolbar {
             z-index: 100;
         }
-        .display-option-menu paper-button {
+        #displayOptionMenu paper-button {
             text-transform: none;
             color: #45ada8;
         }
-        .paneContainer {
+        #paneContainer {
             margin-top: 32px;
             padding-right: 15px;
             padding-left: 15px;
@@ -25,21 +25,56 @@
             display: flex;
             flex-wrap: wrap;
         }
+        #footer {
+            height: 40px;
+            width: 100%;
+            text-align: center;
+            bottom: 0;
+            font-size: 16px;
+            color: #555;
+            opacity: 0.8;
+        }
+        #footer a {
+            color: #555;
+            border-bottom: #444 1px dotted;
+            margin-left: 5px;
+            text-decoration: none;
+        }
+        #footer a:hover {
+            color: #333;
+        }
+
+        #creditDialog {
+            width: 540px;
+            opacity: 0.9;
+        }
+        #creditDialog p {
+            font-size: 16px;
+            margin-top: 4px;
+        }
+        #creditDialog a {
+            color: #555;
+            border-bottom: #444 1px dotted;
+            text-decoration: none;
+        }
+        #creditDialog a:hover {
+            color: #333;
+        }
 
         @media (min-width: 768px) {
-            .paneContainer {
+            #paneContainer {
                 width:750px
             }
         }
 
         @media (min-width: 992px) {
-            .paneContainer {
+            #paneContainer {
                 width:970px
             }
         }
 
         @media (min-width: 1200px) {
-            .paneContainer {
+            #paneContainer {
                 width:1170px
             }
         }
@@ -68,7 +103,7 @@
                 <paper-icon-button icon="home" on-click="goHome"></paper-icon-button>
                 <paper-menu-button>
                     <paper-icon-button icon="dashboard" class="dropdown-trigger"></paper-icon-button>
-                    <paper-menu class="dropdown-content display-option-menu">
+                    <paper-menu id="displayOptionMenu" class="dropdown-content">
                         <paper-item>
                             <paper-radio-button checked="{{displayOptions.showWeather}}">Weather</paper-radio-button>
                         </paper-item>
@@ -86,12 +121,36 @@
                 <span class="title"></span>
                 <music-player title="Rain" src="/cache/rain.mp3" play-list="{{playList}}"></music-player>
             </paper-toolbar>
-            <div class="paneContainer">
+            <div id="paneContainer">
                 <weather-pane class="pane" hidden="[[!displayOptions.showWeather]]"></weather-pane>
                 <calendar-pane class="pane" hidden="[[!displayOptions.showCalendar]]"></calendar-pane>
                 <news-pane class="pane" hidden="[[!displayOptions.showNews]]"></news-pane>
             </div>
+            <div id="footer">
+                <p>© 2016 marswang.com - <a href="javascript:void(0)" onclick="creditDialog.open();">Credits</a></p>
+            </div>
         </paper-header-panel>
+
+        <paper-dialog id="creditDialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+            <h1>Credits</h1>
+            <h3>Hosting services</h3>
+            <p>Web hosting provided by
+                <a href="http://www.openshift.com" target="_blank">OpenShift</a>,
+                audio files hosting by
+                <a href="https://aws.amazon.com/s3" target="_blank">AWS S3</a>.
+            </p>
+
+            <h3>Rain Files</h3>
+            <p>The rain audio files originated from
+                <a href="http://rainfor.me" target="_blank">rainfor.me</a>,
+                <a href="http://99sounds.org/" target="_blank">99SOUNDS</a>.
+            </p>
+            <p>Audio under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative Commons License</a>.</p>
+            <p>Audio edited with <a href="http://www.nch.com.au/wavepad/" target="_blank">WavePad</a>.</p>
+
+            <h3>Lunar Calendar</h3>
+            <p>Design inspired by <a href="https://www.behance.net/gallery/30540167/" target="_blank">单向历</a>.</p>
+        </paper-dialog>
     </template>
 
     <script>
