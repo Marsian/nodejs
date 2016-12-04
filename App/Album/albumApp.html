@@ -16,10 +16,12 @@
     <link rel="stylesheet" type="text/css" href="Assets/Script/ionicons/css/ionicons.min.css"></link>
 
     <style>
-
+        [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+            display: none !important;
+        }
     </style>
 </head>
-<body ng-controller="albumAppController"  ng-class="{ 'container-hide': dialogOpened() }" 
+<body ng-controller="albumAppController"  ng-class="{ 'container-hide': dialogOpened() }"
       nv-file-drop uploader="mainUploader" style="height: 100%; overflow: hidden;">
     <!-- Header bar -->
     <nav ng-class="{ 'more-indicator': scrollMode }" class="navbar navbar-default album-header">
@@ -35,11 +37,11 @@
                 <a class="navbar-brand" href="/" data-toggle="tooltip" data-placement="bottom" title="Home"><i class="icon ion-home icon22" ></i></a>
             </div>
             <div class="collapse navbar-collapse" ng-model="smallWindow" id="bs-navbar-collapse" ng-cloak>
-                <ul class="nav navbar-nav"> 
+                <ul class="nav navbar-nav">
                     <li><a href="/Todo">Todo</a></li>
                     <li><a href="/Album" style="font-weight: 600; color: #337ab7;">Album</a></li>
                 </ul>
-                <ul class="nav navbar-nav navbar-right"> 
+                <ul class="nav navbar-nav navbar-right">
                     <!-- View toggle -->
                     <li ng-show="showView == 'default'" class="action-button" ng-cloak>
                         <a href="#" ng-click="toggleView()" data-toggle="tooltip" data-placement="bottom" title="Timeline View"><i class="icon ion-navicon icon24"></i></a>
@@ -69,8 +71,8 @@
         </div>
     </nav>
 
-    <nav ng-class="{ 'animate-hide': !selectMode, 'more-indicator': scrollMode }" 
-         class="navbar navbar-default album-header select-header" ng-cloak> 
+    <nav ng-class="{ 'animate-hide': !selectMode, 'more-indicator': scrollMode }"
+         class="navbar navbar-default album-header select-header" ng-cloak>
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -86,7 +88,7 @@
                 </div>
             </div>
             <div class="collapse navbar-collapse" ng-model="smallWindow" id="select-navbar-collapse" ng-cloak>
-                <ul class="nav navbar-nav navbar-right"> 
+                <ul class="nav navbar-nav navbar-right">
                     <li class="select-button" ng-cloak>
                         <a href="#" ng-click="downloadPhotos()" data-toggle="tooltip" data-placement="bottom" title="Download"><i class="icon ion-archive icon22"></i></a>
                     </li>
@@ -97,30 +99,30 @@
             </div>
         </div>
     </nav>
-    <div class="main-container" nv-file-over uploader="mainUploader">
+    <div class="main-container" nv-file-over uploader="mainUploader" ng-cloak>
         <div class="container">
             <div class="default-pane" ng-if="showView == 'default'">
-                <div ng-repeat="item in mainUploader.queue" ng-show="!item.isSuccess" 
+                <div ng-repeat="item in mainUploader.queue" ng-show="!item.isSuccess"
                      class="panel panel-default photo-upload-canvas pull-left">
                     <div ng-upload-preview item="item"></div>
                 </div>
-                <div ng-repeat="photo in photoData" class="panel panel-default photo-canvas pull-left" 
+                <div ng-repeat="photo in photoData" class="panel panel-default photo-canvas pull-left"
                      ng-context-menu="{{photo._id}}" >
-                    <div ng-preview="{ id: photo._id, height: 200 }" ng-click="showDetailDialog(photo)" 
+                    <div ng-preview="{ id: photo._id, height: 200 }" ng-click="showDetailDialog(photo)"
                          ng-mouseenter="hoverToggle(photo)" ng-mouseleave="hoverToggle(photo)"
                          class="photo-canvas-image"></div>
                     <!--Hover display stuff-->
-                    <div ng-show="loggedIn && (photo.showSelector || photo.selected)" 
+                    <div ng-show="loggedIn && (photo.showSelector || photo.selected)"
                          class="photo-selector-container" ng-cloak
                          ng-mouseenter="photo.showSelector = true" ng-mouseleave="photo.showSelector = false"
                          ng-class="{ 'selected': photo.selected }">
-                        <i class="icon ion-checkmark"></i>    
+                        <i class="icon ion-checkmark"></i>
                         <input type="checkbox" name="select" ng-model="photo.selected" ng-change="selectCheck(photo)">
                     </div>
                     <div ng-show="photo.showDate" class="photo-date-container" ng-cloak
                          ng-mouseenter="photo.showDate = true" ng-mouseleave="photo.showDate = false">
                         <div class='photo-date-backlay'>
-                            {{getPreviewDate(photo.date)}} 
+                            {{getPreviewDate(photo.date)}}
                         </div>
                     </div>
                 </div>
@@ -133,24 +135,24 @@
                         {{time.title}}
                     </div>
                     <div class="timeline-content">
-                        <div ng-repeat="photo in photoData | filter:timelineFilter(time)" class="panel panel-default photo-canvas pull-left" 
+                        <div ng-repeat="photo in photoData | filter:timelineFilter(time)" class="panel panel-default photo-canvas pull-left"
                              ng-context-menu="{{photo._id}}" >
-                            <div ng-preview="{ id: photo._id, height: 200 }" ng-click="showDetailDialog(photo)" 
+                            <div ng-preview="{ id: photo._id, height: 200 }" ng-click="showDetailDialog(photo)"
                                  ng-mouseenter="hoverToggle(photo)" ng-mouseleave="hoverToggle(photo)"
                                  class="photo-canvas-image"></div>
                             <!--Hover display stuff-->
-                            <div ng-show="loggedIn && (photo.showSelector || photo.selected)" 
+                            <div ng-show="loggedIn && (photo.showSelector || photo.selected)"
                                  class="photo-selector-container" ng-cloak
                                  ng-mouseenter="photo.showSelector = true" ng-mouseleave="photo.showSelector = false"
                                  ng-class="{ 'selected': photo.selected }">
-                                <i class="icon ion-checkmark"></i>    
+                                <i class="icon ion-checkmark"></i>
                                 <input type="checkbox" name="select" ng-model="photo.selected" ng-change="selectCheck(photo)">
                             </div>
 
                             <div ng-show="photo.showDate" class="photo-date-container" ng-cloak
                                  ng-mouseenter="photo.showDate = true" ng-mouseleave="photo.showDate = false">
                                 <div class='photo-date-backlay'>
-                                    {{getPreviewDate(photo.date)}} 
+                                    {{getPreviewDate(photo.date)}}
                                 </div>
                             </div>
                         </div>
@@ -167,7 +169,7 @@
             </div>
         </div>
     </div>
-    
+
     <iframe id="downloadIFrame" src="javascript:false" style="height: 1px; width: 1px; visibility: hidden; position: absolute;"></iframe>
 
     <!--Placed at the end of the document so the pages load faster-->
@@ -191,13 +193,12 @@
     <script>
         angular.bootstrap( document, ['albumApp'] );
     </script>
-    
+
     <!-- Initialize tooltip-->
     <script>
         $(document).ready(function(){
-            $('[data-toggle="tooltip"]').tooltip();   
+            $('[data-toggle="tooltip"]').tooltip();
         });
     </script>
 </body>
 </html>
-
