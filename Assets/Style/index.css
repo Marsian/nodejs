@@ -20,6 +20,9 @@ body {
 .icon36 {
     font-size: 36px;
 }
+.icon40 {
+    font-size: 40px;
+}
 .modal-dialog {
     position: static !important;
 }
@@ -178,12 +181,12 @@ body {
     bottom: 45px;
     left: 50%;
     margin-left: -16px;
-    width: 34px;
-    height: 34px;
+    width: 42px;
+    height: 42px;
     font-size: 34px;
     text-align: center;
     text-decoration: none;
-    color: rgba(255,255,255,0.7);
+    color: rgba(255,255,255,0.8);
     -webkit-animation: bounce 4s 2s infinite;
     animation: bounce 4s 2s infinite;
     transition: color 0.3s ease;
@@ -722,8 +725,11 @@ body {
 
 /* Home Page */
 .home-page-container {
-    padding: 30px;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    padding: 15px;
     border-radius: 6px;
+}
+#homepageTitle {
+    text-align: center;
+    color: #4679bd;
+    margin-bottom: 20px;
 }
